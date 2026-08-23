@@ -1,6 +1,6 @@
 # Learn, Vibe, Build — first-class facilitator outline
 
-Recommended shape for the first meeting: **Wednesday, August 26, 5:05–7:35 PM, ATLAS 104** — 150 minutes, about 21 students. The deck is intentionally a visual spine, not a teleprompter. Speaker notes are built into every slide: press `N` while presenting.
+Recommended shape for the first meeting: **Monday, August 24, 5:05–7:35 PM, Roser ATLAS Center 104** — 150 minutes, about 21 students. The deck is intentionally a visual spine, not a teleprompter. Speaker notes are built into every slide: press `N` while presenting.
 
 ## The recommendation in one sentence
 
@@ -87,12 +87,12 @@ This still makes sharing and presence consequential while giving students a visi
 - Instead of promising a passing grade for an “I cannot do this” submission, say: “If life interrupts the work, communicate honestly. We will make a recovery plan. Silence is harder to work with than an unfinished attempt.”
 - Instead of “easy grader,” say: “I care about engagement, attempts, communication, and growth—not polish for its own sake.”
 
-## Before Wednesday
+## Before Monday
 
 **Decide and test**
 
 - Verify the exact CU entitlement for ChatGPT/Codex with a real colorado.edu login before describing it as free to every student. Do not discover this live.
-- Review and resolve every `[CONFIRM]` item in the syllabus draft; publish the Canvas shell with the syllabus and the week-one assignment (due Tuesday, September 1, 9 PM).
+- Review and resolve every `[CONFIRM]` item in the syllabus draft; publish the Canvas shell with the syllabus and the week-one assignment (due Sunday, August 30, 9 PM).
 - Decide whether the first shared artifact is saved in Canvas, the class studio, or simply shown and revisited next week.
 - Add the intention-baseline due date to slide 20.
 - Rehearse your live demo once, including a failure you recover from. The stuck moment is the lesson.
