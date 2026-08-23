@@ -1,6 +1,6 @@
 # Learn, Vibe, Build — first-class facilitator outline
 
-Recommended shape for a 150-minute first meeting with about 21 students. The deck is intentionally a visual spine, not a teleprompter. Speaker notes are built into every slide: press `N` while presenting.
+Recommended shape for the first meeting: **Wednesday, August 26, 5:05–7:35 PM, ATLAS 104** — 150 minutes, about 21 students. The deck is intentionally a visual spine, not a teleprompter. Speaker notes are built into every slide: press `N` while presenting.
 
 ## The recommendation in one sentence
 
@@ -87,14 +87,30 @@ This still makes sharing and presence consequential while giving students a visi
 - Instead of promising a passing grade for an “I cannot do this” submission, say: “If life interrupts the work, communicate honestly. We will make a recovery plan. Silence is harder to work with than an unfinished attempt.”
 - Instead of “easy grader,” say: “I care about engagement, attempts, communication, and growth—not polish for its own sake.”
 
-## Before presenting
+## Before Wednesday
 
-- Replace or confirm the official course title, meeting date, room, and submission destination.
-- Verify the exact CU entitlement for ChatGPT/Codex before describing it as free to every student.
+**Decide and test**
+
+- Verify the exact CU entitlement for ChatGPT/Codex with a real colorado.edu login before describing it as free to every student. Do not discover this live.
+- Review and resolve every `[CONFIRM]` item in the syllabus draft; publish the Canvas shell with the syllabus and the week-one assignment (due Tuesday, September 1, 9 PM).
 - Decide whether the first shared artifact is saved in Canvas, the class studio, or simply shown and revisited next week.
 - Add the intention-baseline due date to slide 20.
-- Review and resolve every `[CONFIRM]` item in the syllabus draft; move the final schedule and grading structure into Canvas.
+- Rehearse your live demo once, including a failure you recover from. The stuck moment is the lesson.
+
+**Room and AV (ATLAS 104)**
+
+- Visit the room if possible: projector input, your adapter, a backup adapter.
+- Power: 2.5 hours drains laptops. Two power strips.
+- Test CU wifi from your machine; know the eduroam/guest onboarding story.
+- Working whiteboard markers — the "what people want to make" board is real content for week 2.
+- Confirm whether the session is recorded, and say so out loud if it is.
 - Test the deck offline in the actual classroom browser and display resolution.
+
+**Roster and admin**
+
+- Pull the Buff Portal roster and note majors; "all majors, no prereqs" means a wide spread, and pairs should cross it.
+- Print ~25 one-page handouts: the weekly rhythm, grading breakdown, submission link, your email, office hours.
+- Name office hours and a channel for between-class questions.
 
 ## Deck controls
 

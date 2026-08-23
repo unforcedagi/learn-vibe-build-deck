@@ -3,16 +3,17 @@
 **ATLS 4519 · Advanced Special Topics**  
 **Fall 2026 · University of Colorado Boulder**
 
-> **Working draft for instructor review.** Before publishing, replace every `[CONFIRM]` item, verify the official course listing in Class Search, and transfer dates and grade weights into Canvas. The schedule below is intentionally scaffolded but can adapt in response to the room.
+> **Draft for instructor review.** Remaining `[CONFIRM]` items are listed at the bottom. Dates follow the published Wednesday meeting pattern; verify against Class Search before posting to Canvas.
 
 ## Course information
 
 | | |
 |---|---|
-| Instructor | Aaron Gabriel |
-| Email | `[CONFIRM]` |
-| Meeting time | `[CONFIRM — Aaron's planning notes say Monday; an earlier public listing said Wednesday]` |
-| Location | `[CONFIRM — earlier listing said ATLAS 104]` |
+| Instructor | Aaron G Neyer |
+| Email | aaron.neyer@colorado.edu |
+| Meeting time | Wednesdays, 5:05–7:35 PM. First class August 26. |
+| Location | ATLAS room 104 |
+| Section | 005 · Class #39152 · 3 credits · open to all majors, no prerequisites |
 | Office hours | `[CONFIRM]` |
 | Course home | Canvas is the official home for announcements, due dates, submissions, feedback, and grades. A class studio/gallery may be added as a supplemental space after week one. |
 
@@ -54,6 +55,8 @@ Each normal weekly submission has three required parts:
 
 Thoughtful engagement matters more than polish. A failed experiment with a clear trace can be more successful than a polished artifact whose maker cannot explain their choices.
 
+Weekly submissions (artifact + trace) are due in Canvas by **Tuesday at 9:00 PM**, the night before class, so each Wednesday session can respond to what the room actually made and wants to learn next. `[CONFIRM time]`
+
 ## Assignments and grading
 
 | Category | Weight | What counts |
@@ -82,7 +85,7 @@ The final project asks students to extend or synthesize a line of inquiry from t
 - a live showcase or approved alternative form of sharing; and
 - a reflection that compares the student's final practice with their week-one intention baseline.
 
-A fuller brief and rubric will be published by `[CONFIRM DATE — recommended no later than the midpoint]`.
+A fuller brief and rubric will be published no later than Week 8 (October 14).
 
 ### Grade scale
 
@@ -145,31 +148,31 @@ No separate created artifact is required in week one. Submit three paragraphs in
 
 AI may ask you questions, but the submitted prose should be yours. This is the first low-stakes Studio Cycle: the intention statement is the artifact, the prose is the trace, and a brief share will help the room begin to know its learning edges.
 
-**Due:** `[CONFIRM DATE AND TIME]` in Canvas.
+**Due:** Tuesday, September 1, 9:00 PM in Canvas. `[CONFIRM time]`
 
 ## Semester scaffold
 
 The themes below give students a visible journey while leaving room for particular tools, guests, and briefs to respond to the class.
 
-| Week | Learning edge | Studio Cycle |
-|---:|---|---|
-| 1 | Orientation: cognition, communication, creativity | Three-paragraph intention baseline |
-| 2 | From interest to intention | Make a tiny artifact from a personally meaningful prompt |
-| 3 | Communicating with models | Compare, annotate, and revise an interaction |
-| 4 | Prototyping | Build the smallest version another person can encounter |
-| 5 | Evaluation and judgment | Define criteria; test an output against them |
-| 6 | Working with context | Build a reusable context, reference set, or workflow |
-| 7 | Failure, debugging, and recovery | Bring a broken process and document how it changes |
-| 8 | Midpoint reflection | Revisit intentions; identify a current learning edge |
-| 9 | Collaboration and agents | Design a multi-step human–AI workflow |
-| 10 | Media, form, and audience | Translate an idea across two forms or audiences |
-| 11 | Consequence and responsibility | Examine the human, social, or environmental effect of a build |
-| 12 | Final project proposal | Share a question, audience, scope, and first test |
-| 13 | Final project studio | Prototype, critique, revise |
-| 14 | Final project studio | Test with another person; incorporate feedback |
-| 15 | Showcase and reflection | Final artifact, share, and learning reflection |
+| Week | Date | Learning edge | Studio Cycle |
+|---:|---|---|---|
+| 1 | Aug 26 | Orientation: cognition, communication, creativity | Three-paragraph intention baseline |
+| 2 | Sep 2 | From interest to intention | Make a tiny artifact from a personally meaningful prompt |
+| 3 | Sep 9 | Communicating with models | Compare, annotate, and revise an interaction |
+| 4 | Sep 16 | Prototyping | Build the smallest version another person can encounter |
+| 5 | Sep 23 | Evaluation and judgment | Define criteria; test an output against them |
+| 6 | Sep 30 | Working with context | Build a reusable context, reference set, or workflow |
+| 7 | Oct 7 | Failure, debugging, and recovery | Bring a broken process and document how it changes |
+| 8 | Oct 14 | Midpoint reflection | Revisit intentions; identify a current learning edge |
+| 9 | Oct 21 | Collaboration and agents | Design a multi-step human–AI workflow |
+| 10 | Oct 28 | Media, form, and audience | Translate an idea across two forms or audiences |
+| 11 | Nov 4 | Consequence and responsibility | Examine the human, social, or environmental effect of a build |
+| 12 | Nov 11 | Final project proposal | Share a question, audience, scope, and first test |
+| 13 | Nov 18 | Final project studio | Prototype, critique, revise; test with another person |
+| — | Nov 25 | Fall Break — no class | |
+| 14 | Dec 2 | Showcase and reflection | Final artifact, share, and learning reflection |
 
-**Calendar constraints to apply after the official meeting pattern is confirmed:** CU Boulder has no classes on Labor Day (September 7), Fall Break (November 23–27), or the October 8 midsemester reading day; no graded work may be due on a reading day. The Fall 2026 last day of classes is December 4, when the campus follows a Monday schedule. Verify the course's exact dates in Class Search before publishing this table in Canvas.
+Fourteen Wednesday meetings. Labor Day and the October 8 reading day do not touch a Wednesday class; Fall Break (November 23–27) removes November 25. December 4 is the last day of classes but the campus follows a Monday schedule that day, so December 2 is our final meeting. No graded work is due on the October 8 reading day. Verify these dates in Class Search before publishing this table in Canvas.
 
 ## Community agreements
 
@@ -225,14 +228,12 @@ The University of Colorado Boulder is committed to supporting students' mental h
 
 ## Instructor decisions still needed
 
-1. Confirm the official meeting day, dates, room, instructor email, and office hours.
-2. Confirm the due day/time and number of graded Studio Cycles after holidays are mapped.
-3. Approve or change the proposed `60% / 20% / 20%` weights and 10-point weekly rubric.
-4. Confirm whether a communicated absence can always be recovered, or whether there is a cap.
-5. Confirm the seven-day late-work recovery window.
-6. Set the final-project brief date and showcase date.
-7. Verify CU-provided AI tool access before promising a common tool to every student.
+1. Office hours.
+2. Approve or change the proposed `60% / 20% / 20%` weights (final project was tbd in your notes; this locks it at 20%).
+3. Attendance: this draft uses the recoverable 5-point version, not the letter-grade-per-2-misses version from your notes. Approve or swap.
+4. Confirm the week-one due time (drafted as Tuesday 9 PM before each class) and the seven-day late-work window.
+5. Verify ChatGPT Edu / Codex access with a real colorado.edu login before class states it as free for everyone.
 
 ---
 
-Draft basis: Aaron Gabriel's August 22 course walkthrough and subsequent grading/scaffolding notes; CU Boulder's August 2026 Required Syllabus Statements; CU Center for Teaching & Learning guidance on attendance and grading for student success; CU Fall 2026 academic calendar.
+Draft basis: Aaron Neyer's August 22 course walkthrough and subsequent grading/scaffolding notes in the teaching-at-atlas channel; CU Boulder's August 2026 Required Syllabus Statements; CU Fall 2026 academic calendar. Dates and course details from the published listing at learnvibe.build/cu.
