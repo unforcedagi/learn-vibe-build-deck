@@ -171,8 +171,16 @@
       @page { size: 13.333in 7.5in; margin: 0; }
       html, body { overflow: visible; background: white; }
       .deck { height: auto; }
-      .slide, .slide.active { position: relative; display: flex !important; width: 13.333in; height: 7.5in; page-break-after: always; break-after: page; animation: none; }
+      .slide, .slide.active { position: relative; display: flex !important; flex-direction: column; width: 13.333in; height: 7.5in; page-break-after: always; break-after: page; animation: none; }
       .cover, .cover.active { display: block !important; }
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+      .grid-3, .pulse { grid-template-columns: repeat(3, 1fr); overflow: visible; }
+      .assignment { grid-template-columns: repeat(2, 1fr); }
+      .timeline { grid-template-columns: repeat(6, 1fr); }
+      .timeline::before { display: block; }
+      .loop { grid-template-columns: repeat(5, 1fr); overflow: visible; }
+      .flow { grid-template-columns: 1fr auto 1fr auto 1fr; overflow: visible; }
+      .arrow { transform: none; }
       .progress, .counter, .help, .notes-panel { display: none !important; }
     }
   </style>
@@ -301,6 +309,18 @@
     </section>
 
     <section class="slide dark">
+      <div class="eyebrow">The weekly unit</div>
+      <h2>One artifact. One human trace. One share.</h2>
+      <div class="grid-3">
+        <div class="card"><div class="num">01</div><h3>Artifact</h3><p>Make something another person can encounter—even if it is small or unfinished.</p></div>
+        <div class="card"><div class="num">02</div><h3>Human trace</h3><p>Write at least one paragraph in your own words: what you did, what changed, what you learned.</p></div>
+        <div class="card"><div class="num">03</div><h3>Share</h3><p>Demo the work, give a short talk, or teach us what happened in the process.</p></div>
+      </div>
+      <p class="bottom-note">Thoughtful engagement matters more than polish.</p>
+      <aside class="notes">This is the stable scaffold students can plan around every week. The briefs and tools may vary, but this unit does not. Make clear that the human trace is not a product description; it is evidence that the student can notice and name their own learning.</aside>
+    </section>
+
+    <section class="slide dark">
       <div class="eyebrow">What counts as a demo?</div>
       <h2>Show the workflow—not only the victory.</h2>
       <div class="grid-3">
@@ -343,26 +363,38 @@
 
     <section class="slide dark">
       <div class="eyebrow">Grading</div>
-      <h2>I am grading for <span class="accent">engagement and growth</span>, not perfection.</h2>
+      <h2>A visible structure<br />for an exploratory class.</h2>
       <div class="grid-3">
-        <div class="card"><h3>Show up</h3><p>Be present enough to participate honestly.</p></div>
-        <div class="card"><h3>Make attempts</h3><p>Small, unfinished, and strange work is welcome.</p></div>
-        <div class="card"><h3>Communicate</h3><p>If life interrupts the work, tell me. We will make a recovery plan.</p></div>
+        <div class="card"><div class="num">60%</div><h3>Weekly studio cycle</h3><p>Artifact + human trace + prepared share.</p></div>
+        <div class="card"><div class="num">20%</div><h3>Studio presence</h3><p>Attendance, listening, participation, and useful feedback.</p></div>
+        <div class="card"><div class="num">20%</div><h3>Final project</h3><p>A culminating artifact, showcase, and reflection.</p></div>
       </div>
-      <aside class="notes">Do not promise automatic passing for an “I can’t” submission. Preserve the compassionate intent while leaving room for consistent institutional grading and follow-through.</aside>
+      <p class="bottom-note">Feedback points forward. Grades report completion and participation—not artistic polish.</p>
+      <aside class="notes">These are recommended weights for the syllabus draft. The weekly cycle is the center. Grade its three observable parts for completion and thoughtful engagement. Narrative feedback should support the next attempt rather than function as punishment.</aside>
     </section>
 
     <section class="slide">
-      <div class="eyebrow">Week one · Builder baseline</div>
-      <h2>Write in your own voice.</h2>
-      <div class="assignment">
-        <div>Where am I starting from?</div>
-        <div>What do I want to become capable of?</div>
-        <div>What is one thing I might make?</div>
-        <div>What could get in my way?</div>
+      <div class="eyebrow">Attendance + communication</div>
+      <h2>Two no-fault passes. Then use the recovery path.</h2>
+      <div class="grid-3">
+        <div class="card"><h3>Two passes</h3><p>No documentation and no explanation required.</p></div>
+        <div class="card"><h3>Life happens</h3><p>Communicate before class or as soon as you reasonably can.</p></div>
+        <div class="card"><h3>Stay connected</h3><p>Complete a make-up share or contribution so the studio does not lose your voice.</p></div>
       </div>
-      <p class="bottom-note">One honest paragraph is enough. More is welcome. AI may help you think; the submitted signal should be yours.</p>
-      <aside class="notes">This is both assignment and diagnostic instrument. It lets Aaron tune week two. Clarify due date and submission home verbally or add it before class.</aside>
+      <p class="bottom-note">Do not come sick. Formal accommodations and religious observances do not consume passes.</p>
+      <aside class="notes">Avoid a letter-grade cliff based only on physical presence. The syllabus draft makes the 20-point Studio Presence category transparent: after two passes, an uncommunicated absence costs 5 points from that category; a communicated absence can be recovered through an alternative contribution.</aside>
+    </section>
+
+    <section class="slide">
+      <div class="eyebrow">Week one · Intention baseline</div>
+      <h2>Three paragraphs.<br />No separate artifact—yet.</h2>
+      <div class="assignment">
+        <div><strong>1.</strong> Where am I starting—from AI experience to what I already know how to make?</div>
+        <div><strong>2.</strong> What do I want to become capable of, and why does it matter to me?</div>
+        <div><strong>3.</strong> What might I make—and what obstacles or support can I already see?</div>
+      </div>
+      <p class="bottom-note">AI may ask you questions. The submitted prose should be yours.</p>
+      <aside class="notes">This is the first low-stakes Studio Cycle and the diagnostic instrument for week two. The intention statement itself is the artifact; no separate creation is required. Return brief feedback before the add/drop decision point if the calendar permits. Add the exact due date and Canvas location before class.</aside>
     </section>
 
     <section class="slide dark">
