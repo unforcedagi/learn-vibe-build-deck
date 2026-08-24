@@ -17,9 +17,9 @@
 
 ## What this course is
 
-Generative AI is making it possible for more people to turn ideas into working artifacts. But access to powerful tools does not automatically create judgment, clarity, taste, courage, or responsibility.
+AI has made it far easier to turn an idea into something real. It has not made anyone better at deciding what is worth making, or at telling good work from bad. That part is still human, and it is what this course works on.
 
-This is a studio course about becoming a builder in that new environment. We will use AI as a medium for practicing three connected human capacities:
+This is a studio course. We will use AI as a working medium for three connected capacities:
 
 - **Cognition:** noticing, framing, questioning, evaluating, and choosing.
 - **Communication:** expressing intent clearly enough that humans and machines can work with it.
@@ -44,10 +44,10 @@ By the end of the course, students should be able to:
 Every week, everyone makes something and writes a short account of what actually happened. Each weekly submission has three parts:
 
 1. **Artifact:** Make something another person can encounter. It may be small, unfinished, or strange. Depending on the week, it could be an app, image, story, analysis, event plan, automation, performance, dataset, physical object, workflow, or another form proposed by the student.
-2. **Human trace:** Write at least one paragraph in your own words describing what you tried, what you actually did, what changed or failed, and what you learned. Prompts will be provided. One paragraph is the minimum, not the target — write more whenever there is more to say. Grammar and polish are not being graded; what you are practicing is how well you can articulate what happened. This is evidence of attention, not a product description.
-3. **Studio share:** On September 14 everyone demos, after two weeks of building. From then on demos alternate — roughly half the class shares each week, so every demo gets real time and real attention. On your demo week, you may share anything alive in your practice: this week's artifact, an older thread you kept pulling on, or a place you are stuck where you want the room's help. On your off weeks the work is just as active: asking questions and offering usable feedback is how a studio runs.
+2. **Human trace:** Write at least one paragraph in your own words describing what you tried, what you actually did, what changed or failed, and what you learned. Prompts will be provided. One paragraph is the minimum, not the target — write more whenever there is more to say. Grammar and polish are not being graded; what you are practicing is how well you can articulate what happened.
+3. **Studio share:** On September 14 everyone demos, after two weeks of building. From then on demos alternate — roughly half the class shares each week, so every demo gets real time and real attention. On your demo week, you may share whatever you are working on: this week's artifact, an older project you kept going with, or a place you are stuck and want the room's help. On your off weeks the work is just as active: asking questions and offering usable feedback is how a studio runs.
 
-Thoughtful engagement matters more than polish. A failed experiment with a clear trace can be more successful than a polished artifact whose maker cannot explain their choices.
+A failed experiment with a clear trace can score better than a polished artifact whose maker cannot explain their choices.
 
 Weekly submissions (artifact + trace) are due in Canvas by **Sunday at midnight (11:59 PM)**, the night before class, so each Monday session can respond to what the room actually made and wants to learn next.
 
@@ -104,9 +104,9 @@ This is a studio: much of the learning comes from making work available to other
 - If a student communicates before class or as soon as reasonably possible, they may recover the presence credit through an alternative contribution: for example, a make-up demo, a recorded or office-hours share, or thoughtful feedback on classmates' work.
 - Absences for approved disability accommodations or religious observances do not consume the two passes. Other university-required accommodations will be honored.
 - Students should not attend class in person when ill. Students do not need to disclose the nature of an illness or provide a doctor's note; they should simply say they cannot attend and ask for the recovery path.
-- Students who are sick or isolating may ask to join that session over Zoom instead. This is a bridge for illness, not an alternate way to take the course: this is an in-person studio, and remote attendance is the exception.
+- Students who are sick or isolating may ask to join that session over Zoom instead. Zoom is for being sick; the class itself happens in the room.
 
-The aim is continuity, not punishment. Silence is harder to work with than an unfinished attempt.
+None of this is meant as punishment. The only thing that is genuinely hard to work with is silence — if something is going on, say so and we will figure out the rest.
 
 ## Late and incomplete work
 
@@ -114,9 +114,9 @@ Students may submit normal weekly work up to seven days late for full credit whe
 
 ## Feedback philosophy
 
-Scores answer a narrow question: **What required evidence is present?** Feedback answers the more important question: **What might you try next?**
+Scores only track whether the required work is there. The feedback is where the useful information lives: what you might try next.
 
-The instructor will provide short, forward-looking feedback on weekly traces and more substantial feedback at key points in the semester. Peer feedback, self-assessment, and live critique are core course practices. Feedback is intended to support learning and revision; it is not a disguised system for marking students down on taste.
+The instructor will give short, forward-looking feedback on weekly traces and more substantial feedback at key points in the semester. Peer feedback, self-assessment, and live critique are core course practices. Feedback exists to support learning and revision; it is not a disguised system for marking students down on taste.
 
 Students will receive meaningful feedback on the week-one intention baseline early enough to inform whether and how they continue in the course.
 
@@ -143,13 +143,13 @@ No separate created artifact is required in week one. Submit three paragraphs in
 2. **Intention:** What do you want to become capable of in this class, and why does it matter to you?
 3. **Possible direction:** What is something you might make, and what obstacles or kinds of support can you already see?
 
-Three paragraphs is the minimum, not a limit — write as much as is true. Grammar is not being policed; articulating yourself clearly is the practice. AI may ask you questions, but the submitted prose should be yours. This is the first low-stakes Studio Cycle: the intention statement is the artifact, the prose is the trace, and a brief share will help the room begin to know its learning edges.
+Three paragraphs is a minimum. Write more if you have more to say. Grammar is not being policed; what you are practicing is saying clearly what you mean. AI may ask you questions, but the submitted prose should be yours. This counts as the first low-stakes Studio Cycle: the intention statement is the artifact, the prose is the trace, and a brief share will help the room start to see what everyone wants to learn.
 
 **Due:** Sunday, August 30, 11:59 PM in Canvas.
 
 ## Semester calendar
 
-The weekly briefs are not fixed in advance — each week responds to what the room just made and wants to learn next, and we will shape the structure of this class together as we go. What is fixed is the calendar and the learning contract:
+The weekly briefs are not fixed in advance. Each week responds to what the room just made and wants to learn next, and we will shape the structure of this class together as we go. What is fixed is the calendar and the learning contract:
 
 | Week | Date | |
 |---:|---|---|
@@ -217,7 +217,3 @@ Faculty and graduate instructors are required to inform OIEC when someone disclo
 ### Mental health and wellness
 
 The University of Colorado Boulder is committed to supporting students' mental health and overall wellbeing. If personal, academic, or emotional challenges are affecting your wellbeing or success, Counseling and Psychiatric Services (CAPS) is here to help. CAPS offers counseling, referrals, psychiatric care, crisis support, and more. Visit CAPS in the C4C or call 303-492-2277, 24/7.
-
----
-
-Draft basis: Aaron Neyer's August 22 course walkthrough and subsequent grading/scaffolding notes in the teaching-at-atlas channel; CU Boulder's August 2026 Required Syllabus Statements; CU Fall 2026 academic calendar. Meeting day, room, and dates verified against CU Class Search on August 23, 2026; the listing at learnvibe.build/cu still shows the older Wednesday pattern.
