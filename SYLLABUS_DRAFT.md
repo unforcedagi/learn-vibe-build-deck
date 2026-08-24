@@ -3,8 +3,6 @@
 **ATLS 4519 · Advanced Special Topics**  
 **Fall 2026 · University of Colorado Boulder**
 
-> **Draft for instructor review.** Remaining `[CONFIRM]` items are listed at the bottom. Meeting day, room, and dates verified against CU Class Search (section 005, class #39152) on August 23, 2026.
-
 ## Course information
 
 | | |
@@ -14,7 +12,7 @@
 | Meeting time | Mondays, 5:05–7:35 PM. First class August 24. |
 | Location | Roser ATLAS Center, room 104 |
 | Section | 005 · Class #39152 · 3 credits · open to all majors, no prerequisites |
-| Office hours | `[CONFIRM]` |
+| Office hours | Mondays 3:30–4:30 PM at the ATLAS building, and Tuesdays 3:00–4:00 PM on Zoom (link in Canvas). Also by appointment. |
 | Course home | Canvas is the official home for announcements, due dates, submissions, feedback, and grades. A class studio/gallery may be added as a supplemental space after week one. |
 
 ## What this course is
@@ -55,7 +53,7 @@ Each normal weekly submission has three required parts:
 
 Thoughtful engagement matters more than polish. A failed experiment with a clear trace can be more successful than a polished artifact whose maker cannot explain their choices.
 
-Weekly submissions (artifact + trace) are due in Canvas by **Sunday at 9:00 PM**, the night before class, so each Monday session can respond to what the room actually made and wants to learn next. `[CONFIRM time]`
+Weekly submissions (artifact + trace) are due in Canvas by **Sunday at 9:00 PM**, the night before class, so each Monday session can respond to what the room actually made and wants to learn next.
 
 ## Assignments and grading
 
@@ -115,7 +113,7 @@ The aim is continuity, not punishment. Silence is harder to work with than an un
 
 ## Late and incomplete work
 
-Students may submit normal weekly work up to seven days late for full credit when they communicate a recovery plan. After seven days, the instructor and student will agree on the smallest meaningful way to rejoin the current studio cycle rather than accumulating an impossible backlog. `[CONFIRM whether this matches departmental expectations.]`
+Students may submit normal weekly work up to seven days late for full credit when they communicate a recovery plan. After seven days, the instructor and student will agree on the smallest meaningful way to rejoin the current studio cycle rather than accumulating an impossible backlog.
 
 ## Feedback philosophy
 
@@ -150,7 +148,7 @@ No separate created artifact is required in week one. Submit three paragraphs in
 
 AI may ask you questions, but the submitted prose should be yours. This is the first low-stakes Studio Cycle: the intention statement is the artifact, the prose is the trace, and a brief share will help the room begin to know its learning edges.
 
-**Due:** Sunday, August 30, 9:00 PM in Canvas. `[CONFIRM time]`
+**Due:** Sunday, August 30, 9:00 PM in Canvas.
 
 ## Semester scaffold
 
@@ -228,12 +226,6 @@ Faculty and graduate instructors are required to inform OIEC when someone disclo
 ### Mental health and wellness
 
 The University of Colorado Boulder is committed to supporting students' mental health and overall wellbeing. If personal, academic, or emotional challenges are affecting your wellbeing or success, Counseling and Psychiatric Services (CAPS) is here to help. CAPS offers counseling, referrals, psychiatric care, crisis support, and more. Visit CAPS in the C4C or call 303-492-2277, 24/7.
-
-## Instructor decisions still needed
-
-1. Office hours.
-2. Attendance: this draft uses the recoverable 5-point version, not the letter-grade-per-2-misses version from your notes. Approve or swap.
-3. Confirm the seven-day late-work window matches departmental expectations.
 
 ---
 
