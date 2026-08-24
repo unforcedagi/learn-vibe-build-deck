@@ -44,18 +44,18 @@ By the end of the course, students should be able to:
 Every week, everyone makes something and writes a short account of what actually happened. Each weekly submission has three parts:
 
 1. **Artifact:** Make something another person can encounter. It may be small, unfinished, or strange. Depending on the week, it could be an app, image, story, analysis, event plan, automation, performance, dataset, physical object, workflow, or another form proposed by the student.
-2. **Human trace:** Write at least one paragraph in your own words describing what you tried, what you actually did, what changed or failed, and what you learned. Prompts will be provided. One paragraph is the minimum, not the target — write more whenever there is more to say. Grammar and polish are not being graded; what you are practicing is how well you can articulate what happened.
+2. **Reflection:** Write at least one paragraph in your own words describing what you tried, what you actually did, what changed or failed, and what you learned. Prompts will be provided. One paragraph is the minimum, not the target — write more whenever there is more to say. Grammar and polish are not being graded; what you are practicing is how well you can articulate what happened.
 3. **Studio share:** On September 14 everyone demos, after two weeks of building. From then on demos alternate — roughly half the class shares each week, so every demo gets real time and real attention. On your demo week, you may share whatever you are working on: this week's artifact, an older project you kept going with, or a place you are stuck and want the room's help. On your off weeks the work is just as active: asking questions and offering usable feedback is how a studio runs.
 
-A failed experiment with a clear trace can score better than a polished artifact whose maker cannot explain their choices.
+A failed experiment with a clear reflection can score better than a polished artifact whose maker cannot explain their choices.
 
-Weekly submissions (artifact + trace) are due in Canvas by **Sunday at midnight (11:59 PM)**, the night before class, so each Monday session can respond to what the room actually made and wants to learn next.
+Weekly submissions (artifact + reflection) are due in Canvas by **Sunday at midnight (11:59 PM)**, the night before class, so each Monday session can respond to what the room actually made and wants to learn next.
 
 ## Assignments and grading
 
 | Category | Weight | What counts |
 |---|---:|---|
-| Weekly Homework | 50% | Artifact, human-written trace, and prepared share |
+| Weekly Homework | 50% | Artifact, written reflection, and prepared share |
 | Attendance & Sharing | 20% | Attendance, active listening, participation, and useful feedback |
 | Final Project + Showcase | 30% | Culminating artifact, showcase demo, and final learning reflection |
 
@@ -66,7 +66,7 @@ Each weekly cycle is evaluated on a simple 10-point scale:
 | Dimension | Points | Evidence |
 |---|---:|---|
 | Artifact / attempt | 4 | A sincere attempt is present and can be encountered |
-| Human trace | 3 | The student names process, choices, friction, and learning in their own words |
+| Reflection | 3 | The student names process, choices, friction, and learning in their own words |
 | Studio share | 3 | On demo weeks: ready to demo, talk, or otherwise make the learning available to the room. On off weeks: active listening, questions, and useful feedback |
 
 Work may be marked **complete**, **partial**, or **missing** within each dimension. Quality and ambition will be discussed in feedback, but artistic polish is not the hidden basis of the grade.
@@ -99,7 +99,7 @@ Canvas will be the official grade record. Students should be able to see how com
 This is a studio: much of the learning comes from making work available to other people and encountering theirs. Attendance therefore matters, but the policy should not reward coming to class sick or require students to disclose private medical information.
 
 - Every student has **two no-fault studio passes**. No documentation or explanation is required.
-- A pass covers the class meeting and its live share. The weekly artifact and trace remain due unless an extension is arranged.
+- A pass covers the class meeting and its live share. The weekly artifact and reflection remain due unless an extension is arranged.
 - After the two passes, each **uncommunicated** missed class removes 5 points from the 20-point Attendance & Sharing category.
 - If a student communicates before class or as soon as reasonably possible, they may recover the presence credit through an alternative contribution: for example, a make-up demo, a recorded or office-hours share, or thoughtful feedback on classmates' work.
 - Absences for approved disability accommodations or religious observances do not consume the two passes. Other university-required accommodations will be honored.
@@ -116,7 +116,7 @@ Students may submit normal weekly work up to seven days late for full credit whe
 
 Scores only track whether the required work is there. The feedback is where the useful information lives: what you might try next.
 
-The instructor will give short, forward-looking feedback on weekly traces and more substantial feedback at key points in the semester. Peer feedback, self-assessment, and live critique are core course practices. Feedback exists to support learning and revision; it is not a disguised system for marking students down on taste.
+The instructor will give short, forward-looking feedback on weekly reflections and more substantial feedback at key points in the semester. Peer feedback, self-assessment, and live critique are core course practices. Feedback exists to support learning and revision; it is not a disguised system for marking students down on taste.
 
 Students will receive meaningful feedback on the week-one intention baseline early enough to inform whether and how they continue in the course.
 
@@ -129,9 +129,9 @@ For every Studio Cycle:
 - disclose any material AI tools or systems used;
 - be able to explain what the system contributed and what you accepted, changed, or rejected;
 - do not submit private, confidential, or another person's identifying information to a tool without permission; and
-- write the required human trace yourself. AI may ask questions or help you think, but it may not compose or rewrite that paragraph for submission. Standard spelling, grammar, and approved assistive technologies are allowed. Students who need an accommodation should speak privately with the instructor.
+- write the required reflection yourself. AI may ask questions or help you think, but it may not compose or rewrite that paragraph for submission. Standard spelling, grammar, and approved assistive technologies are allowed. Students who need an accommodation should speak privately with the instructor.
 
-Misrepresenting AI-generated work as a required human trace, fabricating process evidence, or using AI in a way explicitly prohibited by an assignment may be treated as an academic integrity violation.
+Misrepresenting AI-generated work as a required reflection, fabricating process evidence, or using AI in a way explicitly prohibited by an assignment may be treated as an academic integrity violation.
 
 **Tooling:** ChatGPT Edu is free with your CU Boulder login (note: it does not include Codex). In week 2 we will claim the $100 Codex student credit offer together in class. Beyond that shared floor, any AI tool you are drawn to is welcome — image and video tools included.
 
@@ -143,7 +143,7 @@ No separate created artifact is required in week one. Submit three paragraphs in
 2. **Intention:** What do you want to become capable of in this class, and why does it matter to you?
 3. **Possible direction:** What is something you might make, and what obstacles or kinds of support can you already see?
 
-Three paragraphs is a minimum. Write more if you have more to say. Grammar is not being policed; what you are practicing is saying clearly what you mean. AI may ask you questions, but the submitted prose should be yours. This counts as the first low-stakes Studio Cycle: the intention statement is the artifact, the prose is the trace, and a brief share will help the room start to see what everyone wants to learn.
+Three paragraphs is a minimum. Write more if you have more to say. Grammar is not being policed; what you are practicing is saying clearly what you mean. AI may ask you questions, but the submitted prose should be yours. This counts as the first low-stakes Studio Cycle: the intention statement is the artifact, the prose is the reflection, and a brief share will help the room start to see what everyone wants to learn.
 
 **Due:** Sunday, August 30, 11:59 PM in Canvas.
 

@@ -56,7 +56,7 @@ The point is not that AI writes the class plan. The point is to make the courseâ
 After week one, every normal Studio Cycle has three visible parts:
 
 1. **Artifact (4/10):** a sincere attempt another person can encounter.
-2. **Human trace (3/10):** at least one paragraph in the student's own words about process, choices, friction, and learning.
+2. **Reflection (3/10):** at least one paragraph in the student's own words about process, choices, friction, and learning.
 3. **Studio share (3/10):** demos alternate â€” half the room each week (groups set in week 2). On demo weeks share anything alive in your practice; on off weeks, questions and useful feedback.
 
 Final course weights (matching Canvas and the syllabus): 50% Weekly Homework, 20% Attendance & Sharing, 30% Final Project + Showcase. This gives undergraduates a legible path through an intentionally adaptive course. Scores track visible completion and participation; narrative feedback points toward the next attempt.
