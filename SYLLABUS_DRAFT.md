@@ -45,7 +45,7 @@ Every week, everyone makes something and writes a short account of what actually
 
 1. **Artifact:** Make something another person can encounter. It may be small, unfinished, or strange. Depending on the week, it could be an app, image, story, analysis, event plan, automation, performance, dataset, physical object, workflow, or another form proposed by the student.
 2. **Human trace:** Write at least one paragraph in your own words describing what you tried, what you actually did, what changed or failed, and what you learned. Prompts will be provided. One paragraph is the minimum, not the target — write more whenever there is more to say. Grammar and polish are not being graded; what you are practicing is how well you can articulate what happened. This is evidence of attention, not a product description.
-3. **Studio share:** Demos alternate — roughly half the class shares each week (groups set in week 2), so every demo gets real time and real attention. On your demo week, you may share anything alive in your practice: this week's artifact, an older thread you kept pulling on, or a place you are stuck where you want the room's help. On your off weeks the work is just as active: asking questions and offering usable feedback is how a studio runs.
+3. **Studio share:** On September 14 everyone demos, after two weeks of building. From then on demos alternate — roughly half the class shares each week, so every demo gets real time and real attention. On your demo week, you may share anything alive in your practice: this week's artifact, an older thread you kept pulling on, or a place you are stuck where you want the room's help. On your off weeks the work is just as active: asking questions and offering usable feedback is how a studio runs.
 
 Thoughtful engagement matters more than polish. A failed experiment with a clear trace can be more successful than a polished artifact whose maker cannot explain their choices.
 
@@ -149,14 +149,15 @@ Three paragraphs is the minimum, not a limit — write as much as is true. Gramm
 
 ## Semester calendar
 
-The weekly briefs are not fixed in advance — each week responds to what the room just made and wants to learn next. What is fixed is the calendar and the overall shape of the semester:
+The weekly briefs are not fixed in advance — each week responds to what the room just made and wants to learn next, and we will shape the structure of this class together as we go. What is fixed is the calendar and the learning contract:
 
 | Week | Date | |
 |---:|---|---|
 | 1 | Aug 24 | Orientation; intention baseline due Sunday |
-| 2 | Aug 31 | Studio cycles begin; demo groups set |
+| 2 | Aug 31 | Studio cycles begin; live building and conversation in class |
 | — | Sep 7 | Labor Day — no class |
-| 3–10 | Sep 14 – Nov 2 | Weekly studio cycles |
+| 3 | Sep 14 | Everyone demos — two weeks of work to share |
+| 4–10 | Sep 21 – Nov 2 | Weekly studio cycles; demo groups alternate |
 | 11 | Nov 9 | Final project proposals |
 | 12 | Nov 16 | Project studio |
 | — | Nov 23 | Fall Break — no class |
