@@ -147,28 +147,21 @@ Three paragraphs is the minimum, not a limit — write as much as is true. Gramm
 
 **Due:** Sunday, August 30, 11:59 PM in Canvas.
 
-## Semester scaffold
+## Semester calendar
 
-The themes below give students a visible journey while leaving room for particular tools, guests, and briefs to respond to the class.
+The weekly briefs are not fixed in advance — each week responds to what the room just made and wants to learn next. What is fixed is the calendar and the overall shape of the semester:
 
-| Week | Date | Learning edge | Studio Cycle |
-|---:|---|---|---|
-| 1 | Aug 24 | Orientation: cognition, communication, creativity | Three-paragraph intention baseline |
-| 2 | Aug 31 | From interest to intention | Make a tiny artifact from a personally meaningful prompt |
-| — | Sep 7 | Labor Day — no class | |
-| 3 | Sep 14 | Communicating with models | Compare, annotate, and revise an interaction |
-| 4 | Sep 21 | Prototyping | Build the smallest version another person can encounter |
-| 5 | Sep 28 | Evaluation and judgment | Define criteria; test an output against them |
-| 6 | Oct 5 | Working with context | Build a reusable context, reference set, or workflow |
-| 7 | Oct 12 | Failure, debugging, and recovery | Bring a broken process and document how it changes |
-| 8 | Oct 19 | Midpoint reflection | Revisit intentions; identify a current learning edge |
-| 9 | Oct 26 | Collaboration and agents | Design a multi-step human–AI workflow |
-| 10 | Nov 2 | Media, form, and audience | Translate an idea across two forms or audiences |
-| 11 | Nov 9 | Final project proposals | Pick your project; share its question, audience, and scope |
-| 12 | Nov 16 | Project studio | Build, critique, revise; test with another person |
-| — | Nov 23 | Fall Break — no class | |
-| 13 | Nov 30 | Showcase night 1 + project studio | Demo, or keep building for night 2 |
-| 14 | Dec 4 (Friday) | Showcase night 2 | Final demos; written reflection due exam week |
+| Week | Date | |
+|---:|---|---|
+| 1 | Aug 24 | Orientation; intention baseline due Sunday |
+| 2 | Aug 31 | Studio cycles begin; demo groups set |
+| — | Sep 7 | Labor Day — no class |
+| 3–10 | Sep 14 – Nov 2 | Weekly studio cycles |
+| 11 | Nov 9 | Final project proposals |
+| 12 | Nov 16 | Project studio |
+| — | Nov 23 | Fall Break — no class |
+| 13 | Nov 30 | Showcase night 1 + project studio |
+| 14 | Dec 4 (Friday) | Showcase night 2; written reflection due exam week |
 
 Fourteen Monday meetings, verified against the registrar's section record (August 20 – December 4). Labor Day removes September 7 and Fall Break removes November 23. December 4, the last day of classes, is a Friday on which the campus follows a Monday schedule — that is our final meeting and showcase. No graded work is due on the October 8 reading day.
 
