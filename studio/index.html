@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Studio — Learn, Vibe, Build · ATLS 4519</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #666;
+    --accent: #2456a4;
+    --bg: #fdfcf9;
+    --card: #ffffff;
+    --border: #e4e1da;
+    --navy: #101a2e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .hero {
+    position: relative;
+    background: var(--navy);
+    color: #fdfcf9;
+    overflow: hidden;
+  }
+  .hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hero-inner {
+    position: relative;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 4.5rem 1.25rem 4rem;
+  }
+  .hero .back { font-size: 0.9rem; margin: 0 0 1.5rem; }
+  .hero .back a { color: rgba(253,252,249,0.7); text-decoration: none; }
+  .hero h1 { font-size: 2.6rem; margin: 0 0 0.4rem; letter-spacing: -0.02em; }
+  .hero p { margin: 0; color: rgba(253,252,249,0.85); max-width: 46ch; }
+  main { max-width: 860px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+  h2 { font-size: 1.4rem; margin: 2.2rem 0 0.4rem; }
+  .sub { color: var(--muted); margin: 0 0 1.2rem; }
+  .wall {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.8rem;
+  }
+  .tile {
+    border: 1px solid var(--border);
+    background: var(--card);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    min-height: 108px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .tile:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(16,26,46,0.10); }
+  .tile.unclaimed {
+    border-style: dashed;
+    background: transparent;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  .tile h3 { margin: 0 0 0.2rem; font-size: 1rem; }
+  .tile p { margin: 0; font-size: 0.85rem; color: var(--muted); }
+  .tile a { color: var(--accent); font-size: 0.85rem; }
+  .cards { display: grid; gap: 1rem; grid-template-columns: 1fr; margin-top: 1rem; }
+  a.card {
+    display: block;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.3rem;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  a.card:hover { border-color: var(--accent); }
+  a.card h3 { margin: 0 0 0.2rem; font-size: 1.05rem; color: var(--accent); }
+  a.card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+  .archive-note {
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.2rem;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+</style>
+</head>
+<body>
+<div class="hero">
+  <canvas id="net"></canvas>
+  <div class="hero-inner">
+    <p class="back"><a href="../">&larr; Learn, Vibe, Build</a></p>
+    <h1>The Studio</h1>
+    <p>Fall 2026 cohort. One tile per builder. This page is the class keeping tabs on what everyone is making — and the record a future semester will look back at.</p>
+  </div>
+</div>
+<main>
+  <h2>The wall</h2>
+  <p class="sub">Claim your tile: pick a display name, say what you're working on, add a link when there's something to see. Tiles fill as work lands each Sunday.</p>
+  <div class="wall" id="wall">
+    <div class="tile">
+      <h3>Aaron</h3>
+      <p>Parachute — a memory layer for AIs. And this class.</p>
+      <a href="https://cu.learnvibe.build">cu.learnvibe.build</a>
+    </div>
+  </div>
+
+  <h2>More rooms</h2>
+  <div class="cards">
+    <a class="card" href="ideas.html">
+      <h3>The idea wall</h3>
+      <p>Unrealized ideas, posted for input. Seeded tonight with ideas from this room.</p>
+    </a>
+    <a class="card" href="../journal/">
+      <h3>Class journal</h3>
+      <p>One entry per Monday night. What we did, what got made, what came up.</p>
+    </a>
+  </div>
+
+  <p class="archive-note">This studio stays up after December. Next semester's class will see what this room made — the wall, the ideas, the journal, all of it. Build accordingly.</p>
+</main>
+<script>
+  // 23 unclaimed tiles
+  const wall = document.getElementById('wall');
+  for (let i = 0; i < 23; i++) {
+    const d = document.createElement('div');
+    d.className = 'tile unclaimed';
+    d.textContent = 'unclaimed — this one could be yours';
+    wall.appendChild(d);
+  }
+  // drifting constellation in the hero
+  const c = document.getElementById('net'), x = c.getContext('2d');
+  let W, H, pts = [];
+  function size() {
+    W = c.width = c.offsetWidth * devicePixelRatio;
+    H = c.height = c.offsetHeight * devicePixelRatio;
+  }
+  size(); addEventListener('resize', size);
+  for (let i = 0; i < 55; i++) pts.push({
+    px: Math.random(), py: Math.random(),
+    vx: (Math.random() - 0.5) * 0.0006, vy: (Math.random() - 0.5) * 0.0006
+  });
+  (function tick() {
+    x.clearRect(0, 0, W, H);
+    for (const p of pts) {
+      p.px += p.vx; p.py += p.vy;
+      if (p.px < 0 || p.px > 1) p.vx *= -1;
+      if (p.py < 0 || p.py > 1) p.vy *= -1;
+    }
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i + 1; j < pts.length; j++) {
+        const a = pts[i], b = pts[j];
+        const dx = (a.px - b.px), dy = (a.py - b.py);
+        const d = Math.hypot(dx, dy);
+        if (d < 0.14) {
+          x.strokeStyle = `rgba(255,140,105,${(1 - d / 0.14) * 0.35})`;
+          x.lineWidth = devicePixelRatio;
+          x.beginPath();
+          x.moveTo(a.px * W, a.py * H);
+          x.lineTo(b.px * W, b.py * H);
+          x.stroke();
+        }
+      }
+    }
+    for (const p of pts) {
+      x.fillStyle = 'rgba(253,252,249,0.85)';
+      x.beginPath();
+      x.arc(p.px * W, p.py * H, 1.6 * devicePixelRatio, 0, 7);
+      x.fill();
+    }
+    requestAnimationFrame(tick);
+  })();
+</script>
+</body>
+</html>

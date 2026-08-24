@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Idea Wall — Learn, Vibe, Build · ATLS 4519</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #666;
+    --accent: #2456a4;
+    --bg: #fdfcf9;
+    --border: #e4e1da;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  main { max-width: 860px; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+  .back { font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .back a { color: var(--muted); text-decoration: none; }
+  .back a:hover { color: var(--accent); }
+  h1 { font-size: 2rem; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
+  p.lead { color: var(--muted); margin: 0 0 2rem; }
+  .board {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  .note {
+    border-radius: 8px;
+    padding: 1.1rem 1.2rem;
+    box-shadow: 0 2px 8px rgba(16,26,46,0.08);
+    transform: rotate(var(--r, 0deg));
+    transition: transform 0.15s ease;
+  }
+  .note:hover { transform: rotate(0deg) scale(1.03); }
+  .note p { margin: 0 0 0.6rem; font-size: 0.98rem; }
+  .note .from { font-size: 0.8rem; color: rgba(26,26,26,0.55); margin: 0; }
+  .n1 { background: #fff3c4; --r: -1.2deg; }
+  .n2 { background: #d8ecff; --r: 0.8deg; }
+  .n3 { background: #ffe0d6; --r: -0.6deg; }
+  .n4 { background: #ddf2e0; --r: 1.1deg; }
+  .how {
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.2rem;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="back"><a href="./">&larr; The Studio</a></p>
+  <h1>The Idea Wall</h1>
+  <p class="lead">Ideas that aren't realized yet, posted for input. If one grabs you, say so in class — that's the input.</p>
+
+  <div class="board">
+    <div class="note n1">
+      <p>Links to everyone's software and what they're working on — keep tabs on what people are doing and what's cool. Keep people together.</p>
+      <p class="from">from the room · week 1 — became the wall on the Studio page</p>
+    </div>
+    <div class="note n2">
+      <p>A brainstorming tab: if you have a new idea that isn't realized, put it down and ask people for input.</p>
+      <p class="from">from the room · week 1 — became this page</p>
+    </div>
+    <div class="note n3">
+      <p>A repository of projects over the semester, so next semester can see what this semester did.</p>
+      <p class="from">from the room · week 1 — the Studio + journal stay up as that record</p>
+    </div>
+    <div class="note n4">
+      <p>Cool visuals. Maybe effects.</p>
+      <p class="from">from the room · week 1 — see the Studio header. More where that came from.</p>
+    </div>
+  </div>
+
+  <p class="how">These four went from spoken in class to on this page in about ten minutes. Right now, adding an idea means saying it in class or sending it to Aaron. Building a real submit form — so anyone can post to this wall — would make a good week-2 project for somebody.</p>
+</main>
+</body>
+</html>
