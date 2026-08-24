@@ -51,7 +51,7 @@ Each normal weekly submission has three required parts:
 
 1. **Artifact:** Make something another person can encounter. It may be small, unfinished, or strange. Depending on the week, it could be an app, image, story, analysis, event plan, automation, performance, dataset, physical object, workflow, or another form proposed by the student.
 2. **Human trace:** Write at least one paragraph in your own words describing what you tried, what you actually did, what changed or failed, and what you learned. Prompts will be provided. This is evidence of attention, not a product description.
-3. **Share:** Arrive prepared to demo the artifact, give a short talk, or teach the class something that happened in the process. Students will also practice listening and offering useful feedback.
+3. **Share:** Arrive prepared to demo the artifact, give a short talk, or teach the class something that happened in the process. Demos run about 3 minutes each so that everyone shares every week; a few longer slots are available each week by sign-up. Students will also practice listening and offering useful feedback.
 
 Thoughtful engagement matters more than polish. A failed experiment with a clear trace can be more successful than a polished artifact whose maker cannot explain their choices.
 
@@ -61,9 +61,9 @@ Weekly submissions (artifact + trace) are due in Canvas by **Sunday at 9:00 PM**
 
 | Category | Weight | What counts |
 |---|---:|---|
-| Weekly Studio Cycles | 60% | Artifact, human-written trace, and prepared share |
-| Studio Presence | 20% | Attendance, active listening, participation, and useful feedback |
-| Final Project + Showcase | 20% | Culminating artifact, public share, and final learning reflection |
+| Weekly Homework | 50% | Artifact, human-written trace, and prepared share |
+| Attendance & Sharing | 20% | Attendance, active listening, participation, and useful feedback |
+| Final Project + Showcase | 30% | Culminating artifact, showcase demo, and final learning reflection |
 
 ### Weekly Studio Cycle rubric
 
@@ -79,11 +79,11 @@ Work may be marked **complete**, **partial**, or **missing** within each dimensi
 
 ### Final Project + Showcase
 
-The final project asks students to extend or synthesize a line of inquiry from the semester. It includes:
+The final project asks students to extend or synthesize a line of inquiry from the semester — typically by picking one weekly project and growing it. The last third of the course runs in project mode. The project includes:
 
 - a culminating artifact or experience;
-- a live showcase or approved alternative form of sharing; and
-- a reflection that compares the student's final practice with their week-one intention baseline.
+- a showcase demo — the showcase runs across our final two meetings, November 30 and December 4, so each project gets a longer slot (about 10 demos per night); and
+- a written reflection, due during exam week, that compares the student's final practice with their week-one intention baseline.
 
 A fuller brief and rubric will be published no later than Week 8 (October 19).
 
@@ -106,7 +106,7 @@ This is a studio: much of the learning comes from making work available to other
 
 - Every student has **two no-fault studio passes**. No documentation or explanation is required.
 - A pass covers the class meeting and its live share. The weekly artifact and trace remain due unless an extension is arranged.
-- After the two passes, each **uncommunicated** missed class removes 5 points from the 20-point Studio Presence category.
+- After the two passes, each **uncommunicated** missed class removes 5 points from the 20-point Attendance & Sharing category.
 - If a student communicates before class or as soon as reasonably possible, they may recover the presence credit through an alternative contribution: for example, a make-up demo, a recorded or office-hours share, or thoughtful feedback on classmates' work.
 - Absences for approved disability accommodations or religious observances do not consume the two passes. Other university-required accommodations will be honored.
 - Students should not attend class when ill. Students do not need to disclose the nature of an illness or provide a doctor's note; they should simply say they cannot attend and ask for the recovery path.
@@ -138,6 +138,8 @@ For every Studio Cycle:
 
 Misrepresenting AI-generated work as a required human trace, fabricating process evidence, or using AI in a way explicitly prohibited by an assignment may be treated as an academic integrity violation.
 
+**Tooling:** ChatGPT Edu is free with your CU Boulder login (note: it does not include Codex). In week 2 we will claim the $100 Codex student credit offer together in class. Beyond that shared floor, any AI tool you are drawn to is welcome — image and video tools included.
+
 ## Week one assignment: intention baseline
 
 No separate created artifact is required in week one. Submit three paragraphs in your own voice:
@@ -167,11 +169,11 @@ The themes below give students a visible journey while leaving room for particul
 | 8 | Oct 19 | Midpoint reflection | Revisit intentions; identify a current learning edge |
 | 9 | Oct 26 | Collaboration and agents | Design a multi-step human–AI workflow |
 | 10 | Nov 2 | Media, form, and audience | Translate an idea across two forms or audiences |
-| 11 | Nov 9 | Consequence and responsibility | Examine the human, social, or environmental effect of a build |
-| 12 | Nov 16 | Final project proposal | Share a question, audience, scope, and first test |
+| 11 | Nov 9 | Final project proposals | Pick your project; share its question, audience, and scope |
+| 12 | Nov 16 | Project studio | Build, critique, revise; test with another person |
 | — | Nov 23 | Fall Break — no class | |
-| 13 | Nov 30 | Final project studio | Prototype, critique, revise; test with another person |
-| 14 | Dec 4 (Friday) | Showcase and reflection | Final artifact, share, and learning reflection |
+| 13 | Nov 30 | Showcase night 1 + project studio | Demo, or keep building for night 2 |
+| 14 | Dec 4 (Friday) | Showcase night 2 | Final demos; written reflection due exam week |
 
 Fourteen Monday meetings, verified against the registrar's section record (August 20 – December 4). Labor Day removes September 7 and Fall Break removes November 23. December 4, the last day of classes, is a Friday on which the campus follows a Monday schedule — that is our final meeting and showcase. No graded work is due on the October 8 reading day.
 
@@ -230,10 +232,8 @@ The University of Colorado Boulder is committed to supporting students' mental h
 ## Instructor decisions still needed
 
 1. Office hours.
-2. Approve or change the proposed `60% / 20% / 20%` weights (final project was tbd in your notes; this locks it at 20%).
-3. Attendance: this draft uses the recoverable 5-point version, not the letter-grade-per-2-misses version from your notes. Approve or swap.
-4. Confirm the weekly due time (drafted as Sunday 9 PM before each class) and the seven-day late-work window.
-5. Verify ChatGPT Edu / Codex access with a real colorado.edu login before class states it as free for everyone.
+2. Attendance: this draft uses the recoverable 5-point version, not the letter-grade-per-2-misses version from your notes. Approve or swap.
+3. Confirm the seven-day late-work window matches departmental expectations.
 
 ---
 
