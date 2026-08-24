@@ -154,7 +154,7 @@ The weekly briefs are not fixed in advance. Each week responds to what the room 
 | Week | Date | |
 |---:|---|---|
 | 1 | Aug 24 | Orientation; intention baseline due Sunday |
-| 2 | Aug 31 | Studio cycles begin; live building and conversation in class |
+| 2 | Aug 31 | Live studio time — building together in class, with space to build live and share |
 | — | Sep 7 | Labor Day — no class |
 | 3 | Sep 14 | Everyone demos — two weeks of work to share |
 | 4–10 | Sep 21 – Nov 2 | Weekly studio cycles; demo groups alternate |
