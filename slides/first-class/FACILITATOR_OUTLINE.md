@@ -1,6 +1,6 @@
 # Learn, Vibe, Build — first-class facilitator outline
 
-Recommended shape for the first meeting: **Monday, August 24, 5:05–7:35 PM, Roser ATLAS Center 104** — 150 minutes, about 21 students. The deck is intentionally a visual spine, not a teleprompter. Speaker notes are built into every slide: press `N` while presenting.
+Recommended shape for the first meeting: **Monday, August 24, 5:05–7:35 PM, Roser ATLAS Center 104** — 150 minutes, 23 students. The deck is intentionally a visual spine, not a teleprompter. Speaker notes are built into every slide: press `N` while presenting.
 
 ## The recommendation in one sentence
 
@@ -15,7 +15,7 @@ Make day one a culture implant: students should leave understanding that this is
 | 0:13 | 7 | Room pulse: coding and AI starting points | 3 |
 | 0:20 | 12 | Builder promise + the three-part thesis | 4–8 |
 | 0:32 | 6 | Aaron’s compressed path: technical work inside a whole life | 9 |
-| 0:38 | 47 | Twenty-one student introductions at a firm two minutes, plus transitions | 10 |
+| 0:38 | 47 | Twenty-three student introductions at a firm two minutes, plus transitions — with 23 this runs ~50 min, so protect it by keeping the biography tight | 10 |
 | 1:25 | 10 | Break | 11 |
 | 1:35 | 18 | Weekly loop, the three-part weekly unit, and what a useful demo includes | 12–14 |
 | 1:53 | 15 | First shared practice: write → partner questions → AI synthesis → critique | 15–16 |
@@ -57,15 +57,15 @@ After week one, every normal Studio Cycle has three visible parts:
 
 1. **Artifact (4/10):** a sincere attempt another person can encounter.
 2. **Human trace (3/10):** at least one paragraph in the student's own words about process, choices, friction, and learning.
-3. **Prepared share (3/10):** a demo, short talk, or another way of making the learning available to the room.
+3. **Studio share (3/10):** demos alternate — half the room each week (groups set in week 2). On demo weeks share anything alive in your practice; on off weeks, questions and useful feedback.
 
-The proposed course weights are 60% Weekly Studio Cycles, 20% Studio Presence, and 20% Final Project + Showcase. This gives undergraduates a legible path through an intentionally adaptive course. Scores track visible completion and participation; narrative feedback points toward the next attempt.
+Final course weights (matching Canvas and the syllabus): 50% Weekly Homework, 20% Attendance & Sharing, 30% Final Project + Showcase. This gives undergraduates a legible path through an intentionally adaptive course. Scores track visible completion and participation; narrative feedback points toward the next attempt.
 
 ## Week-one assignment: intention baseline
 
 Three paragraphs in the student’s own words:
 
-- Where am I starting—from AI experience to what I already know how to make?
+- My relationship with AI right now—how I use it, how it has grown, how I have felt impacted—and what I already know how to make.
 - What do I want to become capable of, and why does it matter to me?
 - What might I make, and what obstacles or support can I already see?
 
@@ -92,7 +92,7 @@ This still makes sharing and presence consequential while giving students a visi
 **Decide and test**
 
 - Verify the exact CU entitlement for ChatGPT/Codex with a real colorado.edu login before describing it as free to every student. Do not discover this live.
-- Review and resolve every `[CONFIRM]` item in the syllabus draft; publish the Canvas shell with the syllabus and the week-one assignment (due Sunday, August 30, 9 PM).
+- Review and resolve every `[CONFIRM]` item in the syllabus draft; publish the Canvas shell with the syllabus and the week-one assignment (due Sunday, August 30, 11:59 PM).
 - Decide whether the first shared artifact is saved in Canvas, the class studio, or simply shown and revisited next week.
 - Add the intention-baseline due date to slide 20.
 - Rehearse your live demo once, including a failure you recover from. The stuck moment is the lesson.
