@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tools — Learn, Vibe, Build · ATLS 4519</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #666;
+    --accent: #2456a4;
+    --bg: #fdfcf9;
+    --card: #ffffff;
+    --border: #e4e1da;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  main { max-width: 860px; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+  .back { font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .back a { color: var(--muted); text-decoration: none; }
+  .back a:hover { color: var(--accent); }
+  h1 { font-size: 2rem; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
+  p.lead { color: var(--muted); margin: 0 0 2rem; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+  .tool {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.2rem;
+  }
+  .tool h2 { margin: 0 0 0.3rem; font-size: 1.1rem; }
+  .tool .kind { font-size: 0.8rem; color: var(--accent); margin: 0 0 0.5rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .tool p { margin: 0 0 0.4rem; font-size: 0.92rem; }
+  .tool .cost { font-size: 0.85rem; color: var(--muted); }
+  .tool .used { font-size: 0.85rem; color: var(--muted); font-style: italic; }
+  .how {
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.2rem;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+</style>
+</head>
+<body>
+<main>
+  <p class="back"><a href="./">&larr; The Studio</a></p>
+  <h1>Tools</h1>
+  <p class="lead">What the class is using, what it costs, and what it's actually good at. This page grows from real use: when a project lands on the wall, it names its tools, and what we learn collects here.</p>
+
+  <div class="grid">
+    <div class="tool">
+      <p class="kind">Chat + coding agent</p>
+      <h2>ChatGPT + Codex</h2>
+      <p>The shared class floor. ChatGPT Edu is free with your CU login. Codex is the coding-agent side — build apps by describing them.</p>
+      <p class="cost">ChatGPT Edu: free at CU · Codex: $100 student credits, we claim them together in week 2</p>
+      <p class="used">Used in class: week 1 demo</p>
+    </div>
+    <div class="tool">
+      <p class="kind">Chat + coding agent</p>
+      <h2>Claude + Claude Code</h2>
+      <p>Strong at writing, reasoning, and agentic coding. The free tier is enough for real vibecoding. Claude Code runs in a terminal and builds whole projects.</p>
+      <p class="cost">Free tier: yes, enough for real vibecoding · Paid from $20/mo · students can apply for ~$50 in API credits (Anthropic Student Builders)</p>
+      <p class="used">Used in class: the class site is built by a Claude agent</p>
+    </div>
+    <div class="tool">
+      <p class="kind">AI code editor</p>
+      <h2>Cursor</h2>
+      <p>A code editor with AI built in — good middle ground when you want to see and touch the code while AI writes most of it.</p>
+      <p class="cost">Free tier: yes · The student free-year closed to new sign-ups June 2026; grad students &amp; researchers can request credits via Cursor's form</p>
+      <p class="used">Not yet used in class</p>
+    </div>
+    <div class="tool">
+      <p class="kind">Chat + multimodal</p>
+      <h2>Gemini</h2>
+      <p>Google's models — strong multimodal (images, video, long documents) and generous free access.</p>
+      <p class="cost">Free tier: yes · US college students: <a href="https://gemini.google/students/">free year of Google AI Pro</a>, claim by Dec 31, 2026 (needs a payment method; cancel before it renews)</p>
+      <p class="used">Not yet used in class</p>
+    </div>
+    <div class="tool">
+      <p class="kind">Local models</p>
+      <h2>Ollama + open models</h2>
+      <p>Run models on your own laptop. Free, private, works offline. Smaller models are getting genuinely good.</p>
+      <p class="cost">Free</p>
+      <p class="used">Not yet used in class</p>
+    </div>
+    <div class="tool">
+      <p class="kind">Your pick</p>
+      <h2>Anything else</h2>
+      <p>Image and video tools, music tools, anything that serves the work. If you use it for a project, it earns a card here.</p>
+      <p class="cost">—</p>
+      <p class="used">Propose one by using it</p>
+    </div>
+  </div>
+
+  <p class="how">This page exists because two people asked for it in week-1 feedback: a place to learn about the tools, and a way to see which tool made which project. The second half arrives with the first projects: every tile on the wall will name its tools, and you'll be able to follow a tool to everything the class made with it.</p>
+</main>
+</body>
+</html>
