@@ -105,6 +105,79 @@
   .submission .body p { margin: 0 0 0.6rem; font-size: 0.95rem; }
   .submission .body p:last-child { margin-bottom: 0; }
   .empty { color: var(--muted); font-style: italic; }
+
+  /* Rendered-markdown bodies */
+  .body.md { font-size: 0.95rem; overflow-wrap: break-word; }
+  .body.md > :first-child { margin-top: 0; }
+  .body.md > :last-child { margin-bottom: 0; }
+  .body.md h1, .body.md h2, .body.md h3, .body.md h4 {
+    font-size: 1.02rem; margin: 1rem 0 0.4rem; letter-spacing: 0;
+  }
+  .body.md p, .body.md ul, .body.md ol { margin: 0 0 0.6rem; }
+  .body.md ul, .body.md ol { padding-left: 1.4rem; }
+  .body.md li { margin-bottom: 0.2rem; }
+  .body.md a { color: var(--accent); }
+  .body.md blockquote {
+    margin: 0 0 0.6rem; padding: 0.1rem 0 0.1rem 0.9rem;
+    border-left: 3px solid var(--border); color: var(--muted);
+  }
+  .body.md code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85em; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 4px; padding: 0.05em 0.3em;
+  }
+  .body.md pre {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 0.7rem 0.9rem; overflow-x: auto;
+  }
+  .body.md pre code { border: none; background: none; padding: 0; }
+  .body.md img { max-width: 100%; height: auto; }
+  .body.md hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
+  /* Instructor dashboard */
+  .dash-stats {
+    display: flex; gap: 1rem; align-items: baseline; flex-wrap: wrap;
+    margin: 0 0 1rem;
+  }
+  .dash-stats .stat { font-size: 1.02rem; }
+  .dash-stats .stat strong { color: var(--accent); font-size: 1.25rem; }
+  .dash-stats .dot { color: var(--border); }
+  .dash-table-wrap { overflow-x: auto; }
+  table.dash {
+    width: 100%; border-collapse: collapse; font-size: 0.92rem;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  }
+  table.dash th, table.dash td {
+    text-align: left; padding: 0.55rem 0.9rem;
+    border-bottom: 1px solid var(--border); vertical-align: baseline;
+  }
+  table.dash th {
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--muted); font-weight: 600;
+  }
+  table.dash tr.student { cursor: pointer; }
+  table.dash tr.student:hover td { background: var(--bg); }
+  table.dash tr.open td { background: var(--bg); }
+  table.dash td.name { font-weight: 600; white-space: nowrap; }
+  table.dash td .email-sub {
+    display: block; font-weight: 400; font-size: 0.8rem; color: var(--muted);
+  }
+  table.dash tr.detail-row > td { background: var(--bg); padding: 0.9rem; }
+  table.dash tr.detail-row .card { margin-bottom: 0; }
+  .status-ok { color: #1c7a3d; font-weight: 600; }
+  .status-ok .when { color: var(--muted); font-weight: 400; font-size: 0.85rem; }
+  .status-missing { color: #a42424; }
+  .pill {
+    display: inline-block; font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.04em; border-radius: 999px; padding: 0.1rem 0.55rem;
+    border: 1px solid var(--border); color: var(--muted); white-space: nowrap;
+  }
+  .pill.yes { border-color: #1c7a3d; color: #1c7a3d; }
+  .preview-note {
+    border: 1px dashed var(--accent); border-radius: 10px;
+    padding: 0.6rem 1rem; margin-bottom: 1rem; color: var(--accent);
+    font-size: 0.9rem;
+  }
 </style>
 </head>
 <body>
@@ -152,12 +225,37 @@
     <h3 class="section">Class feed</h3>
     <div id="feed"></div>
 
-    <div id="roster-section" class="hidden">
-      <h3 class="section">Roster (instructor view)</h3>
-      <div id="roster"></div>
+    <div id="dashboard" class="hidden">
+      <h3 class="section" style="display:flex; align-items:baseline; gap:0.8rem;">
+        Classroom (instructor view)
+        <button id="dash-refresh" class="quiet" type="button"
+                style="font-size:0.85rem; padding:0.25rem 0.8rem;">Refresh</button>
+      </h3>
+      <div id="dash-stats" class="dash-stats"></div>
+      <div class="dash-table-wrap">
+        <table class="dash">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Week 1</th>
+              <th>Signed in</th>
+              <th>Visibility</th>
+            </tr>
+          </thead>
+          <tbody id="dash-rows"></tbody>
+        </table>
+      </div>
+      <p class="hint">Click a student to read their submission. Refresh re-pulls
+        without reloading the page.</p>
     </div>
   </section>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/marked@14.1.4/marked.min.js"
+        integrity="sha384-lqPzN0kmFw9t2syAMwVPM4VbAyqsz/lPyYWbb2Xt6nSPM0WPNrpSWCUBgdcAdgnC"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"
+        integrity="sha384-XQqX/4yiUGu+oyr87jvWzRuqBUK/adrY0DunhL+tID9m/9dwSpV8h9Fk/Sg6ifVQ"
+        crossorigin="anonymous"></script>
 <script type="module" src="./app.js"></script>
 </body>
 </html>

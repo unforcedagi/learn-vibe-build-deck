@@ -42,6 +42,18 @@ async function boot() {
     /* network trouble — fall through to the sign-in form */
   }
 
+  // Layout preview with fake data only — never grants access to real data.
+  // A signed-in instructor sees the real thing regardless of this flag.
+  const preview = new URLSearchParams(window.location.search).get('preview');
+  if (!me && preview === 'instructor') {
+    showAccount(mockInstructorMe());
+    const note = document.createElement('p');
+    note.className = 'preview-note';
+    note.textContent = 'Layout preview — sample data only. Sign in to see the real dashboard.';
+    $('account').prepend(note);
+    return;
+  }
+
   if (me) {
     showAccount(me);
   } else {
@@ -128,11 +140,11 @@ function showAccount(me) {
   $('student-email').textContent = me.email || '';
 
   renderSubmissions(me.submissions || []);
-  loadFeed();
+  if (!me.__mock) loadFeed();
 
   if (me.is_instructor && me.roster) {
-    show($('roster-section'));
-    renderRoster(me.roster);
+    show($('dashboard'));
+    renderDashboard(me.roster);
   }
 }
 
@@ -176,34 +188,173 @@ async function loadFeed() {
   }
 }
 
-function renderRoster(roster) {
-  const box = $('roster');
-  box.textContent = '';
-  for (const student of roster) {
-    const card = document.createElement('div');
-    card.className = 'card';
+// ---------------------------------------------------------------------------
+// Instructor dashboard
+// ---------------------------------------------------------------------------
 
-    const head = document.createElement('div');
-    head.className = 'meta';
-    const name = document.createElement('span');
-    name.className = 'week';
+const CURRENT_WEEK = 1;
+
+function renderDashboard(roster) {
+  renderDashStats(roster);
+  renderDashRows(roster);
+}
+
+function renderDashStats(roster) {
+  const total = roster.length;
+  const submitted = roster.filter((s) =>
+    (s.submissions || []).some((sub) => sub.week === CURRENT_WEEK)).length;
+  const signedIn = roster.filter((s) => s.signed_in).length;
+
+  const box = $('dash-stats');
+  box.textContent = '';
+  const stat = (n, label) => {
+    const span = document.createElement('span');
+    span.className = 'stat';
+    const strong = document.createElement('strong');
+    strong.textContent = String(n);
+    span.appendChild(strong);
+    span.appendChild(document.createTextNode(' ' + label));
+    return span;
+  };
+  const dot = () => {
+    const s = document.createElement('span');
+    s.className = 'dot';
+    s.textContent = '·';
+    return s;
+  };
+  box.appendChild(stat(`${submitted} of ${total}`, `submitted week ${CURRENT_WEEK}`));
+  box.appendChild(dot());
+  box.appendChild(stat(signedIn, 'signed in so far'));
+}
+
+function renderDashRows(roster) {
+  const tbody = $('dash-rows');
+  tbody.textContent = '';
+
+  for (const student of roster) {
+    const subs = student.submissions || [];
+    const week1 = subs.find((s) => s.week === CURRENT_WEEK) || null;
+
+    const tr = document.createElement('tr');
+    tr.className = 'student';
+
+    const name = document.createElement('td');
+    name.className = 'name';
     name.textContent = student.name;
     const email = document.createElement('span');
-    email.className = 'date';
+    email.className = 'email-sub';
     email.textContent = student.email;
-    head.appendChild(name);
-    head.appendChild(email);
-    card.appendChild(head);
+    name.appendChild(email);
+    tr.appendChild(name);
 
-    if (!student.submissions || student.submissions.length === 0) {
-      card.appendChild(emptyNote('No submissions.'));
+    const status = document.createElement('td');
+    if (week1) {
+      status.className = 'status-ok';
+      status.textContent = 'submitted ';
+      const when = document.createElement('span');
+      when.className = 'when';
+      when.textContent = week1.submitted_at
+        ? new Date(week1.submitted_at).toLocaleDateString(undefined, {
+            month: 'short', day: 'numeric',
+          })
+        : '';
+      status.appendChild(when);
     } else {
-      for (const sub of student.submissions) {
-        card.appendChild(renderSubmission(sub, {}));
-      }
+      status.className = 'status-missing';
+      status.textContent = 'missing';
     }
-    box.appendChild(card);
+    tr.appendChild(status);
+
+    const signed = document.createElement('td');
+    const pill = document.createElement('span');
+    pill.className = 'pill' + (student.signed_in ? ' yes' : '');
+    pill.textContent = student.signed_in ? 'signed in' : 'never';
+    signed.appendChild(pill);
+    tr.appendChild(signed);
+
+    const vis = document.createElement('td');
+    vis.textContent = week1 ? (week1.visibility === 'class' ? 'shared with class' : 'private') : '—';
+    tr.appendChild(vis);
+
+    tbody.appendChild(tr);
+
+    tr.addEventListener('click', () => toggleStudentDetail(tr, student, subs));
   }
+}
+
+function toggleStudentDetail(tr, student, subs) {
+  const next = tr.nextElementSibling;
+  if (next && next.classList.contains('detail-row')) {
+    next.remove();
+    tr.classList.remove('open');
+    return;
+  }
+  // Close any other open detail first.
+  const tbody = tr.parentElement;
+  for (const row of [...tbody.querySelectorAll('tr.detail-row')]) row.remove();
+  for (const row of [...tbody.querySelectorAll('tr.open')]) row.classList.remove('open');
+
+  tr.classList.add('open');
+  const detail = document.createElement('tr');
+  detail.className = 'detail-row';
+  const td = document.createElement('td');
+  td.colSpan = 4;
+  if (subs.length === 0) {
+    td.appendChild(emptyNote(`Nothing submitted yet from ${student.name}.`));
+  } else {
+    for (const sub of subs) {
+      td.appendChild(renderSubmission(sub, {}));
+    }
+  }
+  detail.appendChild(td);
+  tr.after(detail);
+}
+
+$('dash-refresh').addEventListener('click', async () => {
+  const btn = $('dash-refresh');
+  btn.disabled = true;
+  btn.textContent = 'Refreshing…';
+  try {
+    const res = await api('/me');
+    if (res.ok) {
+      const me = await res.json();
+      if (me.is_instructor && me.roster) renderDashboard(me.roster);
+    }
+  } catch {
+    /* leave the current view in place */
+  }
+  btn.disabled = false;
+  btn.textContent = 'Refresh';
+});
+
+// Fake data so the dashboard layout can be previewed without a session.
+function mockInstructorMe() {
+  const mk = (name, i, opts = {}) => ({
+    name,
+    email: `sample${i}@colorado.edu`,
+    signed_in: !!opts.signed_in,
+    submissions: opts.submitted
+      ? [{
+          id: 9000 + i, week: 1,
+          body: '# Sample submission\n\nThis is **sample markdown** with a list:\n\n- one\n- two\n\nAnd a [link](https://cu.learnvibe.build).',
+          submitted_at: '2026-08-30T18:00:00Z',
+          visibility: i % 2 ? 'private' : 'class',
+        }]
+      : [],
+  });
+  return {
+    __mock: true,
+    name: 'Preview',
+    email: 'preview@example.com',
+    is_instructor: true,
+    submissions: [],
+    roster: [
+      mk('Ada Lovelace', 1, { submitted: true, signed_in: true }),
+      mk('Grace Hopper', 2, { submitted: true }),
+      mk('Alan Turing', 3, { signed_in: true }),
+      mk('Katherine Johnson', 4, {}),
+    ],
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -260,17 +411,30 @@ function renderSubmission(sub, { toggle = false, author = null } = {}) {
 
   card.appendChild(meta);
 
-  const body = document.createElement('div');
-  body.className = 'body';
-  for (const para of (sub.body || '').split(/\n\s*\n/)) {
-    if (!para.trim()) continue;
-    const p = document.createElement('p');
-    p.textContent = para.trim();
-    body.appendChild(p);
-  }
-  card.appendChild(body);
+  card.appendChild(markdownBody(sub.body));
 
   return card;
+}
+
+// Bodies are markdown (converted from Canvas HTML server-side). Render with
+// marked, then sanitize with DOMPurify before it touches the DOM — never
+// inject unsanitized output. Both libraries are pinned + SRI'd in index.html.
+function markdownBody(md) {
+  const div = document.createElement('div');
+  div.className = 'body md';
+  if (window.marked && window.DOMPurify) {
+    const html = window.marked.parse(md || '', { async: false });
+    div.innerHTML = window.DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+  } else {
+    // CDN unreachable — fall back to plain paragraphs, never raw HTML.
+    for (const para of (md || '').split(/\n\s*\n/)) {
+      if (!para.trim()) continue;
+      const p = document.createElement('p');
+      p.textContent = para.trim();
+      div.appendChild(p);
+    }
+  }
+  return div;
 }
 
 function emptyNote(msg) {

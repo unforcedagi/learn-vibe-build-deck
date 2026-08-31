@@ -202,8 +202,15 @@ async function handleMe(request, env) {
   };
 
   if (me.is_instructor) {
+    // signed_in: has ever completed a sign-in. Session rows count, but so do
+    // consumed magic tokens (logout deletes the session row; the used token
+    // is the durable evidence).
     const rows = await env.DB.prepare(
-      `SELECT s.name, s.email, s.is_instructor,
+      `SELECT s.name, s.email, s.canvas_id,
+              (EXISTS (SELECT 1 FROM sessions ses WHERE ses.student_id = s.id)
+               OR EXISTS (SELECT 1 FROM magic_tokens mt
+                           WHERE mt.email = s.email AND mt.used_at IS NOT NULL)
+              ) AS signed_in,
               sub.id AS sub_id, sub.week, sub.body, sub.submitted_at, sub.visibility
          FROM students s
          LEFT JOIN submissions sub ON sub.student_id = s.id
@@ -212,7 +219,14 @@ async function handleMe(request, env) {
     ).all();
     const roster = new Map();
     for (const r of rows.results) {
-      if (!roster.has(r.email)) roster.set(r.email, { name: r.name, email: r.email, submissions: [] });
+      if (!roster.has(r.email)) {
+        roster.set(r.email, {
+          name: r.name, email: r.email,
+          on_canvas: !!r.canvas_id,
+          signed_in: !!r.signed_in,
+          submissions: [],
+        });
+      }
       if (r.sub_id != null) {
         roster.get(r.email).submissions.push({
           id: r.sub_id, week: r.week, body: r.body,
