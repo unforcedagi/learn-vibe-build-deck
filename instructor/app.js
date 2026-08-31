@@ -214,9 +214,7 @@ function renderRoster(roster, currentWeek) {
     tr.appendChild(signed);
 
     const vis = document.createElement('td');
-    vis.textContent = thisWeek
-      ? (thisWeek.visibility === 'class' ? 'shared with class' : 'private')
-      : '—';
+    vis.textContent = thisWeek ? (writingIsShared(thisWeek) ? 'shared with class' : 'private') : '—';
     tr.appendChild(vis);
 
     tbody.appendChild(tr);
@@ -249,6 +247,12 @@ function toggleStudentDetail(tr, student, subs) {
   tr.after(detail);
 }
 
+// Week-1 Canvas rows carry `visibility` instead of `share_writing` — fall
+// back so both shapes render correctly (same contract as account/app.js).
+function writingIsShared(sub) {
+  return sub.share_writing !== undefined ? !!sub.share_writing : sub.visibility === 'class';
+}
+
 function renderSubmission(sub) {
   const card = document.createElement('div');
   card.className = 'card';
@@ -261,9 +265,17 @@ function renderSubmission(sub) {
   week.style.marginRight = '0.8rem';
   meta.appendChild(week);
 
+  if (sub.link_url) {
+    const buildBadge = document.createElement('span');
+    buildBadge.className = 'badge' + (sub.share_build ? ' public' : '');
+    buildBadge.textContent = `Build: ${sub.share_build ? 'shared' : 'private'}`;
+    meta.appendChild(buildBadge);
+  }
+
+  const shared = writingIsShared(sub);
   const badge = document.createElement('span');
-  badge.className = 'badge' + (sub.visibility === 'class' ? ' public' : '');
-  badge.textContent = sub.visibility === 'class' ? 'shared with class' : 'private';
+  badge.className = 'badge' + (shared ? ' public' : '');
+  badge.textContent = `Writing: ${shared ? 'shared' : 'private'}`;
   meta.appendChild(badge);
   meta.style.display = 'flex';
   meta.style.gap = '0.8rem';
@@ -271,6 +283,19 @@ function renderSubmission(sub) {
   meta.style.marginBottom = '0.5rem';
 
   card.appendChild(meta);
+
+  if (sub.link_url) {
+    const link = document.createElement('p');
+    link.style.margin = '0 0 0.6rem';
+    const a = document.createElement('a');
+    a.href = sub.link_url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = sub.link_url;
+    link.appendChild(a);
+    card.appendChild(link);
+  }
+
   card.appendChild(markdownBody(sub.body));
   return card;
 }

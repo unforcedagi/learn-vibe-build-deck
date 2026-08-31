@@ -16,7 +16,14 @@ CREATE TABLE IF NOT EXISTS submissions (
   week INTEGER NOT NULL,
   body TEXT,
   submitted_at TEXT,
-  visibility TEXT NOT NULL DEFAULT 'private' CHECK (visibility IN ('private','class'))
+  visibility TEXT NOT NULL DEFAULT 'private' CHECK (visibility IN ('private','class')),
+  -- Site-native submissions (week 2 on) carry a build link plus two
+  -- independent share flags. Canvas-synced rows (week 1) leave link_url NULL
+  -- and share_build 0; their `visibility` was backfilled into share_writing
+  -- at migration time so the UI can read one set of fields either way.
+  link_url TEXT,
+  share_build INTEGER NOT NULL DEFAULT 0,
+  share_writing INTEGER NOT NULL DEFAULT 0
 );
 
 -- One submission per student per week; makes seeding idempotent.

@@ -197,7 +197,8 @@ async function instructorRoster(env) {
              OR EXISTS (SELECT 1 FROM magic_tokens mt
                          WHERE mt.email = s.email AND mt.used_at IS NOT NULL)
             ) AS signed_in,
-            sub.id AS sub_id, sub.week, sub.body, sub.submitted_at, sub.visibility
+            sub.id AS sub_id, sub.week, sub.body, sub.submitted_at,
+            sub.link_url, sub.share_build, sub.share_writing
        FROM students s
        LEFT JOIN submissions sub ON sub.student_id = s.id
       WHERE s.is_instructor = 0
@@ -216,7 +217,8 @@ async function instructorRoster(env) {
     if (r.sub_id != null) {
       roster.get(r.email).submissions.push({
         id: r.sub_id, week: r.week, body: r.body,
-        submitted_at: r.submitted_at, visibility: r.visibility,
+        submitted_at: r.submitted_at, link_url: r.link_url,
+        share_build: !!r.share_build, share_writing: !!r.share_writing,
       });
     }
   }
@@ -228,7 +230,7 @@ async function handleMe(request, env) {
   if (!me) return json(env, { error: 'unauthorized' }, 401);
 
   const subs = await env.DB.prepare(
-    `SELECT id, week, body, submitted_at, visibility
+    `SELECT id, week, body, submitted_at, link_url, share_build, share_writing
        FROM submissions WHERE student_id = ? ORDER BY week`
   ).bind(me.id).all();
 
@@ -236,7 +238,10 @@ async function handleMe(request, env) {
     name: me.name,
     email: me.email,
     is_instructor: !!me.is_instructor,
-    submissions: subs.results,
+    open_week: OPEN_WEEK,
+    submissions: subs.results.map((s) => ({
+      ...s, share_build: !!s.share_build, share_writing: !!s.share_writing,
+    })),
   };
 
   if (me.is_instructor) {
@@ -244,6 +249,65 @@ async function handleMe(request, env) {
   }
 
   return json(env, out);
+}
+
+// The week currently accepting new site-native submissions (build link +
+// writing, both share flags). Bump when a new week's assignment opens.
+const OPEN_WEEK = 2;
+const MIN_WRITING_CHARS = 120; // roughly a short paragraph
+
+function isHttpUrl(s) {
+  try {
+    const u = new URL(s);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+async function handleSubmit(request, env) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json(env, { error: 'bad_request' }, 400);
+  }
+
+  const week = Number(body.week);
+  const linkUrl = String(body.link_url || '').trim();
+  const writing = String(body.body || '').trim();
+  const shareBuild = !!body.share_build;
+  const shareWriting = !!body.share_writing;
+
+  if (week !== OPEN_WEEK) return json(env, { error: 'week_closed' }, 400);
+  if (!isHttpUrl(linkUrl)) return json(env, { error: 'bad_link' }, 400);
+  if (writing.length < MIN_WRITING_CHARS) {
+    return json(env, { error: 'writing_too_short', min_chars: MIN_WRITING_CHARS }, 400);
+  }
+
+  await env.DB.prepare(
+    `INSERT INTO submissions (student_id, week, body, link_url, share_build, share_writing, submitted_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(student_id, week) DO UPDATE SET
+       body = excluded.body,
+       link_url = excluded.link_url,
+       share_build = excluded.share_build,
+       share_writing = excluded.share_writing,
+       submitted_at = excluded.submitted_at`
+  ).bind(me.id, week, writing, linkUrl, shareBuild ? 1 : 0, shareWriting ? 1 : 0, nowISO()).run();
+
+  const row = await env.DB.prepare(
+    `SELECT id, week, body, submitted_at, link_url, share_build, share_writing
+       FROM submissions WHERE student_id = ? AND week = ?`
+  ).bind(me.id, week).first();
+
+  return json(env, {
+    ok: true,
+    submission: { ...row, share_build: !!row.share_build, share_writing: !!row.share_writing },
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -355,14 +419,21 @@ async function handleFeed(request, env) {
   if (!me) return json(env, { error: 'unauthorized' }, 401);
 
   const rows = await env.DB.prepare(
-    `SELECT sub.id, sub.week, sub.body, sub.submitted_at, s.name AS author
+    `SELECT sub.id, sub.week, sub.body, sub.submitted_at, sub.link_url,
+            sub.share_build, sub.share_writing, s.name AS author
        FROM submissions sub JOIN students s ON s.id = sub.student_id
-      WHERE sub.visibility = 'class'
+      WHERE sub.share_build = 1 OR sub.share_writing = 1
       ORDER BY sub.week, s.name`
   ).all();
-  return json(env, { feed: rows.results });
+  const feed = rows.results.map((r) => ({
+    ...r, share_build: !!r.share_build, share_writing: !!r.share_writing,
+  }));
+  return json(env, { feed });
 }
 
+// Legacy endpoint (week-1 Canvas cards, cached pre-share-flags clients):
+// keeps `visibility` and `share_writing` in sync so feed/instructor reads
+// agree regardless of which endpoint a client hits.
 async function handleVisibility(request, env, id) {
   const me = await currentStudent(request, env);
   if (!me) return json(env, { error: 'unauthorized' }, 401);
@@ -379,12 +450,40 @@ async function handleVisibility(request, env, id) {
   }
 
   const res = await env.DB.prepare(
-    'UPDATE submissions SET visibility = ? WHERE id = ? AND student_id = ?'
-  ).bind(visibility, id, me.id).run();
+    'UPDATE submissions SET visibility = ?, share_writing = ? WHERE id = ? AND student_id = ?'
+  ).bind(visibility, visibility === 'class' ? 1 : 0, id, me.id).run();
   if (!res.meta || res.meta.changes !== 1) {
     return json(env, { error: 'not_found' }, 404);
   }
   return json(env, { ok: true, id: Number(id), visibility });
+}
+
+// New per-field share toggle — used by the site-native submission cards
+// (build link and writing share independently).
+async function handleShare(request, env, id) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json(env, { error: 'bad_request' }, 400);
+  }
+  const field = body.field;
+  if (field !== 'build' && field !== 'writing') {
+    return json(env, { error: 'bad_field' }, 400);
+  }
+  const value = !!body.value;
+  const column = field === 'build' ? 'share_build' : 'share_writing';
+
+  const res = await env.DB.prepare(
+    `UPDATE submissions SET ${column} = ? WHERE id = ? AND student_id = ?`
+  ).bind(value ? 1 : 0, id, me.id).run();
+  if (!res.meta || res.meta.changes !== 1) {
+    return json(env, { error: 'not_found' }, 404);
+  }
+  return json(env, { ok: true, id: Number(id), field, value });
 }
 
 async function handleLogout(request, env) {
@@ -423,6 +522,7 @@ export default {
       if (path === '/auth/logout' && request.method === 'POST') return handleLogout(request, env);
       if (path === '/me' && request.method === 'GET') return handleMe(request, env);
       if (path === '/feed' && request.method === 'GET') return handleFeed(request, env);
+      if (path === '/submissions' && request.method === 'POST') return handleSubmit(request, env);
       if (path === '/instructor/data' && request.method === 'GET') return handleInstructorData(request, env);
       if (path === '/admin/reads' && request.method === 'POST') return handleReadsUpsert(request, env);
       if (path === '/admin/reads' && request.method === 'GET') return handleReadsList(request, env);
@@ -430,6 +530,8 @@ export default {
       if (readDel && request.method === 'DELETE') return handleReadsDelete(request, env, readDel[1], readDel[2]);
       const vis = path.match(/^\/submissions\/(\d+)\/visibility$/);
       if (vis && request.method === 'POST') return handleVisibility(request, env, vis[1]);
+      const share = path.match(/^\/submissions\/(\d+)\/share$/);
+      if (share && request.method === 'POST') return handleShare(request, env, share[1]);
       return json(env, { error: 'not_found' }, 404);
     } catch (err) {
       console.error('unhandled:', err.stack || err.message);

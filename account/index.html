@@ -216,10 +216,40 @@
       </div>
       <button id="signout" class="quiet" type="button">Sign out</button>
     </div>
+    <h3 class="section" id="submit-section-title">This week&rsquo;s submission</h3>
+    <form id="submit-form" class="card" style="flex-direction:column; align-items:stretch; gap:1rem;">
+      <div>
+        <label for="submit-link" style="display:block; font-weight:600; margin-bottom:0.3rem;">Your build</label>
+        <input id="submit-link" type="url" required placeholder="https://&hellip; a link to what you built"
+               style="width:100%; font:inherit; padding:0.55rem 0.8rem; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--ink);">
+        <p class="hint" style="margin:0.4rem 0 0;">A URL if it lives anywhere on the
+          web. No upload yet on the site &mdash; if you can&rsquo;t link it, submit a
+          photo or video on Canvas instead.</p>
+      </div>
+      <div>
+        <label for="submit-writing" style="display:block; font-weight:600; margin-bottom:0.3rem;">Your writing</label>
+        <textarea id="submit-writing" required rows="6" placeholder="One paragraph minimum, no maximum. Must be your own writing, not AI's. What you're making, your process, anything you want to learn, how class is going."
+               style="width:100%; font:inherit; padding:0.55rem 0.8rem; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--ink); resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex; gap:1.5rem; flex-wrap:wrap;">
+        <label style="display:flex; align-items:center; gap:0.4rem; font-weight:400;">
+          <input id="share-build" type="checkbox"> Share my build with the class
+        </label>
+        <label style="display:flex; align-items:center; gap:0.4rem; font-weight:400;">
+          <input id="share-writing" type="checkbox"> Share my writing with the class
+        </label>
+      </div>
+      <div>
+        <button id="submit-btn" type="submit">Submit</button>
+        <span id="submit-status" class="hint" style="margin:0 0 0 0.6rem;"></span>
+      </div>
+      <p id="submit-error" class="error hidden"></p>
+    </form>
+
     <h3 class="section">Your submissions</h3>
-    <p class="hint" style="margin-top:0">Submissions start private. &ldquo;Share
-      with class&rdquo; puts one in the class feed below, where signed-in
-      classmates can read it.</p>
+    <p class="hint" style="margin-top:0">Private by default. The two checkboxes
+      above put a submission in the class feed below, where signed-in
+      classmates can read it &mdash; build and writing share independently.</p>
     <div id="submissions"></div>
 
     <h3 class="section">Class feed</h3>
@@ -259,6 +289,6 @@
 <!-- The ?v= ties this HTML to the matching app.js: a cached copy of one can
      never load a mismatched copy of the other (that mix blanked the page on
      2026-08-31). Bump it whenever app.js and index.html change together. -->
-<script type="module" src="./app.js?v=3"></script>
+<script type="module" src="./app.js?v=4"></script>
 </body>
 </html>

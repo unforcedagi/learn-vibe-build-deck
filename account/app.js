@@ -149,6 +149,7 @@ function showAccount(me) {
 
   renderSubmissions(me.submissions || []);
   if (!me.__mock) loadFeed();
+  if (me.open_week) setupSubmitForm(me);
 
   // The dashboard must never take the rest of the page down with it.
   if (me.is_instructor && me.roster) {
@@ -193,6 +194,84 @@ function renderSubmissions(submissions) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Weekly submission form (build link + writing, two independent share flags)
+// ---------------------------------------------------------------------------
+
+const MIN_WRITING_CHARS = 120; // mirrors the server-side floor
+
+function setupSubmitForm(me) {
+  const title = $('submit-section-title');
+  if (title) title.textContent = `Week ${me.open_week}'s submission`;
+
+  const existing = (me.submissions || []).find((s) => s.week === me.open_week) || null;
+  if (existing) {
+    $('submit-link').value = existing.link_url || '';
+    $('submit-writing').value = existing.body || '';
+    $('share-build').checked = !!existing.share_build;
+    $('share-writing').checked = !!existing.share_writing;
+    $('submit-btn').textContent = 'Update submission';
+    $('submit-status').textContent = existing.submitted_at
+      ? `Last saved ${new Date(existing.submitted_at).toLocaleString()}`
+      : '';
+  }
+
+  on('submit-form', 'submit', async (e) => {
+    e.preventDefault();
+    hide($('submit-error'));
+
+    const linkUrl = $('submit-link').value.trim();
+    const writing = $('submit-writing').value.trim();
+    if (writing.length < MIN_WRITING_CHARS) {
+      showSubmitError(`A bit more, please — one paragraph minimum (${writing.length}/${MIN_WRITING_CHARS} characters).`);
+      return;
+    }
+
+    const btn = $('submit-btn');
+    btn.disabled = true;
+    let res;
+    try {
+      res = await postJSON('/submissions', {
+        week: me.open_week,
+        link_url: linkUrl,
+        body: writing,
+        share_build: $('share-build').checked,
+        share_writing: $('share-writing').checked,
+      });
+    } catch {
+      btn.disabled = false;
+      showSubmitError('Couldn’t reach the accounts server — try again in a moment.');
+      return;
+    }
+    btn.disabled = false;
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      if (errBody.error === 'bad_link') showSubmitError('That doesn’t look like a URL — include https://');
+      else if (errBody.error === 'writing_too_short') showSubmitError('A bit more, please — one paragraph minimum.');
+      else showSubmitError('Couldn’t save — try again, or tell Aaron.');
+      return;
+    }
+
+    const { submission } = await res.json();
+    btn.textContent = 'Update submission';
+    $('submit-status').textContent = `Saved ${new Date(submission.submitted_at).toLocaleString()}`;
+
+    me.submissions = [
+      ...(me.submissions || []).filter((s) => s.week !== me.open_week),
+      submission,
+    ];
+    renderSubmissions(me.submissions);
+    loadFeed();
+  });
+}
+
+function showSubmitError(msg) {
+  const el = $('submit-error');
+  el.textContent = msg;
+  show(el);
+}
+
 async function loadFeed() {
   const list = $('feed');
   list.textContent = '';
@@ -213,10 +292,7 @@ async function loadFeed() {
     return;
   }
   for (const item of feed) {
-    list.appendChild(renderSubmission(
-      { ...item, visibility: 'class' },
-      { author: item.author }
-    ));
+    list.appendChild(renderSubmission(item, { author: item.author }));
   }
 }
 
@@ -393,6 +469,13 @@ function mockInstructorMe() {
 // Submission cards
 // ---------------------------------------------------------------------------
 
+// Week-1 Canvas rows never set share_build/share_writing explicitly in the
+// mock preview data; fall back to the legacy `visibility` field so both old
+// and new shapes render correctly.
+function writingIsShared(sub) {
+  return sub.share_writing !== undefined ? !!sub.share_writing : sub.visibility === 'class';
+}
+
 function renderSubmission(sub, { toggle = false, author = null } = {}) {
   const card = document.createElement('div');
   card.className = 'card submission';
@@ -414,38 +497,66 @@ function renderSubmission(sub, { toggle = false, author = null } = {}) {
     meta.appendChild(date);
   }
 
+  const hasLink = !!sub.link_url;
+  if (hasLink) meta.appendChild(shareToggle(sub, 'build', 'Build', toggle));
+  meta.appendChild(shareToggle(sub, 'writing', 'Writing', toggle));
+
+  card.appendChild(meta);
+
+  if (hasLink) {
+    const link = document.createElement('p');
+    link.style.margin = '0 0 0.6rem';
+    const a = document.createElement('a');
+    a.href = sub.link_url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = sub.link_url;
+    link.appendChild(a);
+    card.appendChild(link);
+  }
+
+  card.appendChild(markdownBody(sub.body));
+
+  return card;
+}
+
+// One badge + optional toggle button for a single share flag (build or
+// writing) — the two flags are independent, so each gets its own pair.
+function shareToggle(sub, field, label, toggle) {
+  const wrap = document.createElement('span');
+  wrap.style.display = 'inline-flex';
+  wrap.style.alignItems = 'baseline';
+  wrap.style.gap = '0.4rem';
+
+  const shared = field === 'build' ? !!sub.share_build : writingIsShared(sub);
   const badge = document.createElement('span');
-  badge.className = 'badge' + (sub.visibility === 'class' ? ' public' : '');
-  badge.textContent = sub.visibility === 'class' ? 'shared with class' : 'private';
-  meta.appendChild(badge);
+  badge.className = 'badge' + (shared ? ' public' : '');
+  badge.textContent = `${label}: ${shared ? 'shared' : 'private'}`;
+  wrap.appendChild(badge);
 
   if (toggle) {
     const btn = document.createElement('button');
     btn.className = 'quiet';
     btn.type = 'button';
-    btn.textContent = sub.visibility === 'class' ? 'Make private' : 'Share with class';
+    btn.textContent = shared ? 'Make private' : 'Share';
     btn.addEventListener('click', async () => {
       btn.disabled = true;
-      const next = sub.visibility === 'class' ? 'private' : 'class';
-      const res = await postJSON(`/submissions/${sub.id}/visibility`, { visibility: next })
+      const next = !shared;
+      const res = await postJSON(`/submissions/${sub.id}/share`, { field, value: next })
         .catch(() => null);
       btn.disabled = false;
       if (res && res.ok) {
-        sub.visibility = next;
-        badge.className = 'badge' + (next === 'class' ? ' public' : '');
-        badge.textContent = next === 'class' ? 'shared with class' : 'private';
-        btn.textContent = next === 'class' ? 'Make private' : 'Share with class';
+        if (field === 'build') sub.share_build = next; else sub.share_writing = next;
+        badge.className = 'badge' + (next ? ' public' : '');
+        badge.textContent = `${label}: ${next ? 'shared' : 'private'}`;
+        btn.textContent = next ? 'Make private' : 'Share';
         loadFeed();
       }
     });
-    meta.appendChild(btn);
+    wrap.appendChild(btn);
   }
 
-  card.appendChild(meta);
-
-  card.appendChild(markdownBody(sub.body));
-
-  return card;
+  return wrap;
 }
 
 // Bodies are markdown (converted from Canvas HTML server-side). Render with
