@@ -10,8 +10,16 @@
 import { API_BASE } from './config.js';
 
 const $ = (id) => document.getElementById(id);
-const show = (el) => el.classList.remove('hidden');
-const hide = (el) => el.classList.add('hidden');
+const show = (el) => el && el.classList.remove('hidden');
+const hide = (el) => el && el.classList.add('hidden');
+
+// Attach a listener only if the element exists. A stale cached index.html can
+// briefly disagree with this file about which elements are on the page; a
+// missing one must degrade to a dead button, not kill the whole module.
+const on = (id, event, fn) => {
+  const el = $(id);
+  if (el) el.addEventListener(event, fn);
+};
 
 const api = (path, opts = {}) =>
   fetch(API_BASE + path, { credentials: 'include', ...opts });
@@ -70,7 +78,7 @@ boot();
 // Sign-in form
 // ---------------------------------------------------------------------------
 
-$('signin-form').addEventListener('submit', async (e) => {
+on('signin-form', 'submit', async (e) => {
   e.preventDefault();
   const email = $('email').value.trim().toLowerCase();
   if (!email) return;
@@ -105,13 +113,13 @@ $('signin-form').addEventListener('submit', async (e) => {
   }
 });
 
-$('try-again').addEventListener('click', () => {
+on('try-again', 'click', () => {
   hide($('sent'));
   show($('signin'));
   $('email').focus();
 });
 
-$('signout').addEventListener('click', async () => {
+on('signout', 'click', async () => {
   try {
     await postJSON('/auth/logout', {});
   } finally {
@@ -142,9 +150,14 @@ function showAccount(me) {
   renderSubmissions(me.submissions || []);
   if (!me.__mock) loadFeed();
 
+  // The dashboard must never take the rest of the page down with it.
   if (me.is_instructor && me.roster) {
-    show($('dashboard'));
-    renderDashboard(me.roster);
+    try {
+      show($('dashboard'));
+      renderDashboard(me.roster);
+    } catch (err) {
+      console.error('dashboard render failed:', err);
+    }
   }
 }
 
@@ -310,7 +323,7 @@ function toggleStudentDetail(tr, student, subs) {
   tr.after(detail);
 }
 
-$('dash-refresh').addEventListener('click', async () => {
+on('dash-refresh', 'click', async () => {
   const btn = $('dash-refresh');
   btn.disabled = true;
   btn.textContent = 'Refreshing…';

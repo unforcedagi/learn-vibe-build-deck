@@ -256,6 +256,9 @@
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"
         integrity="sha384-XQqX/4yiUGu+oyr87jvWzRuqBUK/adrY0DunhL+tID9m/9dwSpV8h9Fk/Sg6ifVQ"
         crossorigin="anonymous"></script>
-<script type="module" src="./app.js"></script>
+<!-- The ?v= ties this HTML to the matching app.js: a cached copy of one can
+     never load a mismatched copy of the other (that mix blanked the page on
+     2026-08-31). Bump it whenever app.js and index.html change together. -->
+<script type="module" src="./app.js?v=2"></script>
 </body>
 </html>
