@@ -113,13 +113,6 @@
   <h1>Your account</h1>
   <p class="lead">Sign in with the email on your Canvas account — no password, we email you a link.</p>
 
-  <!-- Shown only while account/config.js still has placeholder values. -->
-  <div id="not-wired" class="banner hidden">
-    <strong>Accounts aren't wired up yet.</strong> This page is scaffolding for
-    student accounts; it goes live once the class database exists. Nothing to
-    do here for now.
-  </div>
-
   <!-- State 1: enter your email -->
   <section id="signin" class="card hidden">
     <form id="signin-form">
@@ -151,7 +144,18 @@
       <button id="signout" class="quiet" type="button">Sign out</button>
     </div>
     <h3 class="section">Your submissions</h3>
+    <p class="hint" style="margin-top:0">Submissions start private. &ldquo;Share
+      with class&rdquo; puts one in the class feed below, where signed-in
+      classmates can read it.</p>
     <div id="submissions"></div>
+
+    <h3 class="section">Class feed</h3>
+    <div id="feed"></div>
+
+    <div id="roster-section" class="hidden">
+      <h3 class="section">Roster (instructor view)</h3>
+      <div id="roster"></div>
+    </div>
   </section>
 </main>
 <script type="module" src="./app.js"></script>
