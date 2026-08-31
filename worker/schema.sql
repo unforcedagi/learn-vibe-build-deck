@@ -23,6 +23,20 @@ CREATE TABLE IF NOT EXISTS submissions (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_submissions_student_week
   ON submissions(student_id, week);
 
+-- Instructor "reads" — weekly synthesis notes written by Uni for Aaron.
+-- audience 'instructor' is private to the instructor view; 'class' marks a
+-- read as safe to show/read aloud in class (still only served to sessions).
+CREATE TABLE IF NOT EXISTS reads (
+  id INTEGER PRIMARY KEY,
+  week INTEGER NOT NULL,
+  slug TEXT NOT NULL,
+  title TEXT,
+  body TEXT,
+  audience TEXT NOT NULL DEFAULT 'instructor' CHECK (audience IN ('instructor','class')),
+  updated_at TEXT,
+  UNIQUE(week, slug)
+);
+
 CREATE TABLE IF NOT EXISTS magic_tokens (
   token_hash TEXT PRIMARY KEY,
   email TEXT NOT NULL,

@@ -185,6 +185,44 @@ async function handleAuthCallback(request, env) {
   });
 }
 
+// Full roster with per-student submissions — the instructor's view of the
+// class. Used by both /me (legacy dashboard) and /instructor/data.
+async function instructorRoster(env) {
+  // signed_in: has ever completed a sign-in. Session rows count, but so do
+  // consumed magic tokens (logout deletes the session row; the used token
+  // is the durable evidence).
+  const rows = await env.DB.prepare(
+    `SELECT s.name, s.email, s.canvas_id,
+            (EXISTS (SELECT 1 FROM sessions ses WHERE ses.student_id = s.id)
+             OR EXISTS (SELECT 1 FROM magic_tokens mt
+                         WHERE mt.email = s.email AND mt.used_at IS NOT NULL)
+            ) AS signed_in,
+            sub.id AS sub_id, sub.week, sub.body, sub.submitted_at, sub.visibility
+       FROM students s
+       LEFT JOIN submissions sub ON sub.student_id = s.id
+      WHERE s.is_instructor = 0
+      ORDER BY s.name, sub.week`
+  ).all();
+  const roster = new Map();
+  for (const r of rows.results) {
+    if (!roster.has(r.email)) {
+      roster.set(r.email, {
+        name: r.name, email: r.email,
+        on_canvas: !!r.canvas_id,
+        signed_in: !!r.signed_in,
+        submissions: [],
+      });
+    }
+    if (r.sub_id != null) {
+      roster.get(r.email).submissions.push({
+        id: r.sub_id, week: r.week, body: r.body,
+        submitted_at: r.submitted_at, visibility: r.visibility,
+      });
+    }
+  }
+  return [...roster.values()];
+}
+
 async function handleMe(request, env) {
   const me = await currentStudent(request, env);
   if (!me) return json(env, { error: 'unauthorized' }, 401);
@@ -202,42 +240,114 @@ async function handleMe(request, env) {
   };
 
   if (me.is_instructor) {
-    // signed_in: has ever completed a sign-in. Session rows count, but so do
-    // consumed magic tokens (logout deletes the session row; the used token
-    // is the durable evidence).
-    const rows = await env.DB.prepare(
-      `SELECT s.name, s.email, s.canvas_id,
-              (EXISTS (SELECT 1 FROM sessions ses WHERE ses.student_id = s.id)
-               OR EXISTS (SELECT 1 FROM magic_tokens mt
-                           WHERE mt.email = s.email AND mt.used_at IS NOT NULL)
-              ) AS signed_in,
-              sub.id AS sub_id, sub.week, sub.body, sub.submitted_at, sub.visibility
-         FROM students s
-         LEFT JOIN submissions sub ON sub.student_id = s.id
-        WHERE s.is_instructor = 0
-        ORDER BY s.name, sub.week`
-    ).all();
-    const roster = new Map();
-    for (const r of rows.results) {
-      if (!roster.has(r.email)) {
-        roster.set(r.email, {
-          name: r.name, email: r.email,
-          on_canvas: !!r.canvas_id,
-          signed_in: !!r.signed_in,
-          submissions: [],
-        });
-      }
-      if (r.sub_id != null) {
-        roster.get(r.email).submissions.push({
-          id: r.sub_id, week: r.week, body: r.body,
-          submitted_at: r.submitted_at, visibility: r.visibility,
-        });
-      }
-    }
-    out.roster = [...roster.values()];
+    out.roster = await instructorRoster(env);
   }
 
   return json(env, out);
+}
+
+// ---------------------------------------------------------------------------
+// Instructor view + admin "reads" (weekly synthesis notes)
+// ---------------------------------------------------------------------------
+
+const CURRENT_WEEK = 1; // bump as the course advances (drives the stats line)
+
+async function handleInstructorData(request, env) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+  if (!me.is_instructor) return json(env, { error: 'forbidden' }, 403);
+
+  const reads = await env.DB.prepare(
+    `SELECT id, week, slug, title, body, audience, updated_at
+       FROM reads ORDER BY week DESC, slug`
+  ).all();
+  const roster = await instructorRoster(env);
+  const stats = {
+    total: roster.length,
+    submitted: roster.filter((s) =>
+      s.submissions.some((sub) => sub.week === CURRENT_WEEK)).length,
+    signed_in: roster.filter((s) => s.signed_in).length,
+  };
+  return json(env, {
+    reads: reads.results,
+    roster,
+    stats,
+    current_week: CURRENT_WEEK,
+  });
+}
+
+// Admin auth: `Authorization: Bearer <ADMIN_KEY>`, checked against the
+// ADMIN_KEY Worker secret. Compare digests, not strings, to avoid an
+// early-exit timing side channel. This is the surface a future MCP wraps.
+async function adminAuthorized(request, env) {
+  if (!env.ADMIN_KEY) return false;
+  const header = request.headers.get('Authorization') || '';
+  if (!header.startsWith('Bearer ')) return false;
+  const presented = header.slice(7).trim();
+  if (!presented) return false;
+  return (await sha256hex(presented)) === (await sha256hex(env.ADMIN_KEY));
+}
+
+async function handleReadsUpsert(request, env) {
+  if (!(await adminAuthorized(request, env))) {
+    return json(env, { error: 'unauthorized' }, 401);
+  }
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json(env, { error: 'bad_request' }, 400);
+  }
+  const week = Number(body.week);
+  const slug = String(body.slug || '').trim();
+  const title = String(body.title || '').trim();
+  const text = typeof body.body === 'string' ? body.body : '';
+  const audience = body.audience || 'instructor';
+
+  if (!Number.isInteger(week) || week < 0) return json(env, { error: 'bad_week' }, 400);
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) return json(env, { error: 'bad_slug' }, 400);
+  if (audience !== 'instructor' && audience !== 'class') {
+    return json(env, { error: 'bad_audience' }, 400);
+  }
+
+  await env.DB.prepare(
+    `INSERT INTO reads (week, slug, title, body, audience, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(week, slug) DO UPDATE SET
+       title = excluded.title,
+       body = excluded.body,
+       audience = excluded.audience,
+       updated_at = excluded.updated_at`
+  ).bind(week, slug, title, text, audience, nowISO()).run();
+
+  const row = await env.DB.prepare(
+    'SELECT id, week, slug, title, audience, updated_at FROM reads WHERE week = ? AND slug = ?'
+  ).bind(week, slug).first();
+  return json(env, { ok: true, read: row });
+}
+
+async function handleReadsList(request, env) {
+  if (!(await adminAuthorized(request, env))) {
+    return json(env, { error: 'unauthorized' }, 401);
+  }
+  const rows = await env.DB.prepare(
+    `SELECT id, week, slug, title, audience, updated_at, length(body) AS body_bytes
+       FROM reads ORDER BY week DESC, slug`
+  ).all();
+  return json(env, { reads: rows.results });
+}
+
+async function handleReadsDelete(request, env, week, slug) {
+  if (!(await adminAuthorized(request, env))) {
+    return json(env, { error: 'unauthorized' }, 401);
+  }
+  const res = await env.DB.prepare(
+    'DELETE FROM reads WHERE week = ? AND slug = ?'
+  ).bind(Number(week), slug).run();
+  if (!res.meta || res.meta.changes !== 1) {
+    return json(env, { error: 'not_found' }, 404);
+  }
+  return json(env, { ok: true });
 }
 
 async function handleFeed(request, env) {
@@ -313,6 +423,11 @@ export default {
       if (path === '/auth/logout' && request.method === 'POST') return handleLogout(request, env);
       if (path === '/me' && request.method === 'GET') return handleMe(request, env);
       if (path === '/feed' && request.method === 'GET') return handleFeed(request, env);
+      if (path === '/instructor/data' && request.method === 'GET') return handleInstructorData(request, env);
+      if (path === '/admin/reads' && request.method === 'POST') return handleReadsUpsert(request, env);
+      if (path === '/admin/reads' && request.method === 'GET') return handleReadsList(request, env);
+      const readDel = path.match(/^\/admin\/reads\/(\d+)\/([a-z0-9-]+)$/);
+      if (readDel && request.method === 'DELETE') return handleReadsDelete(request, env, readDel[1], readDel[2]);
       const vis = path.match(/^\/submissions\/(\d+)\/visibility$/);
       if (vis && request.method === 'POST') return handleVisibility(request, env, vis[1]);
       return json(env, { error: 'not_found' }, 404);

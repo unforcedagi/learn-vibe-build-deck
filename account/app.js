@@ -153,12 +153,31 @@ function showAccount(me) {
   // The dashboard must never take the rest of the page down with it.
   if (me.is_instructor && me.roster) {
     try {
+      showInstructorLink();
       show($('dashboard'));
       renderDashboard(me.roster);
     } catch (err) {
       console.error('dashboard render failed:', err);
     }
   }
+}
+
+// Prominent pointer to the dedicated instructor view (only ever rendered for
+// an instructor session — the page itself re-checks server-side anyway).
+function showInstructorLink() {
+  if (document.getElementById('instructor-link')) return;
+  const box = document.createElement('div');
+  box.id = 'instructor-link';
+  box.className = 'banner';
+  const strong = document.createElement('strong');
+  const a = document.createElement('a');
+  a.href = '../instructor/';
+  a.textContent = 'Open the instructor view →';
+  strong.appendChild(a);
+  box.appendChild(strong);
+  box.appendChild(document.createTextNode(' Weekly reads, class synthesis, and the full roster.'));
+  const account = $('account');
+  account.insertBefore(box, account.firstChild);
 }
 
 function renderSubmissions(submissions) {
