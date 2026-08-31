@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schedule — Learn, Vibe, Build · ATLS 4519 · Fall 2026</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #666;
+    --accent: #2456a4;
+    --bg: #fdfcf9;
+    --card: #ffffff;
+    --border: #e4e1da;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  main { max-width: 900px; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+  .back { font-size: 0.9rem; margin-bottom: 1.5rem; }
+  .back a { color: var(--muted); text-decoration: none; }
+  .back a:hover { color: var(--accent); }
+  h1 { font-size: 2rem; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
+  p.lead { color: var(--muted); margin: 0 0 2rem; }
+  .now {
+    border-left: 4px solid var(--accent);
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.3rem;
+    margin-bottom: 2rem;
+  }
+  .now .eyebrow { color: var(--accent); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 0.3rem; }
+  .now h2 { margin: 0 0 0.3rem; font-size: 1.25rem; }
+  .now p { margin: 0.2rem 0; color: var(--muted); }
+  .now a.slides-link {
+    display: inline-block; margin-top: 0.6rem;
+    background: var(--accent); color: #fff; text-decoration: none;
+    padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.92rem;
+  }
+  .now a.slides-link:hover { opacity: 0.9; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); background: #f4f2ec; }
+  tr.current { background: #eef3fa; }
+  tr.no-class td { color: var(--muted); font-style: italic; }
+  td.week { font-weight: 600; white-space: nowrap; }
+  td.date { white-space: nowrap; color: var(--muted); }
+  td a { color: var(--accent); }
+  .hint { color: var(--muted); font-size: 0.9rem; margin-top: 1.5rem; }
+</style>
+</head>
+<body>
+<main>
+  <p class="back"><a href="../">&larr; Learn, Vibe, Build</a></p>
+  <h1>Schedule</h1>
+  <p class="lead">Every Monday meeting, what it covers, what's due, and a direct
+    link to that week's slides. Weekly briefs aren't fixed in advance &mdash;
+    this fills in as the semester goes. Full policies and the fixed calendar
+    are in the <a href="../syllabus.html">syllabus</a>.</p>
+
+  <div class="now">
+    <div class="eyebrow">This week &mdash; Week 2 &middot; Aug 31</div>
+    <h2>Live studio time</h2>
+    <p>Tool tour (Claude Code, Codex, Antigravity, Cursor, Grok) &mdash; what they
+      cost, what they're good at, how to pick one &mdash; then build time.</p>
+    <p>Due: <strong>build something + a paragraph of writing</strong>, by Sep 14
+      (link preferred; photo/video/text also work). Submit on the
+      <a href="../account/">account page</a> or Canvas.</p>
+    <a class="slides-link" href="../slides/week-2/lite/">Open this week's slides &rarr;</a>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Week</th><th>Date</th><th>Covers</th><th>Due</th><th>Slides</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="week">1</td>
+        <td class="date">Aug 24</td>
+        <td>Orientation &mdash; what this course is, the weekly rhythm, first build exercise</td>
+        <td>Week 1 intention baseline</td>
+        <td><a href="../slides/first-class/">First-class deck</a></td>
+      </tr>
+      <tr class="current">
+        <td class="week">2</td>
+        <td class="date">Aug 31</td>
+        <td>Live studio time &mdash; tool tour, then build together in class</td>
+        <td>Build + writing, due before Sep 14</td>
+        <td><a href="../slides/week-2/lite/">Week 2 deck</a></td>
+      </tr>
+      <tr class="no-class">
+        <td class="week">&mdash;</td>
+        <td class="date">Sep 7</td>
+        <td colspan="3">Labor Day &mdash; no class</td>
+      </tr>
+      <tr>
+        <td class="week">3</td>
+        <td class="date">Sep 14</td>
+        <td>Everyone demos &mdash; two weeks of work to share</td>
+        <td>&mdash;</td>
+        <td>Posted the week of</td>
+      </tr>
+      <tr>
+        <td class="week">4&ndash;10</td>
+        <td class="date">Sep 21 &ndash; Nov 2</td>
+        <td>Weekly studio cycles &mdash; briefs set week to week, demo groups alternate</td>
+        <td>Weekly build + writing</td>
+        <td>Posted the week of</td>
+      </tr>
+      <tr>
+        <td class="week">11</td>
+        <td class="date">Nov 9</td>
+        <td>Final project proposals</td>
+        <td>&mdash;</td>
+        <td>Posted the week of</td>
+      </tr>
+      <tr>
+        <td class="week">12</td>
+        <td class="date">Nov 16</td>
+        <td>Project studio</td>
+        <td>&mdash;</td>
+        <td>Posted the week of</td>
+      </tr>
+      <tr class="no-class">
+        <td class="week">&mdash;</td>
+        <td class="date">Nov 23</td>
+        <td colspan="3">Fall Break &mdash; no class</td>
+      </tr>
+      <tr>
+        <td class="week">13</td>
+        <td class="date">Nov 30</td>
+        <td>Showcase night 1 + project studio</td>
+        <td>&mdash;</td>
+        <td>Posted the week of</td>
+      </tr>
+      <tr>
+        <td class="week">14</td>
+        <td class="date">Dec 4 (Fri)</td>
+        <td>Showcase night 2</td>
+        <td>Final written reflection, due exam week</td>
+        <td>Posted the week of</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="hint">Dates and the Week 3+ studio-cycle structure are fixed
+    (registrar-verified). Topics, slides, and assignments for weeks not yet
+    taught are added the week of &mdash; this page updates each Monday.</p>
+</main>
+</body>
+</html>
