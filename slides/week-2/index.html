@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Learn, Vibe, Build — Week 2</title>
+  <style>
+    :root {
+      --navy: #102b3f;
+      --navy-2: #173e56;
+      --cream: #fbf3e5;
+      --paper: #fffaf1;
+      --coral: #ee6c4d;
+      --gold: #f4b942;
+      --cyan: #36c5d8;
+      --ink: #173042;
+      --muted: #667985;
+      --shadow: 0 18px 70px rgba(7, 28, 42, .24);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+    body {
+      background: #071c2a;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .deck { width: 100%; height: 100%; position: relative; }
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: clamp(42px, 6vw, 92px);
+      display: none;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 90% 8%, rgba(244,185,66,.16), transparent 22%),
+        linear-gradient(135deg, var(--paper), var(--cream));
+    }
+    .slide.active { display: flex; flex-direction: column; animation: enter .3s ease-out; }
+    @keyframes enter { from { opacity: .25; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+
+    .slide.dark {
+      color: white;
+      background:
+        radial-gradient(circle at 90% 10%, rgba(54,197,216,.22), transparent 25%),
+        radial-gradient(circle at 10% 90%, rgba(238,108,77,.2), transparent 28%),
+        linear-gradient(145deg, var(--navy), #081d2a);
+    }
+    .slide.coral { color: white; background: linear-gradient(145deg, #d95438, var(--coral)); }
+    .slide.gold { background: linear-gradient(145deg, #ffd36f, var(--gold)); }
+
+    .eyebrow {
+      color: var(--coral);
+      font-size: clamp(14px, 1.45vw, 23px);
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .dark .eyebrow, .coral .eyebrow { color: var(--gold); }
+    h1, h2, h3, p { margin: 0; }
+    h1 { max-width: 1000px; font-size: clamp(52px, 8vw, 126px); line-height: .91; letter-spacing: -.055em; }
+    h2 { max-width: 1050px; font-size: clamp(42px, 6vw, 88px); line-height: .98; letter-spacing: -.045em; }
+    h3 { font-size: clamp(26px, 3vw, 45px); line-height: 1.08; letter-spacing: -.025em; }
+    .lede { margin-top: 30px; max-width: 960px; font-size: clamp(24px, 3vw, 43px); line-height: 1.25; }
+    .small { font-size: clamp(18px, 2vw, 29px); line-height: 1.4; }
+    .muted { color: var(--muted); }
+    .dark .muted { color: #b9c9d1; }
+    .accent { color: var(--coral); }
+    .dark .accent { color: var(--gold); }
+
+    .cover { padding: 0; background: #071c2a; }
+    .cover.active { display: block; }
+    .cover img { width: 100%; height: 100%; object-fit: cover; }
+    .cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,29,42,.94) 0%, rgba(8,29,42,.72) 32%, transparent 68%); }
+    .cover-copy { position: absolute; z-index: 2; left: 7vw; top: 50%; transform: translateY(-50%); color: white; width: 48vw; }
+    .cover-copy h1 { font-size: clamp(62px, 8vw, 126px); }
+    .cover-copy .sub { margin-top: 28px; font-size: clamp(20px, 2.2vw, 34px); line-height: 1.25; color: #f9e5bf; }
+
+    .center { justify-content: center; align-items: center; text-align: center; }
+    .center h2 { max-width: 1200px; }
+    .bottom-note { margin-top: auto; font-size: clamp(17px, 1.55vw, 25px); color: var(--muted); }
+    .dark .bottom-note { color: #a9bec9; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 4vw, 70px); align-items: center; flex: 1; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(18px, 2vw, 34px); margin-top: 52px; }
+    .card {
+      padding: clamp(26px, 3vw, 46px);
+      border-radius: 26px;
+      background: rgba(255,255,255,.7);
+      border: 1px solid rgba(16,43,63,.12);
+      box-shadow: 0 10px 35px rgba(16,43,63,.08);
+    }
+    .dark .card { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.14); box-shadow: none; }
+    .card .num { font-size: 18px; color: var(--coral); font-weight: 900; letter-spacing: .14em; }
+    .dark .card .num { color: var(--gold); }
+    .card h3 { margin-top: 14px; }
+    .card p { margin-top: 16px; font-size: clamp(18px, 1.7vw, 27px); line-height: 1.36; }
+
+    .directions { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(16px, 2vw, 30px); margin-top: 52px; }
+    .directions .card { min-height: 160px; display: flex; align-items: center; }
+    .directions .card p { margin: 0; font-size: clamp(20px, 2vw, 32px); line-height: 1.2; font-weight: 700; }
+
+    .tool-lines { margin-top: 56px; display: grid; grid-template-columns: clamp(140px, 15vw, 230px) 1fr; gap: 22px 40px; max-width: 1250px; }
+    .tool-lines .label { color: var(--gold); font-weight: 900; font-size: clamp(17px, 1.6vw, 26px); letter-spacing: .1em; text-transform: uppercase; padding-top: 4px; }
+    .tool-lines .line { font-size: clamp(22px, 2.4vw, 38px); line-height: 1.25; padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,.14); }
+    .tool-lines .line:last-child { border-bottom: none; }
+
+    .big-url { font-size: clamp(44px, 6.5vw, 110px); font-weight: 950; letter-spacing: -.045em; line-height: 1; color: var(--gold); word-break: break-all; }
+
+    .footer { position: absolute; bottom: 22px; left: 38px; right: 38px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; font-size: 14px; color: rgba(255,255,255,.5); z-index: 10; }
+    .footer.light { color: rgba(16,43,63,.5); }
+    .progress { height: 3px; position: fixed; left: 0; bottom: 0; background: var(--coral); z-index: 30; transition: width .25s ease; }
+    .counter { position: fixed; right: 20px; bottom: 12px; color: rgba(255,255,255,.62); z-index: 31; font-size: 12px; }
+    .help { position: fixed; left: 20px; bottom: 12px; z-index: 31; color: rgba(255,255,255,.48); font-size: 12px; }
+    .notes-panel { display: none; position: fixed; z-index: 40; right: 24px; bottom: 38px; width: min(560px, 48vw); max-height: 42vh; overflow: auto; padding: 22px 25px; color: var(--ink); background: rgba(255,250,241,.97); border-radius: 18px; box-shadow: var(--shadow); font-size: 17px; line-height: 1.45; white-space: pre-wrap; }
+    .notes-panel.show { display: block; }
+    aside.notes { display: none; }
+
+    @media (max-width: 900px) {
+      .grid-2, .grid-3, .directions { grid-template-columns: 1fr; }
+      .grid-3, .directions { overflow: auto; }
+      .tool-lines { grid-template-columns: 1fr; gap: 8px; }
+      .cover-copy { width: 78vw; }
+    }
+
+    @media print {
+      @page { size: 13.333in 7.5in; margin: 0; }
+      html, body { overflow: visible; background: white; }
+      .deck { height: auto; }
+      .slide, .slide.active { position: relative; display: flex !important; flex-direction: column; width: 13.333in; height: 7.5in; page-break-after: always; break-after: page; animation: none; }
+      .cover, .cover.active { display: block !important; }
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+      .grid-3, .directions { grid-template-columns: repeat(3, 1fr); overflow: visible; }
+      .tool-lines { grid-template-columns: clamp(140px, 15vw, 230px) 1fr; }
+      .progress, .counter, .help, .notes-panel { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" id="deck">
+    <section class="slide cover active">
+      <img src="../first-class/assets/builder-studio-hero.png" alt="Students collaborating in a creative technology studio" />
+      <div class="cover-copy">
+        <div class="eyebrow">Learn Vibe Build · Week 2</div>
+        <h1>Live<br /><span style="color:var(--gold)">Studio.</span></h1>
+        <p class="sub">Tonight we set up. Then we build.</p>
+      </div>
+      <aside class="notes">Second meeting. Tonight is hands-on: everyone leaves with a working tool and a tiny thing they made.</aside>
+    </section>
+
+    <section class="slide dark">
+      <div class="eyebrow">What you told me</div>
+      <h2>18 of 24 intentions are in. Six directions in this room:</h2>
+      <div class="directions">
+        <div class="card"><p>Portfolios &amp; web presence</p></div>
+        <div class="card"><p>Agents &amp; systems that run themselves</p></div>
+        <div class="card"><p>Health, care &amp; accessibility</p></div>
+        <div class="card"><p>Personal tools for daily frictions</p></div>
+        <div class="card"><p>Physical computing</p></div>
+        <div class="card"><p>Creative process &amp; ethics</p></div>
+      </div>
+      <aside class="notes">Ambivalence about AI is the majority position in this room — nobody arrived uncomplicated. Almost everyone framed it as employability. Say both out loud; it gives people permission.</aside>
+    </section>
+
+    <section class="slide dark center">
+      <div class="eyebrow">You asked</div>
+      <h2>Do the weekly builds add up to <span class="accent">one project</span> &mdash; or stand alone?</h2>
+      <aside class="notes">Kaitlyn asked directly; Sasha, Sammy and Justin are picking projects blind on this. Answer it here, out loud.</aside>
+    </section>
+
+    <section class="slide dark">
+      <div class="eyebrow">What I built this week</div>
+      <h2>Imperfect. Real. This week.</h2>
+      <div class="grid-3">
+        <div class="card"><div class="num">01</div><h3>The Turtle Oracle</h3></div>
+        <div class="card"><div class="num">02</div><h3>A bot that lives in two worlds</h3></div>
+        <div class="card"><div class="num">03</div><h3>This site, growing</h3></div>
+      </div>
+      <aside class="notes">Aaron may swap these — placeholder order. Point: imperfect, real, this week. Sets the pace for their demos.</aside>
+    </section>
+
+    <section class="slide coral center">
+      <div class="eyebrow">Show and tell</div>
+      <h2>Who made something?<br />Who found something?</h2>
+      <p class="lede">Two minutes. No polish expected.</p>
+      <aside class="notes">Keep it light and quick — this is the seed of the demo ritual, not the ritual itself yet.</aside>
+    </section>
+
+    <section class="slide gold center">
+      <div class="eyebrow" style="color:var(--navy)">Tonight&rsquo;s move</div>
+      <h2>Pick one tool tonight.</h2>
+      <p class="lede">They&rsquo;re all good. Choose one, go deep. You can switch later.</p>
+      <aside class="notes">Five tools follow, one slide each. The point is not comparison shopping — it is picking and starting.</aside>
+    </section>
+
+    <section class="slide dark">
+      <div class="eyebrow">Tool 1 of 5</div>
+      <h2>Claude Code</h2>
+      <div class="tool-lines">
+        <div class="label">What</div><div class="line">An agent in your terminal: it reads your files, writes code, runs it, and fixes its own mistakes.</div>
+        <div class="label">Costs</div><div class="line">Needs a paid Claude plan &mdash; Pro is $20/mo (or $17/mo billed annually). No free tier for Claude Code itself.</div>
+        <div class="label">Best when</div><div class="line">You want the strongest coding agent and you&rsquo;re willing to live in a terminal.</div>
+      </div>
+      <aside class="notes">This is what builds the class site. Free claude.ai chat exists, but Claude Code the agent needs Pro or an API key.</aside>
+    </section>
+
+    <section class="slide dark">
+      <div class="eyebrow">Tool 2 of 5</div>
+      <h2>Codex</h2>
+      <div class="tool-lines">
+        <div class="label">What</div><div class="line">OpenAI&rsquo;s coding agent &mdash; in ChatGPT, in a CLI, and in your editor. Describe the app; it builds it.</div>
+        <div class="label">Costs</div><div class="line">A free taste on any ChatGPT account; real sessions need Plus, $20/mo. ChatGPT Edu is free with your CU login (short required training first).</div>
+        <div class="label">Best when</div><div class="line">You already live in ChatGPT and want your chat and your coding agent in one place.</div>
+      </div>
+      <aside class="notes">CU's ChatGPT Edu went live Aug 14 — free for enrolled students after a ~30-min required AI training. OpenAI lists Edu among the plans that can sign into Codex; have someone with Edu access test it live. Week-1 promised claiming the $100 Codex student credits together — do that here if the offer still stands tonight.</aside>
+    </section>
+
+    <section class="slide dark">
+      <div class="eyebrow">Tool 3 of 5</div>
+      <h2>Antigravity</h2>
+      <div class="tool-lines">
+        <div class="label">What</div><div class="line">Google&rsquo;s agentic editor &mdash; a full IDE where Gemini-powered agents plan and build across editor, terminal, and browser.</div>
+        <div class="label">Costs</div><div class="line">Free with a Google account. And US students get a <span class="accent">free year of Google AI Pro</span> &mdash; claim by Dec&nbsp;31 at gemini.google/students.</div>
+        <div class="label">Best when</div><div class="line">You want a real agentic tool for zero dollars.</div>
+      </div>
+      <aside class="notes">Antigravity's free tier is a weekly-refreshed quota; the student AI Pro year raises those limits. The offer needs student verification and a payment method on file — tell them to set a reminder to cancel before renewal ($19.99/mo after). Antigravity needs Chrome installed for its browser agent.</aside>
+    </section>
+
+    <section class="slide dark">
+      <div class="eyebrow">Tool 4 of 5</div>
+      <h2>Cursor</h2>
+      <div class="tool-lines">
+        <div class="label">What</div><div class="line">A code editor with AI built in &mdash; you see and touch the code while AI writes most of it.</div>
+        <div class="label">Costs</div><div class="line">Free hobby tier to start; Pro is $20/mo. The free student year closed to new sign-ups in June.</div>
+        <div class="label">Best when</div><div class="line">You want to learn what the code actually is, not just what it does.</div>
+      </div>
+      <aside class="notes">Good on-ramp for students who felt uneasy about "not seeing the code" in week-1 feedback.</aside>
+    </section>
+
+    <section class="slide dark">
+      <div class="eyebrow">Tool 5 of 5</div>
+      <h2>Grok</h2>
+      <div class="tool-lines">
+        <div class="label">What</div><div class="line">xAI&rsquo;s chat &mdash; fast, current, good at images, with real free access on grok.com and X.</div>
+        <div class="label">Costs</div><div class="line">Free tier at grok.com and on X; SuperGrok is $30/mo if you want more.</div>
+        <div class="label">Best when</div><div class="line">You want a capable free chat companion next to whichever builder you pick.</div>
+      </div>
+      <aside class="notes">Position Grok as a companion, not the main builder for tonight. SuperGrok Lite exists at $10/mo if anyone asks about a cheaper step up.</aside>
+    </section>
+
+    <section class="slide dark center">
+      <div class="eyebrow">Setup</div>
+      <p class="big-url">cu.learnvibe.build<span style="color:white">/setup</span></p>
+      <p class="lede">Accounts &rarr; one tool &rarr; prove it works.</p>
+      <aside class="notes">The page is a checklist. Walk through step 1 together, then release them into it.</aside>
+    </section>
+
+    <section class="slide coral center">
+      <h2>Build something small tonight.</h2>
+      <p class="lede">Success = you leave with one working tool and one tiny thing you made.</p>
+      <aside class="notes">~60 min studio block. Aaron circulates.</aside>
+    </section>
+
+    <section class="slide dark center">
+      <div class="eyebrow">Before you go</div>
+      <h2>Claim your tile.</h2>
+      <p class="lede"><span class="accent">cu.learnvibe.build/studio/</span></p>
+      <p class="lede muted">Sunday, 11:59 PM &mdash; assignment in Canvas.</p>
+      <aside class="notes">Week 2 assignment text pending Aaron's call — don't promise specifics.</aside>
+    </section>
+  </main>
+
+  <div class="progress" id="progress"></div>
+  <div class="help">← → navigate · N notes · F fullscreen · P print/PDF</div>
+  <div class="counter" id="counter"></div>
+  <div class="notes-panel" id="notesPanel"></div>
+
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const progress = document.getElementById('progress');
+    const counter = document.getElementById('counter');
+    const notesPanel = document.getElementById('notesPanel');
+    let index = Math.max(0, Math.min(slides.length - 1, Number(location.hash.slice(1)) - 1 || 0));
+
+    function render() {
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+      progress.style.width = `${((index + 1) / slides.length) * 100}%`;
+      counter.textContent = `${index + 1} / ${slides.length}`;
+      const notes = slides[index].querySelector('aside.notes');
+      notesPanel.textContent = notes ? notes.textContent.trim() : 'No speaker notes for this slide.';
+      location.hash = String(index + 1);
+    }
+    function move(delta) { index = Math.max(0, Math.min(slides.length - 1, index + delta)); render(); }
+    addEventListener('keydown', (event) => {
+      if (['ArrowRight', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); move(1); }
+      if (['ArrowLeft', 'PageUp'].includes(event.key)) { event.preventDefault(); move(-1); }
+      if (event.key === 'Home') { index = 0; render(); }
+      if (event.key === 'End') { index = slides.length - 1; render(); }
+      if (event.key.toLowerCase() === 'n') notesPanel.classList.toggle('show');
+      if (event.key.toLowerCase() === 'f') document.documentElement.requestFullscreen?.();
+      if (event.key.toLowerCase() === 'p') window.print();
+    });
+    addEventListener('click', (event) => {
+      if (event.target.closest('.notes-panel')) return;
+      event.clientX < innerWidth / 3 ? move(-1) : move(1);
+    });
+    addEventListener('hashchange', () => {
+      const requested = Number(location.hash.slice(1)) - 1;
+      if (Number.isInteger(requested) && requested >= 0 && requested < slides.length) { index = requested; render(); }
+    });
+    render();
+  </script>
+</body>
+</html>
