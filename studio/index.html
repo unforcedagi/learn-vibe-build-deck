@@ -110,6 +110,7 @@
       <a href="https://cu.learnvibe.build">cu.learnvibe.build</a>
     </div>
   </div>
+  <p class="sub" id="wall-hint" style="margin-top:0.8rem; font-size:0.88rem;">Loading the rest of the wall&hellip;</p>
 
   <h2>More rooms</h2>
   <div class="cards">
@@ -129,15 +130,8 @@
 
   <p class="archive-note">This studio stays up after December. Next semester's class will see what this room made — the wall, the ideas, the journal, all of it. Build accordingly.</p>
 </main>
+<script type="module" src="./app.js?v=1"></script>
 <script>
-  // 23 unclaimed tiles
-  const wall = document.getElementById('wall');
-  for (let i = 0; i < 23; i++) {
-    const d = document.createElement('div');
-    d.className = 'tile unclaimed';
-    d.textContent = 'unclaimed — this one could be yours';
-    wall.appendChild(d);
-  }
   // drifting constellation in the hero
   const c = document.getElementById('net'), x = c.getContext('2d');
   let W, H, pts = [];
