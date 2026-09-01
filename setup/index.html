@@ -4,88 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Setup — Learn, Vibe, Build · ATLS 4519</title>
-<style>
-  :root {
-    --ink: #1a1a1a;
-    --muted: #666;
-    --accent: #2456a4;
-    --bg: #fdfcf9;
-    --card: #ffffff;
-    --border: #e4e1da;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    line-height: 1.6;
-  }
-  main { max-width: 860px; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
-  .back { font-size: 0.9rem; margin-bottom: 1.5rem; }
-  .back a { color: var(--muted); text-decoration: none; }
-  .back a:hover { color: var(--accent); }
-  h1 { font-size: 2rem; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
-  p.lead { color: var(--muted); margin: 0 0 2rem; }
-  h2 { font-size: 1.3rem; margin: 2.4rem 0 0.3rem; }
-  .step-sub { color: var(--muted); margin: 0 0 1rem; font-size: 0.95rem; }
-  ul.checklist { list-style: none; margin: 0 0 1rem; padding: 0; }
-  ul.checklist li {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 0.8rem 1rem;
-    margin-bottom: 0.6rem;
-    font-size: 0.95rem;
-  }
-  ul.checklist li::before { content: "☐ "; color: var(--accent); }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-  }
-  .tool {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.1rem 1.2rem;
-  }
-  .tool h3 { margin: 0 0 0.3rem; font-size: 1.1rem; }
-  .tool .kind { font-size: 0.8rem; color: var(--accent); margin: 0 0 0.5rem; text-transform: uppercase; letter-spacing: 0.04em; }
-  .tool p { margin: 0 0 0.4rem; font-size: 0.92rem; }
-  .tool .cost { font-size: 0.85rem; color: var(--muted); }
-  code {
-    background: #f0ede6;
-    border-radius: 5px;
-    padding: 0.1rem 0.35rem;
-    font-size: 0.85em;
-    word-break: break-all;
-  }
-  .prove {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-left: 4px solid var(--accent);
-    border-radius: 10px;
-    padding: 1.1rem 1.3rem;
-    margin-top: 1rem;
-  }
-  .prove p { margin: 0; }
-  .how {
-    margin-top: 2.5rem;
-    border-top: 1px solid var(--border);
-    padding-top: 1.2rem;
-    color: var(--muted);
-    font-size: 0.95rem;
-  }
-</style>
+<link rel="stylesheet" href="../assets/site.css">
 </head>
 <body>
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a class="brand" href="../">Learn, Vibe, Build</a>
+    <nav>
+      <a href="../schedule/">Schedule</a>
+      <a href="../syllabus.html">Syllabus</a>
+      <a href="../setup/" aria-current="page">Setup</a>
+      <a href="../studio/">Studio</a>
+      <a href="../journal/">Journal</a>
+      <a href="../account/">Account</a>
+    </nav>
+  </div>
+</header>
 <main>
-  <p class="back"><a href="../">&larr; Learn, Vibe, Build</a></p>
   <h1>Setup</h1>
   <p class="lead">Tonight you set up, then you build. Work down this page in order — accounts, one tool, one proof.</p>
 
-  <h2>Step 1 — Accounts</h2>
+  <h2 class="step">Step 1 — Accounts</h2>
   <p class="step-sub">All free to start. Make them now; you'll want them all semester.</p>
   <ul class="checklist">
     <li><strong>Google account</strong> — then claim the student offer: a <a href="https://gemini.google/students/">free year of Google AI Pro</a> for US college students, claim by Dec 31, 2026 (needs a payment method; set a reminder to cancel before it renews).</li>
@@ -94,7 +33,7 @@
     <li><strong>GitHub</strong> — <a href="https://github.com/signup">github.com/signup</a>. Where your work will live and how you'll ship it to the web.</li>
   </ul>
 
-  <h2>Step 2 — Pick ONE tool and install it</h2>
+  <h2 class="step">Step 2 — Pick ONE tool and install it</h2>
   <p class="step-sub">They're all good. Choose one, go deep. You can switch later.</p>
   <div class="grid">
     <div class="tool">
@@ -129,7 +68,7 @@
     </div>
   </div>
 
-  <h2>Step 3 — Prove it</h2>
+  <h2 class="step">Step 3 — Prove it</h2>
   <div class="prove">
     <p>Ask your tool to make you a one-page website about something you love. Open it in a browser. That's it — you're building.</p>
   </div>
