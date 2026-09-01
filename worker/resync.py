@@ -7,6 +7,10 @@ remote D1 database via `wrangler d1 execute`. Idempotent and re-runnable:
 new Canvas submissions appear, existing bodies get refreshed, visibility
 choices students have made are never touched.
 
+Each student's `login_alias` (their identikey@colorado.edu, from Canvas's
+`login_id`) is refreshed on every run too — same treatment as name/email, so
+a late add picks one up automatically and nobody has to backfill by hand.
+
 Usage:
     python3 worker/resync.py
 
@@ -108,11 +112,14 @@ def build_sql(roster, submissions_by_week):
         email = (u.get("email") or "").strip().lower()
         if not email:
             continue
+        login_id = (u.get("login_id") or "").strip().lower()
+        login_alias = f"{login_id}@colorado.edu" if login_id else None
         stmts.append(
-            "INSERT INTO students (canvas_id, name, email) VALUES "
-            f"({q(str(u['id']))}, {q(u['name'])}, {q(email)}) "
+            "INSERT INTO students (canvas_id, name, email, login_alias) VALUES "
+            f"({q(str(u['id']))}, {q(u['name'])}, {q(email)}, {q(login_alias)}) "
             "ON CONFLICT (email) DO UPDATE SET "
-            "canvas_id = excluded.canvas_id, name = excluded.name;"
+            "canvas_id = excluded.canvas_id, name = excluded.name, "
+            "login_alias = excluded.login_alias;"
         )
     for week, subs in submissions_by_week.items():
         for s in subs:
