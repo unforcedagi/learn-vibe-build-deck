@@ -7,8 +7,16 @@ CREATE TABLE IF NOT EXISTS students (
   canvas_id TEXT,
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE COLLATE NOCASE,
-  is_instructor INTEGER NOT NULL DEFAULT 0
+  is_instructor INTEGER NOT NULL DEFAULT 0,
+  -- Optional alternate sign-in address (e.g. an identikey@colorado.edu),
+  -- for anyone whose Canvas email differs from what they actually check.
+  -- `email` stays whatever Canvas reports, so the resync's upsert (keyed
+  -- on email) never collides with or duplicates this row.
+  login_alias TEXT
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_students_login_alias
+  ON students(login_alias) WHERE login_alias IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS submissions (
   id INTEGER PRIMARY KEY,

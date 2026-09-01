@@ -10,9 +10,17 @@ routes = [
 [vars]
 SITE_ORIGIN = "https://cu.learnvibe.build"
 API_ORIGIN = "https://api.learnvibe.build"
-AGENTMAIL_INBOX = "uni@agi.unforced.org"
+EMAIL_FROM = "Learn Vibe Build <hello@learnvibe.build>"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "lvb-accounts"
 database_id = "80abf459-bac5-437c-820b-b9c38fac2c0b"
+
+# Cloudflare Email Service — same binding + already-onboarded sending domain
+# (learnvibe.build, DKIM/SPF/DMARC set up) as the main learnvibe.build worker.
+# Replaces AgentMail: recipients' mail providers were flagging the AgentMail
+# send as unauthenticated/mismatched, since it went out as uni@agi.unforced.org
+# while the message claimed to be Learn Vibe Build.
+[[send_email]]
+name = "EMAIL"

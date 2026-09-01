@@ -76,30 +76,20 @@ async function currentStudent(request, env) {
 }
 
 async function sendMagicEmail(env, to, link) {
-  const res = await fetch(
-    `https://api.agentmail.to/v0/inboxes/${encodeURIComponent(env.AGENTMAIL_INBOX)}/messages/send`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${env.AGENTMAIL_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        to,
-        subject: 'Your Learn Vibe Build sign-in link',
-        text:
-          `Here is your sign-in link for the Learn, Vibe, Build class site:\n\n` +
-          `${link}\n\n` +
-          `It expires in 15 minutes. This link only works for the email on ` +
-          `your Canvas account.\n\n` +
-          `If you didn't request this, you can ignore it.`,
-      }),
-    }
-  );
-  if (!res.ok) {
-    const detail = await res.text().catch(() => '');
-    throw new Error(`agentmail ${res.status}: ${detail.slice(0, 300)}`);
-  }
+  // Cloudflare Email Service — the `from` domain (learnvibe.build) is
+  // already onboarded with DKIM/SPF/DMARC for the main learnvibe.build
+  // worker, so mail sent through this binding authenticates cleanly.
+  await env.EMAIL.send({
+    from: env.EMAIL_FROM,
+    to,
+    subject: 'Your Learn Vibe Build sign-in link',
+    text:
+      `Here is your sign-in link for the Learn, Vibe, Build class site:\n\n` +
+      `${link}\n\n` +
+      `It expires in 15 minutes. This link only works for the email on ` +
+      `your Canvas account.\n\n` +
+      `If you didn't request this, you can ignore it.`,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -116,15 +106,18 @@ async function handleAuthRequest(request, env) {
   const email = String(body.email || '').trim().toLowerCase();
   if (!email) return json(env, { error: 'bad_request' }, 400);
 
+  // Either the Canvas-reported email or an alternate sign-in address (e.g.
+  // an identikey@colorado.edu) works — see students.login_alias.
   const student = await env.DB.prepare(
-    'SELECT id, email FROM students WHERE email = ?'
-  ).bind(email).first();
+    'SELECT id, email FROM students WHERE email = ? OR login_alias = ?'
+  ).bind(email, email).first();
   if (!student) return json(env, { error: 'not_on_roster' }, 404);
 
-  // Rate limit: max 3 link requests per email per 15 minutes.
+  // Rate limit, keyed on the canonical email so both addresses share one
+  // bucket: max 3 link requests per student per 15 minutes.
   const recent = await env.DB.prepare(
     'SELECT COUNT(*) AS n FROM magic_tokens WHERE email = ? AND created_at > ?'
-  ).bind(email, isoAgo(MAGIC_TTL_MS)).first();
+  ).bind(student.email, isoAgo(MAGIC_TTL_MS)).first();
   if ((recent?.n ?? 0) >= RATE_LIMIT_MAX) {
     return json(env, { error: 'rate_limited' }, 429);
   }
@@ -132,11 +125,11 @@ async function handleAuthRequest(request, env) {
   const token = randomToken();
   await env.DB.prepare(
     'INSERT INTO magic_tokens (token_hash, email, created_at, expires_at) VALUES (?, ?, ?, ?)'
-  ).bind(await sha256hex(token), email, nowISO(), isoIn(MAGIC_TTL_MS)).run();
+  ).bind(await sha256hex(token), student.email, nowISO(), isoIn(MAGIC_TTL_MS)).run();
 
   const link = `${env.API_ORIGIN}/auth/callback?token=${token}`;
   try {
-    await sendMagicEmail(env, email, link);
+    await sendMagicEmail(env, email, link); // deliver to whatever address they typed
   } catch (err) {
     console.error('magic email failed:', err.message);
     return json(env, { error: 'email_failed' }, 502);
