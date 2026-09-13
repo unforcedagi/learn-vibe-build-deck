@@ -30,49 +30,63 @@
       <p class="kind">Chat + coding agent</p>
       <h2>ChatGPT + Codex</h2>
       <p>The shared class floor. ChatGPT Edu is free with your CU login. Codex is the coding-agent side — build apps by describing them.</p>
-      <p class="cost">ChatGPT Edu: free at CU (short required training via OIT) · Codex needs a personal Plus plan for now — CU hasn’t enabled it on Edu yet</p>
+      <p class="cost">ChatGPT Edu: free at CU (short required training via OIT) — does not include Codex · Codex: free on a personal ChatGPT account (limits not published), Plus $20/mo raises them · Install: <code>curl -fsSL https://chatgpt.com/codex/install.sh | sh</code></p>
       <p class="used">Used in class: week 1 demo</p>
     </div>
     <div class="tool">
       <p class="kind">Chat + coding agent</p>
       <h2>Claude + Claude Code</h2>
-      <p>Strong at writing, reasoning, and agentic coding. The free tier is enough for real vibecoding. Claude Code runs in a terminal and builds whole projects.</p>
-      <p class="cost">Free tier: yes, enough for real vibecoding · Paid from $20/mo · students can apply for ~$50 in API credits (Anthropic Student Builders)</p>
+      <p>Strong at writing, reasoning, and agentic coding. Claude chat has a free tier. Claude Code runs in a terminal and builds whole projects, but needs a paid plan.</p>
+      <p class="cost">Claude chat: free tier · Claude Code: paid only, Pro $20/mo and up · free Claude Sonnet &amp; Opus 4.6 also inside Google Antigravity</p>
       <p class="used">Used in class: the class site is built by a Claude agent</p>
     </div>
     <div class="tool">
       <p class="kind">AI code editor</p>
       <h2>Cursor</h2>
       <p>A code editor with AI built in — good middle ground when you want to see and touch the code while AI writes most of it.</p>
-      <p class="cost">Free tier: yes · The student free-year closed to new sign-ups June 2026; grad students &amp; researchers can request credits via Cursor's form</p>
+      <p class="cost">Free tier: yes, Hobby (no card, limited Agent requests on the Auto model) · The student free year ended June 25, 2026; grad students &amp; researchers can request credits via Cursor's form</p>
       <p class="used">Not yet used in class</p>
     </div>
     <div class="tool">
       <p class="kind">Chat + multimodal</p>
       <h2>Gemini</h2>
-      <p>Google's models — strong multimodal (images, video, long documents) and generous free access.</p>
-      <p class="cost">Free tier: yes · US college students: <a href="https://gemini.google/students/">free year of Google AI Pro</a>, claim by Dec 31, 2026 (needs a payment method; cancel before it renews)</p>
+      <p>Google's models — strong multimodal (images, video, long documents). Gemini 3.8 Flash is the current free model. The old Gemini CLI was discontinued and replaced by the Antigravity CLI.</p>
+      <p class="cost">Free tier: yes · Antigravity CLI: free, <code>curl -fsSL https://antigravity.google/cli/install.sh | bash</code> · US college students: <a href="https://one.google.com/ai-student">free year of Google AI Pro</a>, redeem by Dec 31, 2026 (needs a payment method; auto-renews)</p>
       <p class="used">Not yet used in class</p>
     </div>
     <div class="tool">
       <p class="kind">Agentic code editor</p>
       <h2>Antigravity</h2>
       <p>Google's agentic editor — agents that plan, write, and test code across the editor, terminal, and browser.</p>
-      <p class="cost">Free with a Google account (weekly quota; AI Pro raises the limits)</p>
+      <p class="cost">Free Individual plan, no card: Gemini 3.8 Flash, Claude Sonnet &amp; Opus 4.6, gpt-oss-120b · weekly limits (not published) · no separate student plan; AI Pro raises them</p>
       <p class="used">Not yet used in class</p>
     </div>
     <div class="tool">
       <p class="kind">Chat companion</p>
       <h2>Grok</h2>
-      <p>xAI's Grok — fast chat and search, good for questions and riffing while you build. On grok.com and X.</p>
-      <p class="cost">Free tier: yes · paid from $10/mo</p>
+      <p>xAI's Grok — fast chat and search, good for questions and riffing while you build. On grok.com and X. The coding CLI, Grok Build, needs a paid plan — no free coding path.</p>
+      <p class="cost">Chat: free tier, paid from $10/mo · Grok Build: requires SuperGrok or X Premium+</p>
       <p class="used">Not yet used in class</p>
     </div>
     <div class="tool">
       <p class="kind">Local models</p>
       <h2>Ollama + open models</h2>
-      <p>Run models on your own laptop. Free, private, works offline. Smaller models are getting genuinely good.</p>
+      <p>Run models on your own laptop. Free, private, works offline. Try qwen2.5-coder (7B or 14B) on an 8–16 GB laptop; gpt-oss 20b needs about 16 GB.</p>
       <p class="cost">Free</p>
+      <p class="used">Not yet used in class</p>
+    </div>
+    <div class="tool">
+      <p class="kind">Coding agent</p>
+      <h2>GitHub Copilot + OpenCode</h2>
+      <p>Copilot is GitHub's coding assistant, built into editors and the terminal. OpenCode is an open-source terminal agent that can log in with the same Copilot account.</p>
+      <p class="cost">Copilot Free: 2,000 completions + 50 chats/mo · Copilot Student (free with GitHub Education): unlimited completions, 200 credits/mo, Copilot CLI · OpenCode (opencode.ai): <code>/connect</code> &rarr; GitHub Copilot to use that same quota</p>
+      <p class="used">Not yet used in class</p>
+    </div>
+    <div class="tool">
+      <p class="kind">Browser app builders</p>
+      <h2>Bolt, Lovable, Base44</h2>
+      <p>Describe an app in a browser tab and get a working build, no local setup. Good for one small app at a time.</p>
+      <p class="cost">Bolt.new: 300K tokens/day free · Lovable: 5 credits/day free (30/mo cap) · Base44: 25 messages/mo free (5/day)</p>
       <p class="used">Not yet used in class</p>
     </div>
     <div class="tool">
@@ -85,6 +99,7 @@
   </div>
 
   <p class="how">This page exists because two people asked for it in week-1 feedback: a place to learn about the tools, and a way to see which tool made which project. The second half arrives with the first projects: every tile on the wall will name its tools, and you'll be able to follow a tool to everything the class made with it.</p>
+  <p class="cost">Prices and free tiers checked 2026-09-13. They change often.</p>
 </main>
 </body>
 </html>
