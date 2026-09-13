@@ -8,6 +8,24 @@
 <link rel="stylesheet" href="../assets/site.css">
 <style>
   main { max-width: 900px; }
+
+  /* Demo queue — only this page runs it, so the styles stay local. */
+  .demo-timer { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
+  .demo-timer .clock {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 2.6rem; font-weight: 700; letter-spacing: -0.02em;
+    line-height: 1; min-width: 5.2ch;
+  }
+  .demo-timer .clock.low { color: #a42424; }
+  ol.demo-queue, ul.demo-queue { margin: 0 0 0.8rem; padding-left: 1.9rem; }
+  ul.demo-queue { list-style: disc; }
+  .demo-queue li { margin-bottom: 0.35rem; font-size: 0.95rem; }
+  .demo-queue li.done { color: var(--muted); }
+  .demo-queue li.done .who { text-decoration: line-through; }
+  .demo-queue .who { font-weight: 600; }
+  .demo-queue label { cursor: pointer; margin-right: 0.5rem; }
+  .demo-queue .nolink { color: var(--muted); font-style: italic; }
+  .demo-queue .when { color: var(--muted); font-size: 0.85rem; }
 </style>
 </head>
 <body>
@@ -62,6 +80,19 @@
       aloud.</p>
     <div id="stats" class="statsbar"></div>
 
+    <h3 class="section">Demo queue &mdash; Week <span id="demo-week">2</span></h3>
+    <div class="card demo-timer">
+      <span id="demo-clock" class="clock">4:00</span>
+      <button id="demo-start" type="button">Start 4:00</button>
+      <button id="demo-reset" class="quiet" type="button">Reset</button>
+    </div>
+    <ol id="demo-rows" class="demo-queue"></ol>
+    <h3 class="section">Not submitted yet</h3>
+    <ul id="demo-missing" class="demo-queue"></ul>
+    <p class="hint">Order is submission time. Checking a row only marks it done
+      for you, in this browser &mdash; nothing is sent to the server. Anyone in
+      the second list can still demo off their own laptop.</p>
+
     <div id="reads"></div>
 
     <h3 class="section" style="display:flex; align-items:baseline; gap:0.8rem;">
@@ -95,6 +126,6 @@
 <!-- The ?v= ties this HTML to the matching app.js: a cached copy of one can
      never load a mismatched copy of the other. Bump it whenever app.js and
      index.html change together. -->
-<script type="module" src="./app.js?v=2"></script>
+<script type="module" src="./app.js?v=3"></script>
 </body>
 </html>

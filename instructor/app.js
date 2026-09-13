@@ -5,6 +5,10 @@
 // anyone but Aaron. Reads are weekly synthesis notes pushed by Uni through the
 // admin API (worker/lvb-read.py); the roster review duplicates the account
 // page's dashboard idiom on purpose — the two pages evolve independently.
+//
+// The demo queue is run-of-class furniture for demo day: it reads the same
+// roster payload and keeps its only state (who has already gone) in
+// localStorage, so nothing about it touches the server.
 
 import { API_BASE } from '../account/config.js';
 
@@ -72,6 +76,7 @@ function on(id, event, fn) {
 
 function render(data) {
   renderStats(data.stats || {}, data.current_week);
+  renderDemoQueue(data.roster || [], data.current_week);
   renderReads(data.reads || []);
   renderRoster(data.roster || [], data.current_week);
 }
@@ -99,6 +104,169 @@ function renderStats(stats, week) {
   box.appendChild(dot());
   box.appendChild(stat(stats.signed_in ?? '?', 'signed in so far'));
 }
+
+// ---------------------------------------------------------------------------
+// Demo queue — running order for demo day, plus a per-student timer.
+// Done-state lives in localStorage under one key per week; it is a convenience
+// for whoever is driving the laptop, never a grade or a server-side fact.
+// ---------------------------------------------------------------------------
+
+const DEMO_SECONDS = 4 * 60;
+const doneKey = (week) => `lvb-demo-done-w${week}`;
+// First bare URL in a body, for the students who pasted their link into the
+// writing instead of the link field.
+const URL_IN_TEXT = /https?:\/\/[^\s<>"')\]]+/;
+
+function loadDone(week) {
+  try {
+    const list = JSON.parse(localStorage.getItem(doneKey(week)) || '[]');
+    return new Set(Array.isArray(list) ? list : []);
+  } catch {
+    return new Set(); // storage blocked or value corrupted — start clean
+  }
+}
+
+function saveDone(week, done) {
+  try {
+    localStorage.setItem(doneKey(week), JSON.stringify([...done]));
+  } catch {
+    /* nothing to do — the checkbox still works for this page view */
+  }
+}
+
+function firstUrlIn(text) {
+  const match = URL_IN_TEXT.exec(text || '');
+  if (!match) return null;
+  return match[0].replace(/[.,;:!?)\]}'"]+$/, ''); // trailing prose punctuation
+}
+
+function shortUrl(url) {
+  try {
+    const u = new URL(url);
+    const tail = u.pathname === '/' ? '' : u.pathname;
+    const label = u.host + tail;
+    return label.length > 48 ? label.slice(0, 47) + '…' : label;
+  } catch {
+    return url;
+  }
+}
+
+function renderDemoQueue(roster, currentWeek) {
+  const week = currentWeek ?? 2;
+  const weekLabel = $('demo-week');
+  if (weekLabel) weekLabel.textContent = String(week);
+
+  const done = loadDone(week);
+  const ready = [];
+  const missing = [];
+  for (const student of roster) {
+    const sub = (student.submissions || []).find((s) => s.week === week) || null;
+    (sub ? ready : missing).push({ student, sub });
+  }
+  // Submission time is the running order; a row with no timestamp goes last
+  // ('~' sorts after any digit), then alphabetically.
+  ready.sort((a, b) =>
+    (a.sub.submitted_at || '~').localeCompare(b.sub.submitted_at || '~') ||
+    a.student.name.localeCompare(b.student.name));
+  missing.sort((a, b) => a.student.name.localeCompare(b.student.name));
+
+  const list = $('demo-rows');
+  list.textContent = '';
+  if (ready.length === 0) {
+    list.appendChild(emptyNote(`Nobody has submitted week ${week} yet.`));
+  }
+  for (const row of ready) list.appendChild(demoRow(row.student, row.sub, week, done));
+
+  const rest = $('demo-missing');
+  rest.textContent = '';
+  if (missing.length === 0) {
+    rest.appendChild(emptyNote('Everyone has submitted.'));
+  }
+  for (const row of missing) rest.appendChild(demoRow(row.student, null, week, done));
+}
+
+function demoRow(student, sub, week, done) {
+  const li = document.createElement('li');
+  if (done.has(student.email)) li.className = 'done';
+
+  const label = document.createElement('label');
+  const box = document.createElement('input');
+  box.type = 'checkbox';
+  box.checked = done.has(student.email);
+  box.addEventListener('change', () => {
+    if (box.checked) done.add(student.email);
+    else done.delete(student.email);
+    li.classList.toggle('done', box.checked);
+    saveDone(week, done);
+  });
+  label.appendChild(box);
+  const who = document.createElement('span');
+  who.className = 'who';
+  who.textContent = ' ' + student.name;
+  label.appendChild(who);
+  li.appendChild(label);
+
+  if (!sub) return li; // "not submitted yet" — name only, they demo off their own laptop
+
+  const url = sub.link_url || firstUrlIn(sub.body);
+  if (url) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = shortUrl(url);
+    li.appendChild(a);
+  } else {
+    const none = document.createElement('span');
+    none.className = 'nolink';
+    none.textContent = 'no link — their laptop';
+    li.appendChild(none);
+  }
+
+  if (sub.submitted_at) {
+    const when = document.createElement('span');
+    when.className = 'when';
+    when.textContent = ' · ' + new Date(sub.submitted_at).toLocaleString(undefined, {
+      month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+    });
+    li.appendChild(when);
+  }
+  return li;
+}
+
+// The timer counts down from a wall-clock deadline, so a backgrounded tab
+// catches up instead of drifting. No sound — the room is the sound.
+let demoInterval = null;
+let demoEndsAt = 0;
+
+function paintClock(secondsLeft) {
+  const clock = $('demo-clock');
+  if (!clock) return;
+  const s = Math.max(0, Math.ceil(secondsLeft));
+  clock.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+  clock.classList.toggle('low', s < 30);
+}
+
+function stopClock() {
+  if (demoInterval) clearInterval(demoInterval);
+  demoInterval = null;
+}
+
+on('demo-start', 'click', () => {
+  stopClock();
+  demoEndsAt = Date.now() + DEMO_SECONDS * 1000;
+  paintClock(DEMO_SECONDS);
+  demoInterval = setInterval(() => {
+    const left = (demoEndsAt - Date.now()) / 1000;
+    paintClock(left);
+    if (left <= 0) stopClock(); // 0:00 stays on screen, in red
+  }, 250);
+});
+
+on('demo-reset', 'click', () => {
+  stopClock();
+  paintClock(DEMO_SECONDS);
+});
 
 // Reads grouped by week, newest week first (the API already sorts week DESC).
 function renderReads(reads) {
