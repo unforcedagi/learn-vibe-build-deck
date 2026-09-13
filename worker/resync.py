@@ -37,7 +37,7 @@ import html2text
 CANVAS_BASE = "https://canvas.colorado.edu/api/v1"
 COURSE_ID = 145074
 # week number -> Canvas assignment id
-WEEK_ASSIGNMENTS = {1: 2858623}
+WEEK_ASSIGNMENTS = {1: 2858623, 2: 2858624}
 
 CLOUDFLARE_ACCOUNT_ID = "8f2a7eb9d5e21ffa902a76cf62975c82"
 WORKER_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -123,12 +123,20 @@ def build_sql(roster, submissions_by_week):
         )
     for week, subs in submissions_by_week.items():
         for s in subs:
+            # Never overwrite a site-native submission (it has a link and the
+            # student's own share choices); Canvas only fills in rows that
+            # Canvas created, i.e. rows whose link_url is still NULL or that
+            # this sync wrote before.
             stmts.append(
-                "INSERT INTO submissions (student_id, week, body, submitted_at) "
-                f"SELECT id, {int(week)}, {q(s['body_md'])}, {q(s['submitted_at'])} "
+                "INSERT INTO submissions (student_id, week, body, submitted_at, link_url) "
+                f"SELECT id, {int(week)}, {q(s['body_md'])}, {q(s['submitted_at'])}, {q(s.get('link_url'))} "
                 f"FROM students WHERE canvas_id = {q(str(s['user_id']))} "
                 "ON CONFLICT (student_id, week) DO UPDATE SET "
-                "body = excluded.body, submitted_at = excluded.submitted_at;"
+                "body = COALESCE(excluded.body, submissions.body), "
+                "submitted_at = excluded.submitted_at, "
+                "link_url = COALESCE(submissions.link_url, excluded.link_url) "
+                "WHERE submissions.share_build = 0 AND submissions.share_writing = 0 "
+                "AND (submissions.link_url IS NULL OR submissions.link_url = excluded.link_url);"
             )
     return "\n".join(stmts)
 
@@ -184,14 +192,26 @@ def main():
         )
         subs = []
         for r in rows:
-            if r.get("workflow_state") == "unsubmitted" or not r.get("body"):
+            if r.get("workflow_state") == "unsubmitted" or not r.get("submitted_at"):
+                continue
+            # Week 2 on accepts a URL or a file upload as the build, so a
+            # submission may have no body at all. Keep the row anyway: the
+            # link (or the first attachment's Canvas URL) becomes link_url.
+            body = r.get("body") or ""
+            link = (r.get("url") or "").strip() or None
+            if not link:
+                atts = r.get("attachments") or []
+                if atts:
+                    link = atts[0].get("url")
+            if not body and not link:
                 continue
             subs.append({
                 "user_id": r["user_id"],
-                "body_md": html_to_markdown(conv, r["body"]),
+                "body_md": html_to_markdown(conv, body) if body else None,
                 "submitted_at": r.get("submitted_at"),
+                "link_url": link,
             })
-        leftover = sum(1 for s in subs if re.search(r"</?(p|div|span|br)\b", s["body_md"]))
+        leftover = sum(1 for s in subs if re.search(r"</?(p|div|span|br)\b", s["body_md"] or ""))
         print(f"week {week}: {len(subs)} submissions with bodies "
               f"({leftover} with residual html tags)")
         submissions_by_week[week] = subs

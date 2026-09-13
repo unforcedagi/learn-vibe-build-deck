@@ -307,7 +307,7 @@ async function handleSubmit(request, env) {
 // Instructor view + admin "reads" (weekly synthesis notes)
 // ---------------------------------------------------------------------------
 
-const CURRENT_WEEK = 1; // bump as the course advances (drives the stats line)
+const CURRENT_WEEK = 2; // bump as the course advances (drives the stats line)
 
 async function handleInstructorData(request, env) {
   const me = await currentStudent(request, env);
