@@ -11,6 +11,55 @@ const SESSION_TTL_MS = 30 * 24 * 3600 * 1000; // 30 days
 const RATE_LIMIT_MAX = 3;                     // per email per 15 minutes
 
 // ---------------------------------------------------------------------------
+// Weeks — the single source of truth for the course calendar.
+//
+// Every client (instructor view, account page, studio wall) reads its week
+// numbers, titles, due dates and Canvas links from here, so a new week is one
+// edit in one file. `due_at` is the real deadline in UTC: 05:59Z is 11:59 PM
+// the evening before, Denver time.
+// ---------------------------------------------------------------------------
+
+const CANVAS_COURSE = 'https://canvas.colorado.edu/courses/145074/assignments';
+
+const WEEKS = [
+  {
+    week: 1,
+    title: 'Intentions',
+    due_at: '2026-08-31T05:59:00Z',
+    canvas_url: `${CANVAS_COURSE}/2858623`,
+    prompt: 'What you want out of this class, in your own words.',
+  },
+  {
+    week: 2,
+    title: 'Build something',
+    due_at: '2026-09-14T05:59:00Z',
+    canvas_url: `${CANVAS_COURSE}/2858624`,
+    prompt: 'A link to something you made, plus a paragraph on how it went.',
+  },
+  {
+    week: 3,
+    title: 'Three different tools',
+    due_at: '2026-09-21T05:59:00Z',
+    canvas_url: `${CANVAS_COURSE}/2858625`,
+    prompt:
+      'Evidence of three tools (links, screenshots, or a screen recording) ' +
+      'plus at least three paragraphs on your experience with each.',
+  },
+];
+
+// The week currently accepting new site-native submissions (build link +
+// writing, both share flags). Bump when a new week's assignment opens.
+const OPEN_WEEK = 3;
+
+// Legacy alias, kept so a cached client still reading `current_week` keeps
+// working. It derives from OPEN_WEEK now instead of drifting on its own.
+// (The old DEMO_WEEK lived in instructor/app.js and is gone — the instructor
+// view's week tabs decide which week is on screen.)
+const CURRENT_WEEK = OPEN_WEEK;
+
+const MIN_WRITING_CHARS = 120; // roughly a short paragraph
+
+// ---------------------------------------------------------------------------
 // Small helpers
 // ---------------------------------------------------------------------------
 
@@ -231,6 +280,7 @@ async function handleMe(request, env) {
     name: me.name,
     email: me.email,
     is_instructor: !!me.is_instructor,
+    weeks: WEEKS,
     open_week: OPEN_WEEK,
     submissions: subs.results.map((s) => ({
       ...s, share_build: !!s.share_build, share_writing: !!s.share_writing,
@@ -243,11 +293,6 @@ async function handleMe(request, env) {
 
   return json(env, out);
 }
-
-// The week currently accepting new site-native submissions (build link +
-// writing, both share flags). Bump when a new week's assignment opens.
-const OPEN_WEEK = 3;
-const MIN_WRITING_CHARS = 120; // roughly a short paragraph
 
 function isHttpUrl(s) {
   try {
@@ -307,8 +352,6 @@ async function handleSubmit(request, env) {
 // Instructor view + admin "reads" (weekly synthesis notes)
 // ---------------------------------------------------------------------------
 
-const CURRENT_WEEK = 3; // bump as the course advances (drives the stats line)
-
 async function handleInstructorData(request, env) {
   const me = await currentStudent(request, env);
   if (!me) return json(env, { error: 'unauthorized' }, 401);
@@ -319,18 +362,38 @@ async function handleInstructorData(request, env) {
        FROM reads ORDER BY week DESC, slug`
   ).all();
   const roster = await instructorRoster(env);
-  const stats = {
-    total: roster.length,
-    submitted: roster.filter((s) =>
-      s.submissions.some((sub) => sub.week === CURRENT_WEEK)).length,
-    signed_in: roster.filter((s) => s.signed_in).length,
-  };
   return json(env, {
     reads: reads.results,
     roster,
-    stats,
-    current_week: CURRENT_WEEK,
+    stats: rosterStats(roster),
+    weeks: WEEKS,
+    open_week: OPEN_WEEK,
+    current_week: CURRENT_WEEK, // legacy field, still the open week
   });
+}
+
+// Per-week counts for the instructor's tabs. `total` and `signed_in` are
+// class-wide; everything week-specific lives under by_week, keyed by week
+// number as a string so it survives JSON round-tripping unambiguously.
+function rosterStats(roster) {
+  const by_week = {};
+  for (const { week } of WEEKS) {
+    const subs = roster
+      .map((s) => (s.submissions || []).find((sub) => sub.week === week))
+      .filter(Boolean);
+    by_week[String(week)] = {
+      submitted: subs.length,
+      shared_build: subs.filter((sub) => sub.share_build).length,
+      shared_writing: subs.filter((sub) => sub.share_writing).length,
+    };
+  }
+  return {
+    total: roster.length,
+    signed_in: roster.filter((s) => s.signed_in).length,
+    by_week,
+    // Legacy flat field — the open week's count, as the old stats line read it.
+    submitted: by_week[String(OPEN_WEEK)]?.submitted ?? 0,
+  };
 }
 
 // Admin auth: `Authorization: Bearer <ADMIN_KEY>`, checked against the
@@ -418,10 +481,16 @@ async function handleFeed(request, env) {
       WHERE sub.share_build = 1 OR sub.share_writing = 1
       ORDER BY sub.week, s.name`
   ).all();
+  // A row is in the feed if EITHER flag is set, so the body must be withheld
+  // unless the writing flag specifically is set — otherwise "share my build"
+  // would also publish writing the student kept private.
   const feed = rows.results.map((r) => ({
-    ...r, share_build: !!r.share_build, share_writing: !!r.share_writing,
+    ...r,
+    body: r.share_writing ? r.body : null,
+    share_build: !!r.share_build,
+    share_writing: !!r.share_writing,
   }));
-  return json(env, { feed });
+  return json(env, { feed, weeks: WEEKS, open_week: OPEN_WEEK });
 }
 
 // Legacy endpoint (week-1 Canvas cards, cached pre-share-flags clients):
