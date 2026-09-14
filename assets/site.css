@@ -342,6 +342,10 @@ table.schedule td a { color: var(--accent); }
 }
 .tile.unclaimed a { color: var(--accent); }
 .tile h3 { margin: 0 0 0.2rem; font-size: 1rem; }
+.tile .tile-week {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--accent); margin: 0 0 0.35rem;
+}
 .tile p { margin: 0; font-size: 0.85rem; color: var(--muted); }
 .tile a { color: var(--accent); font-size: 0.85rem; }
 .archive-note { margin-top: 2.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem; color: var(--muted); font-size: 0.95rem; }
@@ -358,3 +362,88 @@ table.schedule td a { color: var(--accent); }
 .n2 { background: #d8ecff; --r: 0.8deg; }
 .n3 { background: #ffe0d6; --r: -0.6deg; }
 .n4 { background: #ddf2e0; --r: 1.1deg; }
+
+/* ---------------------------------------------------------------------- */
+/* Week tabs + page head — instructor/ and account/.                       */
+/* One strip of links to #week-N; the hash drives selection, so a tab is   */
+/* linkable and survives a reload.                                         */
+/* ---------------------------------------------------------------------- */
+.page-head { margin-bottom: 1.6rem; }
+.page-head h1 { margin-bottom: 0.3rem; }
+.page-head p.lead { margin-bottom: 1.1rem; }
+
+.week-tabs {
+  display: flex; gap: 0.5rem; flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0; margin-bottom: 1rem;
+}
+.week-tabs .week-tab {
+  display: flex; flex-direction: column; gap: 0.1rem;
+  padding: 0.5rem 0.9rem 0.55rem;
+  border: 1px solid var(--border); border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  background: transparent; color: var(--muted);
+  text-decoration: none; margin-bottom: -1px;
+}
+.week-tabs .week-tab:hover { color: var(--accent); background: var(--card); }
+.week-tabs .week-tab.active {
+  background: var(--card); color: var(--ink);
+  border-color: var(--border); border-bottom: 1px solid var(--card);
+}
+.week-tabs .wt-num { font-weight: 600; font-size: 0.92rem; }
+.week-tabs .week-tab.active .wt-num { color: var(--accent); }
+.week-tabs .wt-title { font-size: 0.78rem; color: var(--muted); }
+
+/* One-line status under the tabs: "Week 2 — Build something · due … · 23 of 25" */
+.week-status { margin: 0 0 1.4rem; color: var(--muted); font-size: 0.95rem; }
+.week-status strong { color: var(--ink); }
+.week-status a { color: var(--accent); }
+.week-status .sep { color: var(--border); margin: 0 0.45rem; }
+
+/* Stat tiles — one small card per number, so four numbers read as four
+   things instead of one run-on sentence. */
+.stat-tiles {
+  display: grid; gap: 0.7rem; margin: 0 0 1.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+.stat-tile {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.75rem 0.95rem;
+}
+.stat-tile .n { display: block; font-size: 1.6rem; font-weight: 700; line-height: 1.15; color: var(--accent); letter-spacing: -0.02em; }
+.stat-tile .k { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+
+/* All-weeks grid inside a roster row — one cell per week, ✓ or ·. */
+.weekgrid { display: flex; gap: 0.25rem; }
+.weekgrid .wg {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.5rem; height: 1.5rem; border-radius: 6px;
+  border: 1px solid var(--border); font-size: 0.8rem; color: var(--muted);
+  background: var(--bg);
+}
+.weekgrid .wg.yes { border-color: #1c7a3d; color: #1c7a3d; font-weight: 700; }
+.weekgrid .wg.sel { box-shadow: 0 0 0 2px rgba(36,86,164,0.25); }
+
+/* Filter chips — class feed and the studio wall. */
+.chips { display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 0 0 1rem; }
+.chips .chip {
+  font: inherit; font-size: 0.85rem; padding: 0.25rem 0.8rem;
+  border: 1px solid var(--border); border-radius: 999px;
+  background: transparent; color: var(--muted); cursor: pointer;
+}
+.chips .chip:hover { color: var(--accent); border-color: var(--accent); }
+.chips .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* Read-only past-week submission on the account page. */
+.week-panel .card.readonly { border-left: 3px solid var(--border); }
+.week-panel .field-label {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--muted); margin: 0 0 0.25rem;
+}
+
+@media (max-width: 560px) {
+  .week-tabs { gap: 0.3rem; }
+  .week-tabs .week-tab { padding: 0.45rem 0.6rem 0.5rem; }
+  .week-tabs .wt-title { display: none; }
+  .stat-tiles { grid-template-columns: repeat(2, 1fr); }
+}
