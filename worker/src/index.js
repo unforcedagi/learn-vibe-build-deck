@@ -43,7 +43,8 @@ const WEEKS = [
     canvas_url: `${CANVAS_COURSE}/2858625`,
     prompt:
       'Evidence of three tools (links, screenshots, or a screen recording) ' +
-      'plus at least three paragraphs on your experience with each.',
+      'plus at least three paragraphs on your experience with each. ' +
+      "This brief is a suggestion; if you'd rather show your learning about the tools another way, that's fine.",
   },
 ];
 
