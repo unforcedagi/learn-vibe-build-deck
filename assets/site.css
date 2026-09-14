@@ -282,6 +282,11 @@ ul.checklist li::before { content: "\2610 "; color: var(--accent); }
 .tool p { margin: 0 0 0.4rem; font-size: 0.92rem; }
 .tool .cost, .tool .used { font-size: 0.85rem; color: var(--muted); }
 .tool .used { font-style: italic; }
+/* Numbered how-to inside a tool card (studio/tools.html "Start here"). */
+.tool ol { margin: 0 0 0.6rem; padding-left: 1.3rem; font-size: 0.92rem; }
+.tool ol li { margin-bottom: 0.35rem; }
+/* Wider columns when the cards carry steps instead of one paragraph. */
+.grid.wide { grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); }
 .prove {
   background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent);
   border-radius: 10px; padding: 1.1rem 1.3rem; margin-top: 1rem;

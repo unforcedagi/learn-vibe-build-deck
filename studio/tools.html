@@ -25,14 +25,58 @@
   <h1>Tools</h1>
   <p class="lead">What the class is using, what it costs, and what it's actually good at. This page grows from real use: when a project lands on the wall, it names its tools, and what we learn collects here.</p>
 
-  <div class="grid">
+  <h2 class="step">Start here &mdash; three good ones</h2>
+  <p class="step-sub">All three are free to a student right now, and each one can build a whole project from a description. Pick one and get it running tonight; try the other two later.</p>
+
+  <div class="grid wide">
     <div class="tool">
-      <p class="kind">Chat + coding agent</p>
-      <h2>ChatGPT + Codex</h2>
-      <p>The shared class floor. ChatGPT Edu is free with your CU login. Codex is the coding-agent side — build apps by describing them.</p>
-      <p class="cost">ChatGPT Edu: free at CU (short required training via OIT) — does not include Codex · Codex: free on a personal ChatGPT account (limits not published), Plus $20/mo raises them · Install: <code>curl -fsSL https://chatgpt.com/codex/install.sh | sh</code></p>
+      <p class="kind">Terminal agent</p>
+      <h2>1. OpenCode + GitHub Copilot</h2>
+      <p>OpenCode is an open-source agent that runs in your terminal. It signs in with a GitHub Copilot account, and Copilot is free for students.</p>
+      <ol>
+        <li>Get GitHub Copilot: the free tier at <a href="https://github.com/features/copilot">github.com/features/copilot</a>, or the free Student plan through <a href="https://education.github.com">education.github.com</a> &mdash; verify with your CU email.</li>
+        <li>Install OpenCode from <a href="https://opencode.ai">opencode.ai</a>: <code>curl -fsSL https://opencode.ai/install | bash</code></li>
+        <li>Run <code>opencode</code>, type <code>/connect</code>, pick GitHub Copilot, and finish the device login at <a href="https://github.com/login/device">github.com/login/device</a>.</li>
+        <li>Open a folder and describe what you want built.</li>
+      </ol>
+      <p>Local models: install Ollama (<a href="https://ollama.com">ollama.com</a>), pull <code>qwen2.5-coder:7b</code>, and OpenCode can use it with no account at all.</p>
+      <p>Prefer an editor over a terminal? Zed (<a href="https://zed.dev">zed.dev</a>) is free and runs external agents like Codex CLI with your own keys; it's the editor-shaped alternative to OpenCode.</p>
+      <p class="cost">Copilot Free: 2,000 completions + 50 chats/mo · Copilot Student (free with GitHub Education): unlimited completions, 200 credits/mo, Copilot CLI · OpenCode and Ollama: free</p>
+      <p class="used">Not yet used in class</p>
+    </div>
+    <div class="tool">
+      <p class="kind">Agentic code editor</p>
+      <h2>2. Antigravity</h2>
+      <p>Google's agentic editor &mdash; agents that plan, write, and test code across the editor, terminal, and browser.</p>
+      <ol>
+        <li>Go to <a href="https://antigravity.google">antigravity.google</a> and sign in with a Google account. The free Individual plan takes no card.</li>
+        <li>Download the app for your machine.</li>
+        <li>Pick a model: Gemini 3.8 Flash, Claude Sonnet or Opus 4.6, or gpt-oss-120b.</li>
+        <li>Optional terminal CLI: <code>curl -fsSL https://antigravity.google/cli/install.sh | bash</code> gives you <code>agy</code>.</li>
+      </ol>
+      <p>The free plan has weekly rate limits &mdash; the number isn't published, so you find it by hitting it.</p>
+      <p class="cost">Free Individual plan, no card · weekly limits (not published) · US students can add 12 months of <a href="https://one.google.com/ai-student">Google AI Pro</a>, which needs a payment method and auto-renews</p>
+      <p class="used">Not yet used in class</p>
+    </div>
+    <div class="tool">
+      <p class="kind">Coding agent</p>
+      <h2>3. Codex</h2>
+      <p>OpenAI's coding agent, in a terminal or as an app. Describe the thing, it builds it.</p>
+      <ol>
+        <li>Get a personal ChatGPT account at <a href="https://chatgpt.com">chatgpt.com</a>. Free works. Your CU ChatGPT Edu login does not include Codex.</li>
+        <li>Install: <code>curl -fsSL https://chatgpt.com/codex/install.sh | sh</code>, or download the Codex app.</li>
+        <li>Sign in with that personal ChatGPT account.</li>
+        <li>Open a folder and go.</li>
+      </ol>
+      <p class="cost">Free limits: not published · Plus $20/mo raises them · ChatGPT Edu is free at CU (short required training via OIT) but does not include Codex</p>
       <p class="used">Used in class: week 1 demo</p>
     </div>
+  </div>
+
+  <h2 class="step">Also good</h2>
+  <p class="step-sub">Everything else worth knowing about, free or with a real free tier. Any of these counts for a weekly cycle.</p>
+
+  <div class="grid">
     <div class="tool">
       <p class="kind">Chat + coding agent</p>
       <h2>Claude + Claude Code</h2>
@@ -43,28 +87,28 @@
     <div class="tool">
       <p class="kind">AI code editor</p>
       <h2>Cursor</h2>
-      <p>A code editor with AI built in — good middle ground when you want to see and touch the code while AI writes most of it.</p>
+      <p>A code editor with AI built in &mdash; good middle ground when you want to see and touch the code while AI writes most of it.</p>
       <p class="cost">Free tier: yes, Hobby (no card, limited Agent requests on the Auto model) · No free student year is offered now; Cursor says to look for promotions at on-campus events this fall</p>
+      <p class="used">Not yet used in class</p>
+    </div>
+    <div class="tool">
+      <p class="kind">AI code editor</p>
+      <h2>Zed</h2>
+      <p>A fast editor that runs external agents &mdash; Codex CLI and others &mdash; with your own keys. The editor-shaped alternative to OpenCode.</p>
+      <p class="cost">Free forever (<a href="https://zed.dev">zed.dev</a>) · you bring the agent and its account</p>
       <p class="used">Not yet used in class</p>
     </div>
     <div class="tool">
       <p class="kind">Chat + multimodal</p>
       <h2>Gemini</h2>
-      <p>Google's models — strong multimodal (images, video, long documents). Gemini 3.8 Flash is the current free model. The old Gemini CLI was discontinued and replaced by the Antigravity CLI.</p>
+      <p>Google's models &mdash; strong multimodal (images, video, long documents). Gemini 3.8 Flash is the current free model. The old Gemini CLI was discontinued and replaced by the Antigravity CLI.</p>
       <p class="cost">Free tier: yes · Antigravity CLI: free, <code>curl -fsSL https://antigravity.google/cli/install.sh | bash</code> · US college students: <a href="https://one.google.com/ai-student">free year of Google AI Pro</a>, redeem by Dec 31, 2026 (needs a payment method; auto-renews)</p>
-      <p class="used">Not yet used in class</p>
-    </div>
-    <div class="tool">
-      <p class="kind">Agentic code editor</p>
-      <h2>Antigravity</h2>
-      <p>Google's agentic editor — agents that plan, write, and test code across the editor, terminal, and browser.</p>
-      <p class="cost">Free Individual plan, no card: Gemini 3.8 Flash, Claude Sonnet &amp; Opus 4.6, gpt-oss-120b · weekly limits (not published) · no separate student plan; AI Pro raises them</p>
       <p class="used">Not yet used in class</p>
     </div>
     <div class="tool">
       <p class="kind">Chat companion</p>
       <h2>Grok</h2>
-      <p>xAI's Grok — fast chat and search, good for questions and riffing while you build. On grok.com and X. The coding CLI, Grok Build, needs a paid plan — no free coding path.</p>
+      <p>xAI's Grok &mdash; fast chat and search, good for questions and riffing while you build. On grok.com and X. The coding CLI, Grok Build, needs a paid plan &mdash; no free coding path.</p>
       <p class="cost">Chat: free tier, paid from $10/mo · Grok Build: requires SuperGrok or X Premium+</p>
       <p class="used">Not yet used in class</p>
     </div>
@@ -76,10 +120,17 @@
       <p class="used">Not yet used in class</p>
     </div>
     <div class="tool">
-      <p class="kind">Coding agent</p>
-      <h2>GitHub Copilot + OpenCode</h2>
-      <p>Copilot is GitHub's coding assistant, built into editors and the terminal. OpenCode is an open-source terminal agent that can log in with the same Copilot account.</p>
-      <p class="cost">Copilot Free: 2,000 completions + 50 chats/mo · Copilot Student (free with GitHub Education): unlimited completions, 200 credits/mo, Copilot CLI · OpenCode (opencode.ai): <code>/connect</code> &rarr; GitHub Copilot to use that same quota</p>
+      <p class="kind">Coding assistant</p>
+      <h2>GitHub Copilot</h2>
+      <p>GitHub's assistant, built into editors and the terminal. It's the login for OpenCode above, and it also works on its own in VS Code.</p>
+      <p class="cost">Copilot Free: 2,000 completions + 50 chats/mo · Copilot Student (free with GitHub Education): unlimited completions, 200 credits/mo, Copilot CLI</p>
+      <p class="used">Not yet used in class</p>
+    </div>
+    <div class="tool">
+      <p class="kind">Agentic IDE</p>
+      <h2>Amazon Kiro</h2>
+      <p>Amazon's agentic IDE. Social login, no card, and it runs open-weight models alongside Claude.</p>
+      <p class="cost">Free: 50 credits/mo (<a href="https://kiro.dev">kiro.dev</a>) · open-weight models + Claude Sonnet 4.5</p>
       <p class="used">Not yet used in class</p>
     </div>
     <div class="tool">
@@ -93,13 +144,23 @@
       <p class="kind">Your pick</p>
       <h2>Anything else</h2>
       <p>Image and video tools, music tools, anything that serves the work. If you use it for a project, it earns a card here.</p>
-      <p class="cost">—</p>
+      <p class="cost">&mdash;</p>
       <p class="used">Propose one by using it</p>
     </div>
   </div>
 
+  <h2 class="step">Not free this term</h2>
+  <p class="step-sub">Good tools with no free path right now. Use them only if you already pay for them &mdash; nothing in this class requires it.</p>
+  <ul>
+    <li><strong>Claude Code</strong> &mdash; needs Claude Pro, $20/mo and up.</li>
+    <li><strong>Cursor Pro</strong> &mdash; the free student year is no longer offered.</li>
+    <li><strong>Grok Build</strong> &mdash; needs SuperGrok or X Premium+.</li>
+    <li><strong>Kimi Code</strong> &mdash; paid plan only.</li>
+    <li><strong>Qwen Code</strong> &mdash; the free tier ended April 2026.</li>
+  </ul>
+
   <p class="how">This page exists because two people asked for it in week-1 feedback: a place to learn about the tools, and a way to see which tool made which project. The second half arrives with the first projects: every tile on the wall will name its tools, and you'll be able to follow a tool to everything the class made with it.</p>
-  <p class="cost">Prices and free tiers checked 2026-09-13. They change often.</p>
+  <p class="cost">Prices and free tiers checked 2026-09-14. They change often.</p>
 </main>
 </body>
 </html>
