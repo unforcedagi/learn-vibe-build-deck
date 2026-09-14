@@ -246,7 +246,7 @@ async function handleMe(request, env) {
 
 // The week currently accepting new site-native submissions (build link +
 // writing, both share flags). Bump when a new week's assignment opens.
-const OPEN_WEEK = 2;
+const OPEN_WEEK = 3;
 const MIN_WRITING_CHARS = 120; // roughly a short paragraph
 
 function isHttpUrl(s) {
@@ -307,7 +307,7 @@ async function handleSubmit(request, env) {
 // Instructor view + admin "reads" (weekly synthesis notes)
 // ---------------------------------------------------------------------------
 
-const CURRENT_WEEK = 2; // bump as the course advances (drives the stats line)
+const CURRENT_WEEK = 3; // bump as the course advances (drives the stats line)
 
 async function handleInstructorData(request, env) {
   const me = await currentStudent(request, env);

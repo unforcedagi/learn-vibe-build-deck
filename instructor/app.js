@@ -74,9 +74,14 @@ function on(id, event, fn) {
 // Render
 // ---------------------------------------------------------------------------
 
+// The demo queue runs off the week whose work is being shown, which lags the
+// open week: on Sep 14 the class is in week 3 but demos the week-2 builds.
+// Bump this the week after CURRENT_WEEK moves.
+const DEMO_WEEK = 2;
+
 function render(data) {
   renderStats(data.stats || {}, data.current_week);
-  renderDemoQueue(data.roster || [], data.current_week);
+  renderDemoQueue(data.roster || [], DEMO_WEEK);
   renderReads(data.reads || []);
   renderRoster(data.roster || [], data.current_week);
 }
