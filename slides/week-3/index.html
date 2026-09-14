@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Learn, Vibe, Build — Week 3</title>
+  <style>
+    :root {
+      --navy: #102b3f;
+      --navy-2: #173e56;
+      --cream: #fbf3e5;
+      --paper: #fffaf1;
+      --coral: #ee6c4d;
+      --gold: #f4b942;
+      --cyan: #36c5d8;
+      --ink: #173042;
+      --muted: #667985;
+      --shadow: 0 18px 70px rgba(7, 28, 42, .24);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+    body {
+      background: #071c2a;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .deck { width: 100%; height: 100%; position: relative; }
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: clamp(42px, 6vw, 92px);
+      display: none;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 90% 8%, rgba(244,185,66,.16), transparent 22%),
+        linear-gradient(135deg, var(--paper), var(--cream));
+    }
+    .slide.active { display: flex; flex-direction: column; animation: enter .3s ease-out; }
+    @keyframes enter { from { opacity: .25; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+
+    .slide.dark {
+      color: white;
+      background:
+        radial-gradient(circle at 90% 10%, rgba(54,197,216,.22), transparent 25%),
+        radial-gradient(circle at 10% 90%, rgba(238,108,77,.2), transparent 28%),
+        linear-gradient(145deg, var(--navy), #081d2a);
+    }
+    .slide.coral { color: white; background: linear-gradient(145deg, #d95438, var(--coral)); }
+    .slide.gold { background: linear-gradient(145deg, #ffd36f, var(--gold)); }
+
+    .eyebrow {
+      color: var(--coral);
+      font-size: clamp(14px, 1.45vw, 23px);
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .dark .eyebrow, .coral .eyebrow { color: var(--gold); }
+    h1, h2, h3, p { margin: 0; }
+    h1 { max-width: 1000px; font-size: clamp(52px, 8vw, 126px); line-height: .91; letter-spacing: -.055em; }
+    h2 { max-width: 1200px; font-size: clamp(42px, 6vw, 88px); line-height: .98; letter-spacing: -.045em; }
+    .lede { margin-top: 30px; max-width: 1100px; font-size: clamp(24px, 3vw, 43px); line-height: 1.25; }
+    .muted { color: var(--muted); }
+    .dark .muted { color: #b9c9d1; }
+    .accent { color: var(--coral); }
+    .dark .accent { color: var(--gold); }
+    .bottom-note { margin-top: auto; font-size: clamp(17px, 1.55vw, 25px); color: var(--muted); }
+    .dark .bottom-note { color: #a9bec9; }
+    .gold .bottom-note { color: #6b4a06; }
+
+    .cover { padding: 0; background: #071c2a; }
+    .cover.active { display: block; }
+    .cover img { width: 100%; height: 100%; object-fit: cover; }
+    .cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,29,42,.94) 0%, rgba(8,29,42,.72) 32%, transparent 68%); }
+    .cover-copy { position: absolute; z-index: 2; left: 7vw; top: 50%; transform: translateY(-50%); color: white; width: 52vw; }
+    .cover-copy h1 { font-size: clamp(56px, 7.4vw, 116px); }
+    .cover-copy .sub { margin-top: 28px; font-size: clamp(20px, 2.2vw, 34px); line-height: 1.25; color: #f9e5bf; }
+
+    .center { justify-content: center; align-items: center; text-align: center; }
+    .center h2 { max-width: 1300px; }
+
+    .placeholder { margin-top: 44px; font-size: clamp(15px, 1.35vw, 22px); color: rgba(255,255,255,.45); letter-spacing: .04em; }
+
+    .axes { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(18px, 2.4vw, 42px); margin-top: clamp(34px, 4vw, 62px); }
+    .axis {
+      padding: clamp(24px, 2.6vw, 42px);
+      border-radius: 26px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .axis .label { color: var(--gold); font-weight: 900; font-size: clamp(15px, 1.4vw, 23px); letter-spacing: .12em; text-transform: uppercase; }
+    .axis h3 { margin-top: 14px; font-size: clamp(26px, 2.8vw, 44px); line-height: 1.08; letter-spacing: -.03em; }
+    .axis p { margin-top: 18px; font-size: clamp(18px, 1.75vw, 28px); line-height: 1.34; color: #cbdbe3; }
+
+    .tool-lines { margin-top: clamp(34px, 4vw, 56px); display: grid; grid-template-columns: clamp(150px, 16vw, 250px) 1fr; gap: 20px 40px; max-width: 1350px; }
+    .tool-lines .label { color: var(--gold); font-weight: 900; font-size: clamp(17px, 1.6vw, 26px); letter-spacing: .08em; padding-top: 6px; }
+    .tool-lines .line { font-size: clamp(20px, 2.1vw, 34px); line-height: 1.28; padding-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,.14); }
+    .tool-lines .line:last-child { border-bottom: none; }
+    .tool-lines .line .muted { display: block; margin-top: 6px; font-size: clamp(16px, 1.5vw, 24px); }
+    .gold .tool-lines .label { color: #8a5a06; }
+    .gold .tool-lines .line { border-bottom-color: rgba(16,43,63,.18); }
+
+    .steps { margin-top: clamp(34px, 4vw, 54px); max-width: 1250px; display: grid; gap: 22px; }
+    .steps .step { font-size: clamp(22px, 2.4vw, 38px); line-height: 1.26; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.22); }
+    .steps .step:last-child { border-bottom: none; }
+    .coral .steps .step { border-bottom-color: rgba(255,255,255,.3); }
+    .steps .step .n { font-weight: 900; color: var(--gold); padding-right: .5em; }
+
+    .big-url { font-size: clamp(34px, 5vw, 86px); font-weight: 950; letter-spacing: -.045em; line-height: 1.05; color: var(--gold); word-break: break-word; }
+
+    .progress { height: 3px; position: fixed; left: 0; bottom: 0; background: var(--coral); z-index: 30; transition: width .25s ease; }
+    .counter { position: fixed; right: 20px; bottom: 12px; color: rgba(255,255,255,.62); z-index: 31; font-size: 12px; }
+    .help { position: fixed; left: 20px; bottom: 12px; z-index: 31; color: rgba(255,255,255,.48); font-size: 12px; }
+    .notes-panel { display: none; position: fixed; z-index: 40; right: 24px; bottom: 38px; width: min(560px, 48vw); max-height: 42vh; overflow: auto; padding: 22px 25px; color: var(--ink); background: rgba(255,250,241,.97); border-radius: 18px; box-shadow: var(--shadow); font-size: 17px; line-height: 1.45; white-space: pre-wrap; }
+    .notes-panel.show { display: block; }
+    aside.notes { display: none; }
+
+    @media (max-width: 900px) {
+      .axes { grid-template-columns: 1fr; overflow: auto; }
+      .tool-lines { grid-template-columns: 1fr; gap: 8px; }
+      .cover-copy { width: 78vw; }
+    }
+
+    @media print {
+      @page { size: 13.333in 7.5in; margin: 0; }
+      html, body { overflow: visible; background: white; }
+      .deck { height: auto; }
+      .slide, .slide.active { position: relative; display: flex !important; flex-direction: column; width: 13.333in; height: 7.5in; page-break-after: always; break-after: page; animation: none; }
+      .cover, .cover.active { display: block !important; }
+      .axes { grid-template-columns: repeat(3, 1fr); overflow: visible; }
+      .tool-lines { grid-template-columns: clamp(150px, 16vw, 250px) 1fr; }
+      .progress, .counter, .help, .notes-panel { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" id="deck">
+    <section class="slide cover active">
+      <img src="../first-class/assets/builder-studio-hero.png" alt="Students collaborating in a creative technology studio" />
+      <div class="cover-copy">
+        <div class="eyebrow">ATLS 4519 · Sep 14, 2026</div>
+        <h1>Week 3<br /><span style="color:var(--gold)">Everyone demos,<br />then the tools.</span></h1>
+        <p class="sub">Learn, Vibe, Build</p>
+      </div>
+    </section>
+
+    <section class="slide dark">
+      <div class="eyebrow">Tonight</div>
+      <h2>Demos first.</h2>
+      <div class="steps">
+        <div class="step"><span class="n">1</span>Demos. Four minutes each. Timer on screen.</div>
+        <div class="step"><span class="n">2</span>A short tools talk from me.</div>
+        <div class="step"><span class="n">3</span>Small groups.</div>
+        <div class="step"><span class="n">4</span>Work time.</div>
+      </div>
+      <aside class="notes">Twenty-five demos at four minutes is most of the class. Keep the timer visible and hold to it. The tools talk is short and comes after the demos, when everyone has seen what the room made.</aside>
+    </section>
+
+    <section class="slide coral">
+      <div class="eyebrow">Demos</div>
+      <h2>Four minutes each.</h2>
+      <div class="steps">
+        <div class="step">Show the thing.</div>
+        <div class="step">Say which tool you used.</div>
+        <div class="step">Give us one surprise, or one place you got stuck.</div>
+        <div class="step">Unfinished is fine.</div>
+      </div>
+      <aside class="notes">Say the last line out loud before the first demo. Most of the value is in the stuck part — the surprise and the wall are what other people learn from.</aside>
+    </section>
+
+    <section class="slide dark center">
+      <h2>What&rsquo;s new this week</h2>
+      <p class="placeholder">Aaron fills this live</p>
+    </section>
+
+    <section class="slide dark center">
+      <h2>A couple of things I built</h2>
+      <p class="placeholder">Aaron fills this live</p>
+    </section>
+
+    <section class="slide dark">
+      <div class="eyebrow">The landscape</div>
+      <h2>Three things vary.</h2>
+      <div class="axes">
+        <div class="axis">
+          <div class="label">The model</div>
+          <h3>Who made the brain</h3>
+          <p>OpenAI, Google, Anthropic, xAI. Plus open-weight models like Qwen and gpt-oss that anyone can download.</p>
+        </div>
+        <div class="axis">
+          <div class="label">The harness</div>
+          <h3>What you sit in</h3>
+          <p>A chat window, a code editor, an agent in your terminal, or a builder in a browser tab.</p>
+        </div>
+        <div class="axis">
+          <div class="label">Where it runs</div>
+          <h3>Whose machine</h3>
+          <p>Someone else&rsquo;s cloud, or your own laptop.</p>
+        </div>
+      </div>
+      <p class="bottom-note">Almost every tool you have heard of is one choice on each of these three.</p>
+      <aside class="notes">Point at the demos that just happened and place a few of them on the three axes out loud. The harness is the part students feel most and think about least — the same model behaves very differently in a chat box and in a terminal agent.</aside>
+    </section>
+
+    <section class="slide dark">
+      <div class="eyebrow">Start here</div>
+      <h2>Three good ones.</h2>
+      <div class="tool-lines">
+        <div class="label">OpenCode</div>
+        <div class="line">A terminal agent, free, paired with GitHub Copilot. Use Copilot Free or the free Student plan, then <span class="accent">/connect</span> &rarr; GitHub Copilot.</div>
+        <div class="label">Antigravity</div>
+        <div class="line">Google&rsquo;s agentic editor. Free, no card. Gemini 3.8 Flash, Claude Sonnet and Opus 4.6, and gpt-oss-120b. There is also an <span class="accent">agy</span> CLI.</div>
+        <div class="label">Codex</div>
+        <div class="line">OpenAI&rsquo;s coding agent. Free on a personal ChatGPT account.<span class="muted">Your CU ChatGPT does not include Codex.</span></div>
+      </div>
+      <aside class="notes">The CU ChatGPT point catches people every week — Edu is the free chat floor and nothing more. A personal free ChatGPT account is what unlocks Codex. Copilot Student needs GitHub Education verification, which takes a day or two, so start it tonight.</aside>
+    </section>
+
+    <section class="slide dark">
+      <div class="eyebrow">Also good</div>
+      <h2>Five more that cost nothing.</h2>
+      <div class="tool-lines">
+        <div class="label">Zed</div>
+        <div class="line">An editor-shaped alternative to OpenCode. Free, and it runs external agents.</div>
+        <div class="label">Ollama</div>
+        <div class="line">Local models on your own laptop, driven by OpenCode. Try qwen2.5-coder 7B. No account at all.</div>
+        <div class="label">Cursor</div>
+        <div class="line">The Hobby tier. An editor where you see the code while the AI writes it.</div>
+        <div class="label">Browser builders</div>
+        <div class="line">Bolt, Lovable, Base44. Describe an app in a tab and get a build. Small daily limits.</div>
+        <div class="label">Amazon Kiro</div>
+        <div class="line">Free 50 credits. Open-weight models plus Claude Sonnet 4.5.</div>
+      </div>
+      <aside class="notes">Ollama is the one worth trying if you care about privacy, offline work, or just want to see how much smaller a laptop model is. The browser builders are the fastest way to something you can show someone, and the least instructive about how it was made.</aside>
+    </section>
+
+    <section class="slide dark">
+      <div class="eyebrow">Know before you go</div>
+      <h2>Not free this term.</h2>
+      <div class="tool-lines">
+        <div class="label">Claude Code</div>
+        <div class="line">Needs a Claude Pro plan, $20/mo and up.</div>
+        <div class="label">Cursor Pro</div>
+        <div class="line">Paid. The free student year is not being offered now.</div>
+        <div class="label">Grok Build</div>
+        <div class="line">Paid.</div>
+        <div class="label">Kimi Code</div>
+        <div class="line">Paid.</div>
+        <div class="label">Qwen Code</div>
+        <div class="line">The free tier ended in April.</div>
+      </div>
+      <p class="bottom-note">Nothing in this class requires you to pay for a tool.</p>
+      <aside class="notes">Say the bottom line clearly. This slide exists so nobody spends money by accident or assumes they are behind because they are not paying.</aside>
+    </section>
+
+    <section class="slide gold">
+      <div class="eyebrow">Week 3 assignment</div>
+      <h2>Use three different tools.</h2>
+      <div class="tool-lines">
+        <div class="label">What</div>
+        <div class="line">The same thing three times, or three different projects. Your call.</div>
+        <div class="label">Evidence</div>
+        <div class="line">Screenshots, a screen recording, or links. Cap (cap.so) is free and records your screen.</div>
+        <div class="label">Writing</div>
+        <div class="line">At least three paragraphs on the experience. What stuck out with each one, what you liked, what you didn&rsquo;t, what you learned.</div>
+        <div class="label">Due</div>
+        <div class="line">Sunday, Sep 20, 11:59 PM.</div>
+      </div>
+      <p class="bottom-note">Start early. Free tiers cap you per day, so three tools does not fit in one night.</p>
+      <aside class="notes">The writing is the graded core, not the artifacts. Three paragraphs minimum, comparing the harnesses. Repeat the start-early line — daily caps are the single most common reason this assignment comes in thin.</aside>
+    </section>
+
+    <section class="slide coral">
+      <div class="eyebrow">Small groups · 10 minutes</div>
+      <h2>Three questions.</h2>
+      <div class="steps">
+        <div class="step">Which tool did you use for Week 2, and why that one?</div>
+        <div class="step">What did it get right on the first try, and where did it fight you?</div>
+        <div class="step">What would you try next, and what is stopping you?</div>
+      </div>
+      <aside class="notes">Four people per group. Ten minutes, and hold to it. The third question is the one that surfaces blockers I can actually fix during work time.</aside>
+    </section>
+
+    <section class="slide dark center">
+      <h2>Work time.</h2>
+      <p class="lede">Get set up with at least one new tool tonight.</p>
+      <p class="big-url" style="margin-top:44px">cu.learnvibe.build<span style="color:white">/studio/tools.html</span></p>
+      <p class="lede">The how-to for each one is there.</p>
+      <aside class="notes">Circulate. Setup problems are the thing to solve in the room tonight — account verification, installs, a first successful run. Anyone who leaves with one new tool working is set for the assignment.</aside>
+    </section>
+  </main>
+
+  <div class="progress" id="progress"></div>
+  <div class="help">← → navigate · N notes · F fullscreen · P print/PDF</div>
+  <div class="counter" id="counter"></div>
+  <div class="notes-panel" id="notesPanel"></div>
+
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const progress = document.getElementById('progress');
+    const counter = document.getElementById('counter');
+    const notesPanel = document.getElementById('notesPanel');
+    let index = Math.max(0, Math.min(slides.length - 1, Number(location.hash.slice(1)) - 1 || 0));
+
+    function render() {
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+      progress.style.width = `${((index + 1) / slides.length) * 100}%`;
+      counter.textContent = `${index + 1} / ${slides.length}`;
+      const notes = slides[index].querySelector('aside.notes');
+      notesPanel.textContent = notes ? notes.textContent.trim() : 'No speaker notes for this slide.';
+      location.hash = String(index + 1);
+    }
+    function move(delta) { index = Math.max(0, Math.min(slides.length - 1, index + delta)); render(); }
+    addEventListener('keydown', (event) => {
+      if (['ArrowRight', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); move(1); }
+      if (['ArrowLeft', 'PageUp'].includes(event.key)) { event.preventDefault(); move(-1); }
+      if (event.key === 'Home') { index = 0; render(); }
+      if (event.key === 'End') { index = slides.length - 1; render(); }
+      if (event.key.toLowerCase() === 'n') notesPanel.classList.toggle('show');
+      if (event.key.toLowerCase() === 'f') document.documentElement.requestFullscreen?.();
+      if (event.key.toLowerCase() === 'p') window.print();
+    });
+    addEventListener('click', (event) => {
+      if (event.target.closest('.notes-panel')) return;
+      event.clientX < innerWidth / 3 ? move(-1) : move(1);
+    });
+    addEventListener('hashchange', () => {
+      const requested = Number(location.hash.slice(1)) - 1;
+      if (Number.isInteger(requested) && requested >= 0 && requested < slides.length) { index = requested; render(); }
+    });
+    render();
+  </script>
+</body>
+</html>
