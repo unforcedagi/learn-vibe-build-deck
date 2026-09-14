@@ -54,8 +54,12 @@
       </div>
       <button id="signout" class="quiet" type="button">Sign out</button>
     </div>
-    <h3 class="section" id="submit-section-title">This week&rsquo;s submission</h3>
-    <form id="submit-form" class="card" style="flex-direction:column; align-items:stretch; gap:1rem;">
+
+    <nav id="week-tabs" class="week-tabs" aria-label="Choose a week"></nav>
+    <p id="week-status" class="week-status"></p>
+
+    <!-- The open week: the live submission form. Hidden on past weeks. -->
+    <form id="submit-form" class="card hidden" style="flex-direction:column; align-items:stretch; gap:1rem;">
       <div>
         <label for="submit-link" style="display:block; font-weight:600; margin-bottom:0.3rem;">Your build</label>
         <input id="submit-link" type="url" required placeholder="https://&hellip; a link to what you built"
@@ -84,38 +88,17 @@
       <p id="submit-error" class="error hidden"></p>
     </form>
 
-    <h3 class="section">Your submissions</h3>
-    <p class="hint" style="margin-top:0">Private by default. The two checkboxes
-      above put a submission in the class feed below, where signed-in
-      classmates can read it &mdash; build and writing share independently.</p>
-    <div id="submissions"></div>
+    <!-- A past week: what you turned in, read-only, sharing still yours. -->
+    <div id="week-panel" class="week-panel"></div>
+
+    <p class="hint" style="margin-top:0">Private by default. The two share
+      checkboxes put your work in the class feed below, where signed-in
+      classmates can read it &mdash; build and writing share independently, and
+      you can change your mind about a past week any time.</p>
 
     <h3 class="section">Class feed</h3>
+    <div id="feed-filter" class="chips"></div>
     <div id="feed"></div>
-
-    <div id="dashboard" class="hidden">
-      <h3 class="section" style="display:flex; align-items:baseline; gap:0.8rem;">
-        Classroom (instructor view)
-        <button id="dash-refresh" class="quiet" type="button"
-                style="font-size:0.85rem; padding:0.25rem 0.8rem;">Refresh</button>
-      </h3>
-      <div id="dash-stats" class="dash-stats"></div>
-      <div class="dash-table-wrap">
-        <table class="dash">
-          <thead>
-            <tr>
-              <th>Student</th>
-              <th>Week 1</th>
-              <th>Signed in</th>
-              <th>Visibility</th>
-            </tr>
-          </thead>
-          <tbody id="dash-rows"></tbody>
-        </table>
-      </div>
-      <p class="hint">Click a student to read their submission. Refresh re-pulls
-        without reloading the page.</p>
-    </div>
   </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/marked@14.1.4/marked.min.js"
@@ -127,6 +110,6 @@
 <!-- The ?v= ties this HTML to the matching app.js: a cached copy of one can
      never load a mismatched copy of the other (that mix blanked the page on
      2026-08-31). Bump it whenever app.js and index.html change together. -->
-<script type="module" src="./app.js?v=4"></script>
+<script type="module" src="./app.js?v=5"></script>
 </body>
 </html>

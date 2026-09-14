@@ -6,8 +6,17 @@
 //
 // The cookie is scoped to .learnvibe.build, so every fetch below uses
 // credentials: 'include' and just works cross-origin (same-site).
+//
+// The signed-in view is one tab per week (weeks come from the API; nothing
+// here hardcodes a week number). The open week shows the submission form; a
+// past week shows what you turned in, read-only, with the two share
+// checkboxes still yours to change.
 
 import { API_BASE } from './config.js';
+import {
+  weekLabel, dueLabel, whenLabel, findWeek,
+  renderWeekTabs, weekFromHash, onWeekHashChange, renderWeekFilter,
+} from '../assets/weeks.js';
 
 const $ = (id) => document.getElementById(id);
 const show = (el) => el && el.classList.remove('hidden');
@@ -31,6 +40,16 @@ const postJSON = (path, body) =>
     body: JSON.stringify(body),
   });
 
+// One /me payload, one selected week, one feed filter.
+const state = {
+  me: null,
+  weeks: [],
+  openWeek: null,
+  week: null,
+  feed: [],
+  feedWeek: null, // null = All
+};
+
 // ---------------------------------------------------------------------------
 // Boot: surface a failed link, then ask the API who we are.
 // ---------------------------------------------------------------------------
@@ -48,18 +67,6 @@ async function boot() {
     if (res.ok) me = await res.json();
   } catch {
     /* network trouble — fall through to the sign-in form */
-  }
-
-  // Layout preview with fake data only — never grants access to real data.
-  // A signed-in instructor sees the real thing regardless of this flag.
-  const preview = new URLSearchParams(window.location.search).get('preview');
-  if (!me && preview === 'instructor') {
-    showAccount(mockInstructorMe());
-    const note = document.createElement('p');
-    note.className = 'preview-note';
-    note.textContent = 'Layout preview — sample data only. Sign in to see the real dashboard.';
-    $('account').prepend(note);
-    return;
   }
 
   if (me) {
@@ -144,23 +151,25 @@ function showAccount(me) {
   hide($('sent'));
   show($('account'));
 
+  state.me = me;
+  state.weeks = (me.weeks || []).filter((w) => w.week <= (me.open_week ?? w.week));
+  state.openWeek = me.open_week ?? null;
+
   $('student-name').textContent = me.name || me.email || 'Student';
   $('student-email').textContent = me.email || '';
 
-  renderSubmissions(me.submissions || []);
-  if (!me.__mock) loadFeed();
-  if (me.open_week) setupSubmitForm(me);
+  // The instructor gets a pointer to their own view; this page stays the
+  // student page for everyone (the roster lives at /instructor/ now).
+  if (me.is_instructor) showInstructorLink();
 
-  // The dashboard must never take the rest of the page down with it.
-  if (me.is_instructor && me.roster) {
-    try {
-      showInstructorLink();
-      show($('dashboard'));
-      renderDashboard(me.roster);
-    } catch (err) {
-      console.error('dashboard render failed:', err);
-    }
-  }
+  const wanted = weekFromHash();
+  selectWeek(findWeek(state.weeks, wanted) ? wanted : state.openWeek);
+  onWeekHashChange((week) => {
+    if (findWeek(state.weeks, week)) selectWeek(week);
+  });
+
+  setupSubmitForm();
+  loadFeed();
 }
 
 // Prominent pointer to the dedicated instructor view (only ever rendered for
@@ -176,22 +185,161 @@ function showInstructorLink() {
   a.textContent = 'Open the instructor view →';
   strong.appendChild(a);
   box.appendChild(strong);
-  box.appendChild(document.createTextNode(' Weekly reads, class synthesis, and the full roster.'));
+  box.appendChild(document.createTextNode(' Week tabs, the roster, and the weekly reads.'));
   const account = $('account');
   account.insertBefore(box, account.firstChild);
 }
 
-function renderSubmissions(submissions) {
-  const list = $('submissions');
-  list.textContent = '';
+function mySub(week) {
+  return (state.me?.submissions || []).find((s) => s.week === week) || null;
+}
 
-  if (submissions.length === 0) {
-    list.appendChild(emptyNote('No submissions yet.'));
-    return;
+function selectWeek(week) {
+  state.week = week;
+  renderWeekTabs($('week-tabs'), state.weeks, week);
+  renderWeekStatus();
+
+  const panel = $('week-panel');
+  panel.textContent = '';
+
+  if (week === state.openWeek) {
+    show($('submit-form'));
+    fillSubmitForm(mySub(week));
+  } else {
+    hide($('submit-form'));
+    panel.appendChild(pastWeekCard(week, mySub(week)));
   }
-  for (const sub of submissions) {
-    list.appendChild(renderSubmission(sub, { toggle: true }));
+}
+
+// "Week 3 — Three different tools · due Sunday Sep 20, 11:59 PM" plus the
+// week's one-line prompt, both straight from the API.
+function renderWeekStatus() {
+  const box = $('week-status');
+  if (!box) return;
+  box.textContent = '';
+  const w = findWeek(state.weeks, state.week);
+  if (!w) return;
+
+  const line = document.createElement('span');
+  const title = document.createElement('strong');
+  title.textContent = weekLabel(w);
+  line.appendChild(title);
+
+  const due = dueLabel(w.due_at);
+  if (due) {
+    const sep = document.createElement('span');
+    sep.className = 'sep';
+    sep.textContent = '·';
+    line.appendChild(sep);
+    line.appendChild(document.createTextNode(`due ${due}`));
   }
+  box.appendChild(line);
+
+  if (w.prompt) {
+    const p = document.createElement('span');
+    p.style.display = 'block';
+    p.textContent = w.prompt;
+    box.appendChild(p);
+  }
+
+  if (w.canvas_url) {
+    const a = document.createElement('a');
+    a.href = w.canvas_url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = 'Open on Canvas →';
+    a.style.display = 'inline-block';
+    box.appendChild(a);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// A past week — read-only body and link, share flags still editable.
+// ---------------------------------------------------------------------------
+
+function pastWeekCard(week, sub) {
+  if (!sub) {
+    const card = document.createElement('div');
+    card.className = 'card readonly';
+    card.appendChild(emptyNote(
+      `You didn't submit week ${week} on the site. That week is closed here — talk to Aaron if you need it counted.`));
+    return card;
+  }
+
+  const card = document.createElement('div');
+  card.className = 'card readonly';
+
+  if (sub.submitted_at) {
+    const when = document.createElement('p');
+    when.className = 'field-label';
+    when.textContent = `Submitted ${whenLabel(sub.submitted_at)}`;
+    card.appendChild(when);
+  }
+
+  if (sub.link_url) {
+    const label = document.createElement('p');
+    label.className = 'field-label';
+    label.textContent = 'Your build';
+    card.appendChild(label);
+    const p = document.createElement('p');
+    p.style.margin = '0 0 0.9rem';
+    const a = document.createElement('a');
+    a.href = sub.link_url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = sub.link_url;
+    p.appendChild(a);
+    card.appendChild(p);
+  }
+
+  const wlabel = document.createElement('p');
+  wlabel.className = 'field-label';
+  wlabel.textContent = 'Your writing';
+  card.appendChild(wlabel);
+  card.appendChild(markdownBody(sub.body));
+
+  const shares = document.createElement('div');
+  shares.style.display = 'flex';
+  shares.style.gap = '1.5rem';
+  shares.style.flexWrap = 'wrap';
+  shares.style.marginTop = '1rem';
+  if (sub.link_url) {
+    shares.appendChild(shareCheckbox(sub, 'build', 'Share my build with the class'));
+  }
+  shares.appendChild(shareCheckbox(sub, 'writing', 'Share my writing with the class'));
+  card.appendChild(shares);
+
+  return card;
+}
+
+// A closed week's body and link are fixed, but sharing is a standing choice —
+// POST /submissions/:id/share updates one flag on an existing row regardless
+// of which week it belongs to.
+function shareCheckbox(sub, field, label) {
+  const wrap = document.createElement('label');
+  wrap.style.display = 'flex';
+  wrap.style.alignItems = 'center';
+  wrap.style.gap = '0.4rem';
+
+  const box = document.createElement('input');
+  box.type = 'checkbox';
+  box.checked = field === 'build' ? !!sub.share_build : writingIsShared(sub);
+  box.addEventListener('change', async () => {
+    const next = box.checked;
+    box.disabled = true;
+    const res = await postJSON(`/submissions/${sub.id}/share`, { field, value: next })
+      .catch(() => null);
+    box.disabled = false;
+    if (res && res.ok) {
+      if (field === 'build') sub.share_build = next; else sub.share_writing = next;
+      loadFeed();
+    } else {
+      box.checked = !next; // the server said no — don't lie about the state
+    }
+  });
+  wrap.appendChild(box);
+  wrap.appendChild(document.createTextNode(label));
+  return wrap;
 }
 
 // ---------------------------------------------------------------------------
@@ -200,26 +348,24 @@ function renderSubmissions(submissions) {
 
 const MIN_WRITING_CHARS = 120; // mirrors the server-side floor
 
-function setupSubmitForm(me) {
-  const title = $('submit-section-title');
-  if (title) title.textContent = `Week ${me.open_week}'s submission`;
+function fillSubmitForm(existing) {
+  $('submit-link').value = existing?.link_url || '';
+  $('submit-writing').value = existing?.body || '';
+  $('share-build').checked = !!existing?.share_build;
+  $('share-writing').checked = !!existing?.share_writing;
+  $('submit-btn').textContent = existing ? 'Update submission' : 'Submit';
+  $('submit-status').textContent = existing?.submitted_at
+    ? `Last saved ${whenLabel(existing.submitted_at)}`
+    : '';
+  hide($('submit-error'));
+}
 
-  const existing = (me.submissions || []).find((s) => s.week === me.open_week) || null;
-  if (existing) {
-    $('submit-link').value = existing.link_url || '';
-    $('submit-writing').value = existing.body || '';
-    $('share-build').checked = !!existing.share_build;
-    $('share-writing').checked = !!existing.share_writing;
-    $('submit-btn').textContent = 'Update submission';
-    $('submit-status').textContent = existing.submitted_at
-      ? `Last saved ${new Date(existing.submitted_at).toLocaleString()}`
-      : '';
-  }
-
+function setupSubmitForm() {
   on('submit-form', 'submit', async (e) => {
     e.preventDefault();
     hide($('submit-error'));
 
+    const week = state.openWeek;
     const linkUrl = $('submit-link').value.trim();
     const writing = $('submit-writing').value.trim();
     if (writing.length < MIN_WRITING_CHARS) {
@@ -232,7 +378,7 @@ function setupSubmitForm(me) {
     let res;
     try {
       res = await postJSON('/submissions', {
-        week: me.open_week,
+        week,
         link_url: linkUrl,
         body: writing,
         share_build: $('share-build').checked,
@@ -255,13 +401,12 @@ function setupSubmitForm(me) {
 
     const { submission } = await res.json();
     btn.textContent = 'Update submission';
-    $('submit-status').textContent = `Saved ${new Date(submission.submitted_at).toLocaleString()}`;
+    $('submit-status').textContent = `Saved ${whenLabel(submission.submitted_at)}`;
 
-    me.submissions = [
-      ...(me.submissions || []).filter((s) => s.week !== me.open_week),
+    state.me.submissions = [
+      ...(state.me.submissions || []).filter((s) => s.week !== week),
       submission,
     ];
-    renderSubmissions(me.submissions);
     loadFeed();
   });
 }
@@ -271,6 +416,10 @@ function showSubmitError(msg) {
   el.textContent = msg;
   show(el);
 }
+
+// ---------------------------------------------------------------------------
+// Class feed — everything shared with the class, filterable by week.
+// ---------------------------------------------------------------------------
 
 async function loadFeed() {
   const list = $('feed');
@@ -286,197 +435,50 @@ async function loadFeed() {
     list.appendChild(emptyNote('Couldn’t load the class feed.'));
     return;
   }
-  const { feed } = await res.json();
-  if (!feed || feed.length === 0) {
-    list.appendChild(emptyNote('Nothing shared with the class yet. Sharing a submission puts it here.'));
+  const data = await res.json();
+  state.feed = data.feed || [];
+  if (!state.weeks.length && data.weeks) state.weeks = data.weeks;
+  drawFeedFilter();
+  renderFeed();
+}
+
+function drawFeedFilter() {
+  renderWeekFilter($('feed-filter'), state.weeks, state.feedWeek, (week) => {
+    state.feedWeek = week;
+    drawFeedFilter();
+    renderFeed();
+  });
+}
+
+function renderFeed() {
+  const list = $('feed');
+  list.textContent = '';
+  const items = state.feedWeek == null
+    ? state.feed
+    : state.feed.filter((i) => i.week === state.feedWeek);
+
+  if (items.length === 0) {
+    list.appendChild(emptyNote(state.feedWeek == null
+      ? 'Nothing shared with the class yet. Sharing a submission puts it here.'
+      : `Nothing shared for week ${state.feedWeek} yet.`));
     return;
   }
-  for (const item of feed) {
+  for (const item of items) {
     list.appendChild(renderSubmission(item, { author: item.author }));
   }
 }
 
 // ---------------------------------------------------------------------------
-// Instructor dashboard
+// Submission cards (the class feed)
 // ---------------------------------------------------------------------------
 
-const CURRENT_WEEK = 1;
-
-function renderDashboard(roster) {
-  renderDashStats(roster);
-  renderDashRows(roster);
-}
-
-function renderDashStats(roster) {
-  const total = roster.length;
-  const submitted = roster.filter((s) =>
-    (s.submissions || []).some((sub) => sub.week === CURRENT_WEEK)).length;
-  const signedIn = roster.filter((s) => s.signed_in).length;
-
-  const box = $('dash-stats');
-  box.textContent = '';
-  const stat = (n, label) => {
-    const span = document.createElement('span');
-    span.className = 'stat';
-    const strong = document.createElement('strong');
-    strong.textContent = String(n);
-    span.appendChild(strong);
-    span.appendChild(document.createTextNode(' ' + label));
-    return span;
-  };
-  const dot = () => {
-    const s = document.createElement('span');
-    s.className = 'dot';
-    s.textContent = '·';
-    return s;
-  };
-  box.appendChild(stat(`${submitted} of ${total}`, `submitted week ${CURRENT_WEEK}`));
-  box.appendChild(dot());
-  box.appendChild(stat(signedIn, 'signed in so far'));
-}
-
-function renderDashRows(roster) {
-  const tbody = $('dash-rows');
-  tbody.textContent = '';
-
-  for (const student of roster) {
-    const subs = student.submissions || [];
-    const week1 = subs.find((s) => s.week === CURRENT_WEEK) || null;
-
-    const tr = document.createElement('tr');
-    tr.className = 'student';
-
-    const name = document.createElement('td');
-    name.className = 'name';
-    name.textContent = student.name;
-    const email = document.createElement('span');
-    email.className = 'email-sub';
-    email.textContent = student.email;
-    name.appendChild(email);
-    tr.appendChild(name);
-
-    const status = document.createElement('td');
-    if (week1) {
-      status.className = 'status-ok';
-      status.textContent = 'submitted ';
-      const when = document.createElement('span');
-      when.className = 'when';
-      when.textContent = week1.submitted_at
-        ? new Date(week1.submitted_at).toLocaleDateString(undefined, {
-            month: 'short', day: 'numeric',
-          })
-        : '';
-      status.appendChild(when);
-    } else {
-      status.className = 'status-missing';
-      status.textContent = 'missing';
-    }
-    tr.appendChild(status);
-
-    const signed = document.createElement('td');
-    const pill = document.createElement('span');
-    pill.className = 'pill' + (student.signed_in ? ' yes' : '');
-    pill.textContent = student.signed_in ? 'signed in' : 'never';
-    signed.appendChild(pill);
-    tr.appendChild(signed);
-
-    const vis = document.createElement('td');
-    vis.textContent = week1 ? (week1.visibility === 'class' ? 'shared with class' : 'private') : '—';
-    tr.appendChild(vis);
-
-    tbody.appendChild(tr);
-
-    tr.addEventListener('click', () => toggleStudentDetail(tr, student, subs));
-  }
-}
-
-function toggleStudentDetail(tr, student, subs) {
-  const next = tr.nextElementSibling;
-  if (next && next.classList.contains('detail-row')) {
-    next.remove();
-    tr.classList.remove('open');
-    return;
-  }
-  // Close any other open detail first.
-  const tbody = tr.parentElement;
-  for (const row of [...tbody.querySelectorAll('tr.detail-row')]) row.remove();
-  for (const row of [...tbody.querySelectorAll('tr.open')]) row.classList.remove('open');
-
-  tr.classList.add('open');
-  const detail = document.createElement('tr');
-  detail.className = 'detail-row';
-  const td = document.createElement('td');
-  td.colSpan = 4;
-  if (subs.length === 0) {
-    td.appendChild(emptyNote(`Nothing submitted yet from ${student.name}.`));
-  } else {
-    for (const sub of subs) {
-      td.appendChild(renderSubmission(sub, {}));
-    }
-  }
-  detail.appendChild(td);
-  tr.after(detail);
-}
-
-on('dash-refresh', 'click', async () => {
-  const btn = $('dash-refresh');
-  btn.disabled = true;
-  btn.textContent = 'Refreshing…';
-  try {
-    const res = await api('/me');
-    if (res.ok) {
-      const me = await res.json();
-      if (me.is_instructor && me.roster) renderDashboard(me.roster);
-    }
-  } catch {
-    /* leave the current view in place */
-  }
-  btn.disabled = false;
-  btn.textContent = 'Refresh';
-});
-
-// Fake data so the dashboard layout can be previewed without a session.
-function mockInstructorMe() {
-  const mk = (name, i, opts = {}) => ({
-    name,
-    email: `sample${i}@colorado.edu`,
-    signed_in: !!opts.signed_in,
-    submissions: opts.submitted
-      ? [{
-          id: 9000 + i, week: 1,
-          body: '# Sample submission\n\nThis is **sample markdown** with a list:\n\n- one\n- two\n\nAnd a [link](https://cu.learnvibe.build).',
-          submitted_at: '2026-08-30T18:00:00Z',
-          visibility: i % 2 ? 'private' : 'class',
-        }]
-      : [],
-  });
-  return {
-    __mock: true,
-    name: 'Preview',
-    email: 'preview@example.com',
-    is_instructor: true,
-    submissions: [],
-    roster: [
-      mk('Ada Lovelace', 1, { submitted: true, signed_in: true }),
-      mk('Grace Hopper', 2, { submitted: true }),
-      mk('Alan Turing', 3, { signed_in: true }),
-      mk('Katherine Johnson', 4, {}),
-    ],
-  };
-}
-
-// ---------------------------------------------------------------------------
-// Submission cards
-// ---------------------------------------------------------------------------
-
-// Week-1 Canvas rows never set share_build/share_writing explicitly in the
-// mock preview data; fall back to the legacy `visibility` field so both old
-// and new shapes render correctly.
+// Week-1 Canvas rows never set share_writing explicitly; fall back to the
+// legacy `visibility` field so both old and new shapes render correctly.
 function writingIsShared(sub) {
   return sub.share_writing !== undefined ? !!sub.share_writing : sub.visibility === 'class';
 }
 
-function renderSubmission(sub, { toggle = false, author = null } = {}) {
+function renderSubmission(sub, { author = null } = {}) {
   const card = document.createElement('div');
   card.className = 'card submission';
 
@@ -497,13 +499,9 @@ function renderSubmission(sub, { toggle = false, author = null } = {}) {
     meta.appendChild(date);
   }
 
-  const hasLink = !!sub.link_url;
-  if (hasLink) meta.appendChild(shareToggle(sub, 'build', 'Build', toggle));
-  meta.appendChild(shareToggle(sub, 'writing', 'Writing', toggle));
-
   card.appendChild(meta);
 
-  if (hasLink) {
+  if (sub.link_url && sub.share_build) {
     const link = document.createElement('p');
     link.style.margin = '0 0 0.6rem';
     const a = document.createElement('a');
@@ -515,48 +513,9 @@ function renderSubmission(sub, { toggle = false, author = null } = {}) {
     card.appendChild(link);
   }
 
-  card.appendChild(markdownBody(sub.body));
+  if (writingIsShared(sub)) card.appendChild(markdownBody(sub.body));
 
   return card;
-}
-
-// One badge + optional toggle button for a single share flag (build or
-// writing) — the two flags are independent, so each gets its own pair.
-function shareToggle(sub, field, label, toggle) {
-  const wrap = document.createElement('span');
-  wrap.style.display = 'inline-flex';
-  wrap.style.alignItems = 'baseline';
-  wrap.style.gap = '0.4rem';
-
-  const shared = field === 'build' ? !!sub.share_build : writingIsShared(sub);
-  const badge = document.createElement('span');
-  badge.className = 'badge' + (shared ? ' public' : '');
-  badge.textContent = `${label}: ${shared ? 'shared' : 'private'}`;
-  wrap.appendChild(badge);
-
-  if (toggle) {
-    const btn = document.createElement('button');
-    btn.className = 'quiet';
-    btn.type = 'button';
-    btn.textContent = shared ? 'Make private' : 'Share';
-    btn.addEventListener('click', async () => {
-      btn.disabled = true;
-      const next = !shared;
-      const res = await postJSON(`/submissions/${sub.id}/share`, { field, value: next })
-        .catch(() => null);
-      btn.disabled = false;
-      if (res && res.ok) {
-        if (field === 'build') sub.share_build = next; else sub.share_writing = next;
-        badge.className = 'badge' + (next ? ' public' : '');
-        badge.textContent = `${label}: ${next ? 'shared' : 'private'}`;
-        btn.textContent = next ? 'Make private' : 'Share';
-        loadFeed();
-      }
-    });
-    wrap.appendChild(btn);
-  }
-
-  return wrap;
 }
 
 // Bodies are markdown (converted from Canvas HTML server-side). Render with
