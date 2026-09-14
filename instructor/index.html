@@ -74,29 +74,35 @@
 
   <!-- State 3: the instructor view -->
   <section id="main" class="hidden">
-    <h1>Instructor</h1>
-    <p class="lead">Weekly reads and the full class roster. Only you can see
-      this page; reads badged <em>class-shareable</em> are written to be read
-      aloud.</p>
-    <div id="stats" class="statsbar"></div>
+    <div class="page-head">
+      <h1>Instructor</h1>
+      <p class="lead">One week at a time: who submitted, what they made, and
+        the reads for that week. Reads badged <em>class-shareable</em> are
+        written to be read aloud.</p>
+      <nav id="week-tabs" class="week-tabs" aria-label="Choose a week"></nav>
+      <p id="week-status" class="week-status"></p>
+    </div>
 
-    <h3 class="section">Demo queue &mdash; Week <span id="demo-week">2</span></h3>
+    <div id="stats" class="stat-tiles"></div>
+
+    <h3 class="section" id="demo-heading">Demo queue</h3>
     <div class="card demo-timer">
       <span id="demo-clock" class="clock">4:00</span>
       <button id="demo-start" type="button">Start 4:00</button>
       <button id="demo-reset" class="quiet" type="button">Reset</button>
     </div>
     <ol id="demo-rows" class="demo-queue"></ol>
-    <h3 class="section">Not submitted yet</h3>
+    <h3 class="section" id="demo-missing-heading">Not submitted yet</h3>
     <ul id="demo-missing" class="demo-queue"></ul>
     <p class="hint">Order is submission time. Checking a row only marks it done
       for you, in this browser &mdash; nothing is sent to the server. Anyone in
       the second list can still demo off their own laptop.</p>
 
+    <h3 class="section" id="reads-heading">Reads</h3>
     <div id="reads"></div>
 
     <h3 class="section" style="display:flex; align-items:baseline; gap:0.8rem;">
-      Roster
+      <span id="roster-heading">Roster</span>
       <button id="refresh" class="quiet" type="button"
               style="font-size:0.85rem; padding:0.25rem 0.8rem;">Refresh</button>
     </h3>
@@ -105,16 +111,19 @@
         <thead>
           <tr>
             <th>Student</th>
-            <th>This week</th>
+            <th id="col-week">This week</th>
+            <th>Shared</th>
+            <th>All weeks</th>
             <th>Signed in</th>
-            <th>Visibility</th>
           </tr>
         </thead>
         <tbody id="roster-rows"></tbody>
       </table>
     </div>
-    <p class="hint">Click a student to read their submissions. Refresh re-pulls
-      without reloading the page.</p>
+    <p class="hint">Click a student to read what they turned in for the selected
+      week. The <em>all weeks</em> column is every week at once &mdash;
+      &#10003; submitted, &middot; not &mdash; so patterns show without
+      switching tabs. Refresh re-pulls without reloading the page.</p>
   </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/marked@14.1.4/marked.min.js"
@@ -126,6 +135,6 @@
 <!-- The ?v= ties this HTML to the matching app.js: a cached copy of one can
      never load a mismatched copy of the other. Bump it whenever app.js and
      index.html change together. -->
-<script type="module" src="./app.js?v=3"></script>
+<script type="module" src="./app.js?v=4"></script>
 </body>
 </html>

@@ -2,22 +2,46 @@
 //
 // Session-gated: GET /instructor/data returns 401 (no session) or 403 (signed
 // in but not the instructor); either way the data never reaches this page for
-// anyone but Aaron. Reads are weekly synthesis notes pushed by Uni through the
-// admin API (worker/lvb-read.py); the roster review duplicates the account
-// page's dashboard idiom on purpose — the two pages evolve independently.
+// anyone but Aaron.
 //
-// The demo queue is run-of-class furniture for demo day: it reads the same
-// roster payload and keeps its only state (who has already gone) in
-// localStorage, so nothing about it touches the server.
+// The whole page is scoped to one selected week. There is exactly one fetch;
+// switching tabs is pure client-side re-render of the same payload, so moving
+// between weeks in front of the room is instant. The selected week lives in
+// the URL hash (#week-2), which makes a tab linkable and survives a reload.
+//
+// Weeks themselves come from the API (worker/src/index.js `WEEKS`) — no week
+// number, title or date is hardcoded here.
 
 import { API_BASE } from '../account/config.js';
+import {
+  weekLabel, dueLabel, whenLabel, findWeek,
+  renderWeekTabs, weekFromHash, onWeekHashChange, defaultWeek,
+} from '../assets/weeks.js';
 
 const $ = (id) => document.getElementById(id);
 const show = (el) => el && el.classList.remove('hidden');
 const hide = (el) => el && el.classList.add('hidden');
 
+function on(id, event, fn) {
+  const el = $(id);
+  if (el) el.addEventListener(event, fn);
+}
+
 const api = (path, opts = {}) =>
   fetch(API_BASE + path, { credentials: 'include', ...opts });
+
+// ---------------------------------------------------------------------------
+// One payload, one selected week. Everything below reads from here.
+// ---------------------------------------------------------------------------
+
+const state = {
+  weeks: [],
+  openWeek: null,
+  roster: [],
+  reads: [],
+  stats: {},
+  week: null,
+};
 
 // ---------------------------------------------------------------------------
 // Boot + gate
@@ -38,15 +62,12 @@ async function boot() {
   if (res.status === 403) { show($('denied')); return; }
   if (!res.ok) { show($('signedout')); return; }
 
-  const data = await res.json();
   show($('main'));
-  render(data);
+  load(await res.json());
 
-  // Deep links like #week-1 land after render, so scroll explicitly.
-  if (location.hash) {
-    const target = document.getElementById(location.hash.slice(1));
-    if (target) target.scrollIntoView();
-  }
+  onWeekHashChange((week) => {
+    if (findWeek(state.weeks, week)) selectWeek(week);
+  });
 }
 
 boot();
@@ -57,7 +78,7 @@ on('refresh', 'click', async () => {
   btn.textContent = 'Refreshing…';
   try {
     const res = await api('/instructor/data');
-    if (res.ok) render(await res.json());
+    if (res.ok) load(await res.json(), state.week);
   } catch {
     /* leave the current view in place */
   }
@@ -65,55 +86,112 @@ on('refresh', 'click', async () => {
   btn.textContent = 'Refresh';
 });
 
-function on(id, event, fn) {
-  const el = $(id);
-  if (el) el.addEventListener(event, fn);
+// Take a fresh payload and pick which week to show. `keep` holds the current
+// tab across a Refresh; otherwise the hash wins, then the default rule.
+function load(data, keep = null) {
+  state.weeks = data.weeks || [];
+  state.openWeek = data.open_week ?? null;
+  state.roster = data.roster || [];
+  state.reads = data.reads || [];
+  state.stats = data.stats || {};
+
+  const submittedCount = (week) => state.stats.by_week?.[String(week)]?.submitted ?? 0;
+  const wanted = keep ?? weekFromHash();
+  const week = (wanted != null && findWeek(state.weeks, wanted))
+    ? wanted
+    : defaultWeek(state.weeks, state.openWeek, submittedCount);
+
+  selectWeek(week);
+}
+
+function selectWeek(week) {
+  state.week = week;
+  renderWeekTabs($('week-tabs'), state.weeks, week);
+  renderWeekStatus();
+  renderStats();
+  renderDemoQueue();
+  renderReads();
+  renderRoster();
 }
 
 // ---------------------------------------------------------------------------
-// Render
+// Week header + stat tiles
 // ---------------------------------------------------------------------------
 
-// The demo queue runs off the week whose work is being shown, which lags the
-// open week: on Sep 14 the class is in week 3 but demos the week-2 builds.
-// Bump this the week after CURRENT_WEEK moves.
-const DEMO_WEEK = 2;
-
-function render(data) {
-  renderStats(data.stats || {}, data.current_week);
-  renderDemoQueue(data.roster || [], DEMO_WEEK);
-  renderReads(data.reads || []);
-  renderRoster(data.roster || [], data.current_week);
-}
-
-function renderStats(stats, week) {
-  const box = $('stats');
+// "Week 2 — Build something · due Sunday Sep 13, 11:59 PM · 23 of 25 submitted"
+function renderWeekStatus() {
+  const box = $('week-status');
+  if (!box) return;
   box.textContent = '';
-  const stat = (n, label) => {
-    const span = document.createElement('span');
-    span.className = 'stat';
-    const strong = document.createElement('strong');
-    strong.textContent = String(n);
-    span.appendChild(strong);
-    span.appendChild(document.createTextNode(' ' + label));
-    return span;
-  };
-  const dot = () => {
+  const w = findWeek(state.weeks, state.week);
+  if (!w) return;
+
+  const sep = () => {
     const s = document.createElement('span');
-    s.className = 'dot';
+    s.className = 'sep';
     s.textContent = '·';
     return s;
   };
-  box.appendChild(stat(`${stats.submitted ?? '?'} of ${stats.total ?? '?'}`,
-    `submitted week ${week ?? ''}`.trim()));
-  box.appendChild(dot());
-  box.appendChild(stat(stats.signed_in ?? '?', 'signed in so far'));
+
+  const title = document.createElement('strong');
+  title.textContent = weekLabel(w);
+  box.appendChild(title);
+
+  const due = dueLabel(w.due_at);
+  if (due) {
+    box.appendChild(sep());
+    box.appendChild(document.createTextNode(`due ${due}`));
+  }
+
+  const counts = state.stats.by_week?.[String(w.week)] || {};
+  box.appendChild(sep());
+  box.appendChild(document.createTextNode(
+    `${counts.submitted ?? 0} of ${state.stats.total ?? state.roster.length} submitted`));
+
+  if (w.canvas_url) {
+    box.appendChild(sep());
+    const a = document.createElement('a');
+    a.href = w.canvas_url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = 'Canvas assignment';
+    box.appendChild(a);
+  }
+}
+
+function statTile(n, label) {
+  const div = document.createElement('div');
+  div.className = 'stat-tile';
+  const num = document.createElement('span');
+  num.className = 'n';
+  num.textContent = String(n);
+  const key = document.createElement('span');
+  key.className = 'k';
+  key.textContent = label;
+  div.appendChild(num);
+  div.appendChild(key);
+  return div;
+}
+
+function renderStats() {
+  const box = $('stats');
+  if (!box) return;
+  box.textContent = '';
+  const total = state.stats.total ?? state.roster.length;
+  const counts = state.stats.by_week?.[String(state.week)] || {};
+
+  box.appendChild(statTile(`${counts.submitted ?? 0} of ${total}`,
+    `submitted · week ${state.week}`));
+  box.appendChild(statTile(counts.shared_build ?? 0, `shared build · week ${state.week}`));
+  box.appendChild(statTile(counts.shared_writing ?? 0, `shared writing · week ${state.week}`));
+  box.appendChild(statTile(state.stats.signed_in ?? 0, 'signed in · all time'));
 }
 
 // ---------------------------------------------------------------------------
 // Demo queue — running order for demo day, plus a per-student timer.
-// Done-state lives in localStorage under one key per week; it is a convenience
-// for whoever is driving the laptop, never a grade or a server-side fact.
+// Scoped to the selected week. Done-state lives in localStorage under one key
+// per week; it is a convenience for whoever is driving the laptop, never a
+// grade or a server-side fact.
 // ---------------------------------------------------------------------------
 
 const DEMO_SECONDS = 4 * 60;
@@ -156,16 +234,20 @@ function shortUrl(url) {
   }
 }
 
-function renderDemoQueue(roster, currentWeek) {
-  const week = currentWeek ?? 2;
-  const weekLabel = $('demo-week');
-  if (weekLabel) weekLabel.textContent = String(week);
+function subFor(student, week) {
+  return (student.submissions || []).find((s) => s.week === week) || null;
+}
+
+function renderDemoQueue() {
+  const week = state.week;
+  const heading = $('demo-heading');
+  if (heading) heading.textContent = `Demo queue — ${weekLabel(findWeek(state.weeks, week))}`;
 
   const done = loadDone(week);
   const ready = [];
   const missing = [];
-  for (const student of roster) {
-    const sub = (student.submissions || []).find((s) => s.week === week) || null;
+  for (const student of state.roster) {
+    const sub = subFor(student, week);
     (sub ? ready : missing).push({ student, sub });
   }
   // Submission time is the running order; a row with no timestamp goes last
@@ -231,9 +313,7 @@ function demoRow(student, sub, week, done) {
   if (sub.submitted_at) {
     const when = document.createElement('span');
     when.className = 'when';
-    when.textContent = ' · ' + new Date(sub.submitted_at).toLocaleString(undefined, {
-      month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
-    });
+    when.textContent = ' · ' + whenLabel(sub.submitted_at);
     li.appendChild(when);
   }
   return li;
@@ -273,36 +353,23 @@ on('demo-reset', 'click', () => {
   paintClock(DEMO_SECONDS);
 });
 
-// Reads grouped by week, newest week first (the API already sorts week DESC).
-function renderReads(reads) {
+// ---------------------------------------------------------------------------
+// Reads — only the selected week's, both audiences.
+// ---------------------------------------------------------------------------
+
+function renderReads() {
   const box = $('reads');
   box.textContent = '';
+  const heading = $('reads-heading');
+  if (heading) heading.textContent = `Reads — week ${state.week}`;
 
-  if (reads.length === 0) {
-    box.appendChild(emptyNote('No reads yet — Uni pushes them with lvb-read.py.'));
+  const mine = state.reads.filter((r) => r.week === state.week);
+  if (mine.length === 0) {
+    box.appendChild(emptyNote(
+      `No reads for week ${state.week} yet — Uni pushes them with lvb-read.py.`));
     return;
   }
-
-  const byWeek = new Map();
-  for (const r of reads) {
-    if (!byWeek.has(r.week)) byWeek.set(r.week, []);
-    byWeek.get(r.week).push(r);
-  }
-
-  for (const [week, group] of byWeek) {
-    const head = document.createElement('h2');
-    head.className = 'week-head';
-    head.id = `week-${week}`;
-    head.textContent = `Week ${week}`;
-    const anchor = document.createElement('a');
-    anchor.className = 'anchor';
-    anchor.href = `#week-${week}`;
-    anchor.textContent = '#';
-    head.appendChild(anchor);
-    box.appendChild(head);
-
-    for (const read of group) box.appendChild(renderRead(read));
-  }
+  for (const read of mine) box.appendChild(renderRead(read));
 }
 
 function renderRead(read) {
@@ -338,16 +405,22 @@ function renderRead(read) {
 }
 
 // ---------------------------------------------------------------------------
-// Roster review (same behavior as the account dashboard)
+// Roster — the selected week's status per student, plus an all-weeks grid.
 // ---------------------------------------------------------------------------
 
-function renderRoster(roster, currentWeek) {
+const ROSTER_COLS = 5;
+
+function renderRoster() {
   const tbody = $('roster-rows');
   tbody.textContent = '';
 
-  for (const student of roster) {
-    const subs = student.submissions || [];
-    const thisWeek = subs.find((s) => s.week === currentWeek) || null;
+  const col = $('col-week');
+  if (col) col.textContent = `Week ${state.week}`;
+  const heading = $('roster-heading');
+  if (heading) heading.textContent = `Roster — week ${state.week}`;
+
+  for (const student of state.roster) {
+    const sub = subFor(student, state.week);
 
     const tr = document.createElement('tr');
     tr.className = 'student';
@@ -361,23 +434,9 @@ function renderRoster(roster, currentWeek) {
     name.appendChild(email);
     tr.appendChild(name);
 
-    const status = document.createElement('td');
-    if (thisWeek) {
-      status.className = 'status-ok';
-      status.textContent = 'submitted ';
-      const when = document.createElement('span');
-      when.className = 'when';
-      when.textContent = thisWeek.submitted_at
-        ? new Date(thisWeek.submitted_at).toLocaleDateString(undefined, {
-            month: 'short', day: 'numeric',
-          })
-        : '';
-      status.appendChild(when);
-    } else {
-      status.className = 'status-missing';
-      status.textContent = 'missing';
-    }
-    tr.appendChild(status);
+    tr.appendChild(statusCell(sub));
+    tr.appendChild(sharesCell(sub));
+    tr.appendChild(gridCell(student));
 
     const signed = document.createElement('td');
     const pill = document.createElement('span');
@@ -386,16 +445,82 @@ function renderRoster(roster, currentWeek) {
     signed.appendChild(pill);
     tr.appendChild(signed);
 
-    const vis = document.createElement('td');
-    vis.textContent = thisWeek ? (writingIsShared(thisWeek) ? 'shared with class' : 'private') : '—';
-    tr.appendChild(vis);
-
     tbody.appendChild(tr);
-    tr.addEventListener('click', () => toggleStudentDetail(tr, student, subs));
+    tr.addEventListener('click', () => toggleStudentDetail(tr, student, sub));
   }
 }
 
-function toggleStudentDetail(tr, student, subs) {
+function statusCell(sub) {
+  const td = document.createElement('td');
+  if (!sub) {
+    td.className = 'status-missing';
+    td.textContent = 'not submitted';
+    return td;
+  }
+  td.className = 'status-ok';
+  td.textContent = 'submitted ';
+  const when = document.createElement('span');
+  when.className = 'when';
+  when.textContent = whenLabel(sub.submitted_at);
+  td.appendChild(when);
+
+  const url = sub.link_url || firstUrlIn(sub.body);
+  if (url) {
+    const p = document.createElement('div');
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = shortUrl(url);
+    // The row toggles the body open; the link should just open the link.
+    a.addEventListener('click', (e) => e.stopPropagation());
+    p.appendChild(a);
+    td.appendChild(p);
+  }
+  return td;
+}
+
+function sharesCell(sub) {
+  const td = document.createElement('td');
+  if (!sub) {
+    td.textContent = '—';
+    return td;
+  }
+  const wrap = document.createElement('div');
+  wrap.style.display = 'flex';
+  wrap.style.gap = '0.35rem';
+  wrap.style.flexWrap = 'wrap';
+  if (sub.link_url) wrap.appendChild(shareBadge('Build', !!sub.share_build));
+  wrap.appendChild(shareBadge('Writing', writingIsShared(sub)));
+  td.appendChild(wrap);
+  return td;
+}
+
+function shareBadge(label, shared) {
+  const b = document.createElement('span');
+  b.className = 'badge' + (shared ? ' public' : '');
+  b.textContent = shared ? label : `${label}: private`;
+  return b;
+}
+
+// Every week at once: ✓ submitted, · not. The selected week is ringed.
+function gridCell(student) {
+  const td = document.createElement('td');
+  const grid = document.createElement('div');
+  grid.className = 'weekgrid';
+  for (const w of state.weeks) {
+    const cell = document.createElement('span');
+    const has = !!subFor(student, w.week);
+    cell.className = 'wg' + (has ? ' yes' : '') + (w.week === state.week ? ' sel' : '');
+    cell.textContent = has ? '✓' : '·';
+    cell.title = `Week ${w.week} — ${has ? 'submitted' : 'not submitted'}`;
+    grid.appendChild(cell);
+  }
+  td.appendChild(grid);
+  return td;
+}
+
+function toggleStudentDetail(tr, student, sub) {
   const next = tr.nextElementSibling;
   if (next && next.classList.contains('detail-row')) {
     next.remove();
@@ -410,11 +535,12 @@ function toggleStudentDetail(tr, student, subs) {
   const detail = document.createElement('tr');
   detail.className = 'detail-row';
   const td = document.createElement('td');
-  td.colSpan = 4;
-  if (subs.length === 0) {
-    td.appendChild(emptyNote(`Nothing submitted yet from ${student.name}.`));
+  td.colSpan = ROSTER_COLS;
+  if (sub) {
+    td.appendChild(renderSubmission(sub));
   } else {
-    for (const sub of subs) td.appendChild(renderSubmission(sub));
+    td.appendChild(emptyNote(
+      `Nothing from ${student.name} for week ${state.week}.`));
   }
   detail.appendChild(td);
   tr.after(detail);
