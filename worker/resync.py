@@ -30,6 +30,7 @@ import subprocess
 import sys
 import tempfile
 import urllib.parse
+import urllib.error
 import urllib.request
 
 import html2text
@@ -94,6 +95,110 @@ def html_to_markdown(conv, html):
     md = re.sub(r"\n{3,}", "\n\n", md).strip()
     return md
 
+
+
+# ---------------------------------------------------------------------------
+# Attachments -> text (so the instructor can read every submission on the
+# site without downloading). pdf via pdftotext, docx/rtf/doc via macOS
+# textutil, txt/md as-is. HTML uploads are treated as the build itself, not
+# writing (a portfolio page is 37 MB of markup); images/video/zip are named
+# but not read. Downloads are cached by attachment id and never re-fetched.
+# ---------------------------------------------------------------------------
+
+CACHE_DIR = os.path.expanduser("~/.scratch/lvb-canvas-files")
+TEXT_TYPES = {
+    "application/pdf": "pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+    "application/msword": "doc",
+    "text/rtf": "rtf", "application/rtf": "rtf",
+    "text/plain": "txt", "text/markdown": "txt",
+}
+MAX_TEXT_CHARS = 20000
+
+
+def fetch_attachment(token, att):
+    """Download once into the cache; return the local path (or None)."""
+    d = os.path.join(CACHE_DIR, str(att["id"]))
+    os.makedirs(d, exist_ok=True)
+    name = os.path.basename(att.get("filename") or att.get("display_name") or "file")
+    path = os.path.join(d, name)
+    if os.path.exists(path):
+        return path
+    # Canvas attachment URLs carry a `verifier` query param that IS the
+    # authorization; sending the API bearer as well gets a 401 once the
+    # request is redirected to the file store. Try bare first, then bearer.
+    data = None
+    for headers in ({}, {"Authorization": f"Bearer {token}"}):
+        try:
+            req = urllib.request.Request(att["url"], headers=headers)
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                data = resp.read()
+            break
+        except urllib.error.HTTPError as e:
+            if e.code not in (401, 403):
+                raise
+    if data is None:
+        return None
+    with open(path, "wb") as f:
+        f.write(data)
+    return path
+
+
+def extract_text(path, kind):
+    try:
+        if kind == "pdf":
+            out = subprocess.run(["pdftotext", "-layout", path, "-"], capture_output=True, text=True, timeout=60)
+            text = out.stdout
+        elif kind in ("docx", "doc", "rtf"):
+            out = subprocess.run(["textutil", "-convert", "txt", "-stdout", path], capture_output=True, text=True, timeout=60)
+            text = out.stdout
+        else:
+            with open(path, encoding="utf-8", errors="replace") as f:
+                text = f.read()
+    except Exception as e:  # never let one bad file kill the sync
+        return f"[could not extract text: {e.__class__.__name__}]"
+    text = re.sub(r"[ \t]+\n", "\n", text)
+    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    if len(text) > MAX_TEXT_CHARS:
+        text = text[:MAX_TEXT_CHARS] + "\n\n[truncated]"
+    return text
+
+
+def attachments_markdown(token, atts):
+    """One block per attachment: a heading line with the Canvas link, then
+    the extracted text for readable types."""
+    blocks = []
+    for att in atts:
+        name = att.get("display_name") or att.get("filename") or "file"
+        ctype = att.get("content-type") or ""
+        url = att.get("url") or ""
+        kind = TEXT_TYPES.get(ctype)
+        size_kb = int(att.get("size") or 0) // 1024
+        if kind:
+            path = fetch_attachment(token, att)
+            text = extract_text(path, kind) if path else "[download failed]"
+            blocks.append(f"**Uploaded: [{name}]({url})**\n\n{text}")
+        elif ctype.startswith("text/html"):
+            blocks.append(f"**Uploaded build: [{name}]({url})** ({size_kb} KB HTML, the artifact itself)")
+        else:
+            blocks.append(f"**Uploaded: [{name}]({url})** ({ctype or 'file'}, {size_kb} KB)")
+    return "\n\n---\n\n".join(blocks)
+
+
+def comments_markdown(conv, r):
+    """The student's own submission comments, which some people use as the
+    place for their writing."""
+    own = [c for c in (r.get("submission_comments") or []) if c.get("author_id") == r.get("user_id")]
+    if not own:
+        return ""
+    parts = []
+    for c in own:
+        body = (c.get("comment") or "").strip()
+        if body:
+            parts.append(body)
+    if not parts:
+        return ""
+    return "**Comment on Canvas:**\n\n" + "\n\n".join(parts)
 
 # ---------------------------------------------------------------------------
 # SQL
@@ -189,6 +294,7 @@ def main():
         rows = canvas_get_paginated(
             canvas_token,
             f"/courses/{COURSE_ID}/assignments/{assignment_id}/submissions",
+            {"include[]": ["submission_comments"]},
         )
         subs = []
         for r in rows:
@@ -199,15 +305,24 @@ def main():
             # link (or the first attachment's Canvas URL) becomes link_url.
             body = r.get("body") or ""
             link = (r.get("url") or "").strip() or None
-            if not link:
-                atts = r.get("attachments") or []
-                if atts:
-                    link = atts[0].get("url")
+            # A URL submission's attachment is Canvas's own screenshot of the
+            # page, not something the student uploaded.
+            atts = [] if link else (r.get("attachments") or [])
+            if not link and atts:
+                link = atts[0].get("url")
             if not body and not link:
                 continue
+            parts = []
+            if body:
+                parts.append(html_to_markdown(conv, body))
+            if atts:
+                parts.append(attachments_markdown(canvas_token, atts))
+            comments = comments_markdown(conv, r)
+            if comments:
+                parts.append(comments)
             subs.append({
                 "user_id": r["user_id"],
-                "body_md": html_to_markdown(conv, body) if body else None,
+                "body_md": "\n\n".join(parts) if parts else None,
                 "submitted_at": r.get("submitted_at"),
                 "link_url": link,
             })
