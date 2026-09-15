@@ -12,7 +12,7 @@
 | Meeting time | Mondays, 5:05–7:35 PM. First class August 24. |
 | Location | Roser ATLAS Center, room 104 |
 | Section | 005 · Class #39152 · 3 credits · open to all majors, no prerequisites |
-| Office hours | Mondays 3:30–4:30 PM at the ATLAS building, and Tuesdays 3:00–4:00 PM on Zoom (link in Canvas). Also by appointment. |
+| Office hours | Mondays 3:00–4:00 PM in person at the ATLAS undergrad lab, and Tuesdays 3:00–4:00 PM on [Zoom](https://cuboulder.zoom.us/j/95216269016). Also by appointment. |
 | Course home | Canvas is the official home for announcements, due dates, submissions, feedback, and grades. A class studio/gallery may be added as a supplemental space after week one. |
 
 ## What this course is
