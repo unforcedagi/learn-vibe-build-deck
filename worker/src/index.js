@@ -139,6 +139,14 @@ async function sendMagicEmail(env, to, link) {
       `It expires in 15 minutes. This link only works for the email on ` +
       `your Canvas account.\n\n` +
       `If you didn't request this, you can ignore it.`,
+    html:
+      `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.5;color:#1b1b1b;max-width:32em">` +
+      `<p>Here is your sign-in for the Learn, Vibe, Build class site:</p>` +
+      `<p style="margin:24px 0"><a href="${link}" style="display:inline-block;background:#1b4fd8;color:#fff;text-decoration:none;font-weight:600;padding:12px 28px;border-radius:8px">Sign in</a></p>` +
+      `<p style="color:#555">It expires in 15 minutes and only works for the email on your Canvas account. ` +
+      `If the button doesn't work, open this link: <a href="${link}">${link}</a></p>` +
+      `<p style="color:#888">If you didn't request this, you can ignore it.</p>` +
+      `</div>`,
   });
 }
 
@@ -187,32 +195,102 @@ async function handleAuthRequest(request, env) {
   return json(env, { ok: true });
 }
 
-async function handleAuthCallback(request, env) {
-  const url = new URL(request.url);
-  const token = url.searchParams.get('token') || '';
-  const fail = () =>
-    new Response(null, {
-      status: 302,
-      headers: { Location: `${env.SITE_ORIGIN}/account/#error=expired` },
-    });
-
-  if (!token) return fail();
+// Magic-link callback, two steps. GET only checks the token and shows a
+// page with a single "Sign in" button; POST consumes the token and starts
+// the session. Why: CU mail is Microsoft 365, and Defender Safe Links (and
+// chat link previews) fetch URLs before the human clicks. A single-use
+// token consumed on GET can be burned by the scanner; a button can't be
+// pressed by one.
+async function loadMagicToken(env, token) {
+  if (!token) return null;
   const hash = await sha256hex(token);
   const row = await env.DB.prepare(
     'SELECT token_hash, email, expires_at, used_at FROM magic_tokens WHERE token_hash = ?'
   ).bind(hash).first();
-  if (!row || row.used_at || row.expires_at <= nowISO()) return fail();
+  if (!row || row.used_at || row.expires_at <= nowISO()) return null;
+  return { hash, row };
+}
+
+function callbackFail(env) {
+  return new Response(null, {
+    status: 302,
+    headers: { Location: `${env.SITE_ORIGIN}/account/#error=expired` },
+  });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
+async function handleAuthCallbackPage(request, env) {
+  const url = new URL(request.url);
+  const token = url.searchParams.get('token') || '';
+  const found = await loadMagicToken(env, token);
+  if (!found) return callbackFail(env);
+
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Sign in — Learn, Vibe, Build</title>
+<style>
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; background: #faf8f4; color: #1b1b1b; }
+  main { max-width: 28rem; margin: 18vh auto 0; padding: 0 1.25rem; text-align: center; }
+  h1 { font-size: 1.5rem; margin: 0 0 .5rem; }
+  p { color: #555; line-height: 1.5; margin: 0 0 1.5rem; }
+  button { font: inherit; font-size: 1.05rem; font-weight: 600; padding: .8rem 1.8rem; border: 0; border-radius: .6rem; background: #1b4fd8; color: #fff; cursor: pointer; }
+  button:hover { background: #163fae; }
+  small { display: block; margin-top: 1.5rem; color: #888; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Sign in to Learn, Vibe, Build</h1>
+  <p>One click and you're in. This works once and expires 15 minutes after it was sent.</p>
+  <form method="post" action="/auth/callback">
+    <input type="hidden" name="token" value="${escapeHtml(token)}">
+    <button type="submit">Sign in</button>
+  </form>
+  <small>Signing in as the email on your Canvas account.</small>
+</main>
+</body>
+</html>`;
+  return new Response(html, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'Referrer-Policy': 'no-referrer',
+    },
+  });
+}
+
+async function handleAuthCallbackConsume(request, env) {
+  let token = '';
+  try {
+    const form = await request.formData();
+    token = String(form.get('token') || '');
+  } catch (_) {
+    return callbackFail(env);
+  }
+  const found = await loadMagicToken(env, token);
+  if (!found) return callbackFail(env);
+  const { hash, row } = found;
 
   const student = await env.DB.prepare(
     'SELECT id FROM students WHERE email = ?'
   ).bind(row.email).first();
-  if (!student) return fail();
+  if (!student) return callbackFail(env);
 
   // Single use: mark consumed atomically-enough (guard on used_at IS NULL).
   const marked = await env.DB.prepare(
     'UPDATE magic_tokens SET used_at = ? WHERE token_hash = ? AND used_at IS NULL'
   ).bind(nowISO(), hash).run();
-  if (!marked.meta || marked.meta.changes !== 1) return fail();
+  if (!marked.meta || marked.meta.changes !== 1) return callbackFail(env);
 
   const session = randomToken();
   await env.DB.prepare(
@@ -581,7 +659,8 @@ export default {
 
     try {
       if (path === '/auth/request' && request.method === 'POST') return handleAuthRequest(request, env);
-      if (path === '/auth/callback' && request.method === 'GET') return handleAuthCallback(request, env);
+      if (path === '/auth/callback' && request.method === 'GET') return handleAuthCallbackPage(request, env);
+      if (path === '/auth/callback' && request.method === 'POST') return handleAuthCallbackConsume(request, env);
       if (path === '/auth/logout' && request.method === 'POST') return handleLogout(request, env);
       if (path === '/me' && request.method === 'GET') return handleMe(request, env);
       if (path === '/feed' && request.method === 'GET') return handleFeed(request, env);
