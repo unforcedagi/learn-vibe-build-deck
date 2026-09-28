@@ -12,7 +12,13 @@ Each student's `login_alias` (their identikey@colorado.edu, from Canvas's
 a late add picks one up automatically and nobody has to backfill by hand.
 
 Usage:
-    python3 worker/resync.py
+    python3 worker/resync.py                # every published "Week N" assignment
+    python3 worker/resync.py --week 4       # only that week (roster still refreshes)
+    python3 worker/resync.py --dry-run      # read Canvas, print counts, write nothing
+
+Weeks are discovered from Canvas by assignment name ("Week 4 Studio Cycle",
+"Week 1 — Intentions"), so no per-week edit is needed. Unpublished weeks are
+skipped because students can't submit to them.
 
 Requirements:
     - Canvas API token in ~/.canvastoken
@@ -26,6 +32,7 @@ Prints only counts — never tokens, never student data.
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -37,8 +44,10 @@ import html2text
 
 CANVAS_BASE = "https://canvas.colorado.edu/api/v1"
 COURSE_ID = 145074
-# week number -> Canvas assignment id
-WEEK_ASSIGNMENTS = {1: 2858623, 2: 2858624}
+# week number -> Canvas assignment id. Filled from Canvas at run time by
+# discover_week_assignments(); set it before main() only to force a mapping.
+WEEK_ASSIGNMENTS = None
+WEEK_NAME_RE = re.compile(r"^\s*Week\s+(\d+)\b", re.IGNORECASE)
 
 CLOUDFLARE_ACCOUNT_ID = "8f2a7eb9d5e21ffa902a76cf62975c82"
 WORKER_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -150,7 +159,11 @@ def extract_text(path, kind):
             out = subprocess.run(["pdftotext", "-layout", path, "-"], capture_output=True, text=True, timeout=60)
             text = out.stdout
         elif kind in ("docx", "doc", "rtf"):
-            out = subprocess.run(["textutil", "-convert", "txt", "-stdout", path], capture_output=True, text=True, timeout=60)
+            if shutil.which("textutil"):  # macOS
+                cmd = ["textutil", "-convert", "txt", "-stdout", path]
+            else:  # Linux: LibreOffice prints the document's text
+                cmd = ["soffice", "--headless", "--cat", path]
+            out = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
             text = out.stdout
         else:
             with open(path, encoding="utf-8", errors="replace") as f:
@@ -274,12 +287,43 @@ def run_wrangler_d1(sql):
     return json.loads(res.stdout[start:res.stdout.rfind("]") + 1])
 
 
+def discover_week_assignments(token, include_unpublished=False):
+    """Map week number -> assignment id from Canvas assignment names."""
+    found = {}
+    for a in canvas_get_paginated(token, f"/courses/{COURSE_ID}/assignments"):
+        m = WEEK_NAME_RE.match(a.get("name") or "")
+        if not m:
+            continue
+        if not a.get("published") and not include_unpublished:
+            continue
+        week = int(m.group(1))
+        if week in found:
+            sys.exit(f"two Canvas assignments claim week {week}; fix names first")
+        found[week] = a["id"]
+    return dict(sorted(found.items()))
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
-def main():
+def main(argv=None):
+    import argparse
+    ap = argparse.ArgumentParser(description="Canvas -> D1 resync")
+    ap.add_argument("--week", type=int, action="append",
+                    help="only sync this week (repeatable)")
+    ap.add_argument("--dry-run", action="store_true",
+                    help="read Canvas and print counts; no D1 writes")
+    args = ap.parse_args(argv)
+
     canvas_token = read_secret("~/.canvastoken")
+    weeks = WEEK_ASSIGNMENTS or discover_week_assignments(canvas_token)
+    if args.week:
+        missing = [w for w in args.week if w not in weeks]
+        if missing:
+            sys.exit(f"no published Canvas assignment for week(s) {missing}")
+        weeks = {w: weeks[w] for w in args.week}
+    print(f"weeks: {sorted(weeks)}")
 
     roster = canvas_get_paginated(
         canvas_token,
@@ -290,7 +334,7 @@ def main():
 
     conv = make_converter()
     submissions_by_week = {}
-    for week, assignment_id in WEEK_ASSIGNMENTS.items():
+    for week, assignment_id in weeks.items():
         rows = canvas_get_paginated(
             canvas_token,
             f"/courses/{COURSE_ID}/assignments/{assignment_id}/submissions",
@@ -332,6 +376,9 @@ def main():
         submissions_by_week[week] = subs
 
     sql = build_sql(roster, submissions_by_week)
+    if args.dry_run:
+        print(f"dry run: {sql.count(chr(10)) + 1} SQL statements built, nothing written")
+        return
     results = run_wrangler_d1(sql)
     changed = sum(r.get("meta", {}).get("changes", 0) for r in results)
     print(f"d1: {len(results)} statements executed, {changed} rows written")
