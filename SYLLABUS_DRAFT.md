@@ -198,7 +198,7 @@ In this class, email or speak with the instructor to request a religious accommo
 
 ### Student names and pronouns
 
-CU Boulder recognizes that students' legal information does not always align with how they identify. If you wish to have a name other than your legal name appear on your instructors' class rosters and in Canvas, or if you wish to choose pronouns to appear on your instructors' class rosters and in Canvas, visit the [Registrar's website](https://www.colorado.edu/registrar/students/records/personal-information) for instructions on how to change your personal information in university systems.
+CU Boulder recognizes that students' legal information does not always align with how they identify. If you wish to have a name other than your legal name appear on your instructors' class rosters and in Canvas, or if you wish to choose pronouns to appear on your instructors' class rosters and in Canvas, visit the [Registrar's website](https://www.colorado.edu/registrar/students/records/info/preferred) for instructions on how to change your personal information in university systems.
 
 ### Classroom behavior
 

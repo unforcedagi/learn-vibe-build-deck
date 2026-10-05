@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 6 slides — Learn, Vibe, Build</title>
+<link rel="stylesheet" href="../../../assets/site.css">
+<style>
+html,body{margin:0;height:100%;background:#1f211d;overflow:hidden}
+.deck{position:fixed;inset:0;display:grid;place-items:center}
+.slide{display:none;box-sizing:border-box;width:min(100vw,177.78vh);aspect-ratio:16/9;background:var(--bg);color:var(--ink);
+  container-type:inline-size;padding:5.5cqw 7cqw 6cqw;position:relative;border-left:1.2cqw solid var(--accent);font-family:var(--body)}
+.slide.on{display:flex;flex-direction:column}
+.slide h1{font-family:var(--display);font-weight:600;font-size:7.4cqw;line-height:1.02;letter-spacing:-.03em;margin:auto 0 1.5cqw}
+.slide h2{font-family:var(--display);font-weight:600;font-size:3.9cqw;line-height:1.1;letter-spacing:-.02em;margin:0 0 3cqw;text-wrap:balance}
+.slide .k{color:var(--accent);text-transform:uppercase;letter-spacing:.14em;font-size:1.3cqw;font-weight:600;margin:0}
+.slide .sub{font-size:2.6cqw;color:var(--muted);margin:0 0 1cqw} .slide .date{font-size:1.6cqw;color:var(--accent);margin:0 0 auto}
+.slide ul{margin:0;padding:0;list-style:none;font-size:2.35cqw;line-height:1.35}
+.slide li{padding:.9cqw 0 .9cqw 2.6cqw;position:relative;border-top:1px solid var(--border)}
+.slide li:before{content:"";position:absolute;left:0;top:1.85cqw;width:1cqw;height:1cqw;border-radius:50%;background:var(--accent)}
+.slide a{color:var(--accent)}
+.two{display:grid;grid-template-columns:1.55fr 1fr;gap:3.5cqw;align-items:center}
+.slide pre{margin:0;background:var(--soft);border:1px solid var(--border);border-radius:1cqw;padding:2.4cqw;font-size:1.75cqw;line-height:1.5;white-space:pre-wrap}
+.cap{font-family:var(--display);font-size:2.5cqw;line-height:1.2;color:var(--accent);margin:0}
+.flow{display:flex;align-items:center;gap:1cqw;margin:0 0 3cqw;flex-wrap:wrap}
+.step{background:var(--ink);color:var(--bg);padding:1.2cqw 2cqw;border-radius:.8cqw;font-weight:600;font-size:1.9cqw} .step.first{background:var(--accent)}
+.arr{color:var(--muted);font-size:2.2cqw}
+.slide footer{position:absolute;left:7cqw;right:4cqw;bottom:2.2cqw;display:flex;justify-content:space-between;font-size:1.15cqw;color:var(--muted)}
+.ctl{position:fixed;top:12px;right:14px;display:flex;gap:6px;z-index:5;font:600 13px/1 var(--body);opacity:.35;transition:opacity .2s} .ctl:hover,.ctl:focus-within{opacity:1} @media (hover:none){.ctl{opacity:.9;top:auto;bottom:14px}}
+.ctl a,.ctl button{background:rgba(255,253,247,.92);border:1px solid #888;border-radius:6px;padding:8px 11px;color:#272a25;text-decoration:none;cursor:pointer;font:inherit;display:inline-flex;align-items:center}
+.notesbar{position:fixed;left:0;right:0;bottom:0;max-height:38vh;overflow:auto;background:#fffdf7;border-top:3px solid var(--accent);padding:12px 16px 50px;font:15px/1.5 var(--body);white-space:pre-wrap;display:none}
+body.shownotes .notesbar{display:block}
+@media (max-width:700px) and (orientation:portrait){.deck{place-items:center} .ctl{bottom:16px}}
+</style></head>
+<body>
+<div class="deck"><section class="slide title"><p class="k">Learn, Vibe, Build · Week 6</p><h1>What can your AI see?</h1><p class="sub">Context that sticks, getting online, connectors</p><p class="date">Week 6 · Learn, Vibe, Build · October 5, 2026</p><footer><span>Week 6 · Opening</span><span>1 / 19</span></footer></section><section class="slide"><h2>Tonight: three demos</h2><ul><li>1 · Give your AI context that sticks (AGENTS.md)</li><li>2 · Get your project online: a link anyone can open</li><li>3 · Connect your AI to the course</li></ul><footer><span>Week 6 · Opening</span><span>2 / 19</span></footer></section><section class="slide"><h2>Your AI starts every session from zero</h2><ul><li>It only sees what&#x27;s in front of it right now</li><li>It doesn&#x27;t know your project unless you tell it</li><li>A generic answer is usually a context problem</li></ul><footer><span>Week 6 · Demo 1 · Context that sticks</span><span>3 / 19</span></footer></section><section class="slide"><h2>Markdown: plain text with a little structure</h2><div class="two"><pre># Big heading
+## Smaller heading
+- a bullet point
+**bold**  *italic*
+[a link](https://example.com)
+`some code`</pre><p class="cap">Plain text. Readable by you and by your AI.</p></div><footer><span>Week 6 · Demo 1 · Context that sticks</span><span>4 / 19</span></footer></section><section class="slide"><h2>AGENTS.md: context that sticks</h2><ul><li>A markdown file in your project folder</li><li>Coding agents read it at the start of every session</li><li>AGENTS.md: Codex, Cursor, many others · CLAUDE.md: Claude Code</li><li>In a chat app: paste it in, or add it to a Project</li></ul><footer><span>Week 6 · Demo 1 · Context that sticks</span><span>5 / 19</span></footer></section><section class="slide"><h2>What goes in AGENTS.md</h2><ul><li>Who it&#x27;s for, and what they need</li><li>What it is, in one sentence</li><li>Stack and conventions (&quot;plain HTML, no build step&quot;)</li><li>Where the facts live (and &quot;never invent facts&quot;)</li><li>What &quot;done&quot; looks like</li><li>Keep it short, true, and secret-free</li></ul><footer><span>Week 6 · Demo 1 · Context that sticks</span><span>6 / 19</span></footer></section><section class="slide"><h2>Live demo · the same question, twice</h2><div class="two"><pre>1 · Open the project. Ask: “Improve the homepage.”
+2 · Write AGENTS.md together (2 min)
+3 · Ask again. Compare.
+4 · Fresh session: does it still know?
+5 · Add an index pointing to docs/</pre><p class="cap">Same question. Different context. Different answer.</p></div><footer><span>Week 6 · Demo 1 · Context that sticks</span><span>7 / 19</span></footer></section><section class="slide"><h2>A real AGENTS.md (the demo&#x27;s)</h2><div class="two"><pre># Hill Plant Swap
+Who: first-year students on phones, nervous
+What: one page announcing a free monthly swap
+Stack: plain HTML + CSS, no JavaScript
+Facts: only docs/event-facts.md; never invent
+Done: date + place readable at 390px in 10 s</pre><p class="cap">Six lines. Every session starts here.</p></div><footer><span>Week 6 · Demo 1 · Context that sticks</span><span>8 / 19</span></footer></section><section class="slide"><h2>Index files: a map, not a dump</h2><div class="two"><pre>## Where to look
+- docs/event-facts.md: the only source of facts
+- docs/audience.md: who visits
+- research/index.md: interview notes (its own index)</pre><p class="cap">The AI reads the map, then opens only what it needs.</p></div><footer><span>Week 6 · Demo 1 · Context that sticks</span><span>9 / 19</span></footer></section><section class="slide"><h2>Your link has to work on someone else&#x27;s phone</h2><div class="two"><pre>✗  file:///Users/you/Desktop/project/index.html
+     only works on your laptop
+ 
+✓  https://you.github.io/project/
+     works for anyone, anywhere</pre><p class="cap">If it starts with file://, nobody else can see it.</p></div><footer><span>Week 6 · Demo 2 · Get it online</span><span>10 / 19</span></footer></section><section class="slide"><h2>Three different things</h2><div class="flow"><span class="step first">Folder</span><span class="arr">→</span><span class="step">Commit</span><span class="arr">→</span><span class="step">Push</span><span class="arr">→</span><span class="step">Live link</span></div><ul><li>Git: save points for your project, on your laptop</li><li>GitHub: a copy of those save points, online</li><li>Pages / Vercel: turns that copy into a website</li></ul><footer><span>Week 6 · Demo 2 · Get it online</span><span>11 / 19</span></footer></section><section class="slide"><h2>Live demo · from folder to link</h2><div class="two"><pre>1 · Download the project folder
+2 · GitHub Desktop: create repo, commit, publish
+3 · Settings → Pages → main → Save
+4 · Open the link on a phone
+5 · Change something, commit, push, refresh</pre><p class="cap">Handout: “Get your project online”, step by step.</p></div><footer><span>Week 6 · Demo 2 · Get it online</span><span>12 / 19</span></footer></section><section class="slide"><h2>When the link doesn&#x27;t work</h2><ul><li>404: wait 1–2 min, then check Settings → Pages</li><li>Page with no styles: paths start with / (use style.css)</li><li>Only the README shows: index.html must be in the top folder</li><li>Old version: hard refresh, or wait a minute</li><li>Private repo on a free plan: make it public, or use Vercel</li></ul><footer><span>Week 6 · Demo 2 · Get it online</span><span>13 / 19</span></footer></section><section class="slide"><h2>API vs. MCP</h2><ul><li>API: one service&#x27;s own menu of requests</li><li>MCP: one standard plug for AI apps to use many tools</li><li>MCP servers often call APIs underneath</li></ul><footer><span>Week 6 · Demo 3 · Connectors</span><span>14 / 19</span></footer></section><section class="slide"><h2>Live demo · connect your AI to this course</h2><ul><li><a href="https://api.learnvibe.build/mcp">https://api.learnvibe.build/mcp</a></li><li>Add it as a custom connector (or `claude mcp add`)</li><li>Ask: “Using the course connector, teach me tonight&#x27;s lesson on AGENTS.md, then quiz me.”</li></ul><footer><span>Week 6 · Demo 3 · Connectors</span><span>15 / 19</span></footer></section><section class="slide"><h2>Choose · check · control</h2><ul><li>Choose what it sees: context files, connectors</li><li>Check what it produces: fluent ≠ correct, say what you checked</li><li>Control what it can change: read-only first, ask before writes</li><li>This course&#x27;s connector is read-only, on purpose</li></ul><footer><span>Week 6 · Demo 3 · Connectors</span><span>16 / 19</span></footer></section><section class="slide"><h2>This week&#x27;s reading: your AI as a coach</h2><ul><li>Arielle Shipper, “How to Get Better at AI by Asking AI” (Every)</li><li>Ask your AI: which of the eight levels am I, with examples?</li><li>Then: “teach me the next step”</li></ul><footer><span>Week 6 · Close</span><span>17 / 19</span></footer></section><section class="slide"><h2>Studio · write each other&#x27;s AGENTS.md</h2><ul><li>Pairs, 20 minutes</li><li>8 min each: your partner interviews you and drafts your AGENTS.md</li><li>4 min: test it with your own agent, then revise</li></ul><footer><span>Week 6 · Close</span><span>18 / 19</span></footer></section><section class="slide"><h2>Sources</h2><ul><li>AGENTS.md convention · agents.md</li><li>Effective context engineering · Anthropic</li><li>GitHub Pages · docs.github.com/pages</li><li>MCP · modelcontextprotocol.io</li><li>AI Fluency (further reading) · academy.claude.com</li></ul><footer><span>Week 6 · Close</span><span>19 / 19</span></footer></section></div>
+
+<div class="ctl"><a href="../">Back to Week 6</a><button id="prev" aria-label="Previous slide">←</button><button id="next" aria-label="Next slide">→</button><button id="fs">Full screen</button>
+<a href="../files/week6-slides.pdf">PDF</a></div>
+<script>
+var S=[].slice.call(document.querySelectorAll('.slide')),i=0;
+function go(n){i=Math.max(0,Math.min(S.length-1,n));S.forEach(function(s,j){s.classList.toggle('on',j===i)});history.replaceState(null,'','#'+(i+1));
+ var nb=document.getElementById('notes');if(nb&&window.NOTES)nb.textContent=NOTES[i];}
+go((parseInt(location.hash.slice(1))||1)-1);
+document.addEventListener('keydown',function(e){if(['ArrowRight','PageDown',' '].indexOf(e.key)>=0){e.preventDefault();go(i+1)}
+ else if(['ArrowLeft','PageUp'].indexOf(e.key)>=0){e.preventDefault();go(i-1)} else if(e.key==='f')fs(); else if(e.key==='n')document.body.classList.toggle('shownotes');
+ else if(e.key==='Home')go(0); else if(e.key==='End')go(S.length-1);});
+document.getElementById('next').onclick=function(){go(i+1)};document.getElementById('prev').onclick=function(){go(i-1)};
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(function(){})}
+document.getElementById('fs').onclick=fs; var nb=document.getElementById('nb'); if(nb)nb.onclick=function(){document.body.classList.toggle('shownotes')};
+var x0=null;document.addEventListener('touchstart',function(e){x0=e.touches[0].clientX});
+document.addEventListener('touchend',function(e){if(x0===null)return;var d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>40)go(i+(d<0?1:-1));x0=null});
+</script></body></html>

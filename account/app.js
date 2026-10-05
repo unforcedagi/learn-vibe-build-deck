@@ -146,6 +146,23 @@ function showSigninError(msg) {
 // Signed-in view
 // ---------------------------------------------------------------------------
 
+function renderReadings(list) {
+  const box = $('readings');
+  const ul = $('readings-list');
+  if (!box || !ul || !Array.isArray(list) || !list.length) return;
+  ul.textContent = '';
+  for (const r of [...list].reverse()) {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = r.url; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = r.title;
+    li.append(`Week ${r.week} · `, a, ` — ${r.author}${r.source ? ', ' + r.source : ''}`);
+    if (r.why) { const p = document.createElement('p'); p.className = 'hint'; p.textContent = r.why; li.append(p); }
+    ul.append(li);
+  }
+  show(box);
+}
+
 function showAccount(me) {
   hide($('signin'));
   hide($('sent'));
@@ -161,6 +178,7 @@ function showAccount(me) {
   // The instructor gets a pointer to their own view; this page stays the
   // student page for everyone (the roster lives at /instructor/ now).
   if (me.is_instructor) showInstructorLink();
+  renderReadings(me.readings);
 
   const wanted = weekFromHash();
   selectWeek(findWeek(state.weeks, wanted) ? wanted : state.openWeek);

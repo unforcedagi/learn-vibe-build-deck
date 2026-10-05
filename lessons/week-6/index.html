@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 6: Context That Sticks, Getting Online, and Connectors — Learn, Vibe, Build · ATLS 4519</title>
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body class="lesson-page">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">L</span>Learn, Vibe, Build</a>
+    <nav class="desktop-nav" aria-label="Course"><a href="../../schedule/">Schedule</a>
+<a href="../../lessons/" aria-current="page">Lessons</a>
+<a href="../../readings/">Readings</a>
+<a href="../../syllabus.html">Syllabus</a>
+<a href="../../setup/">Setup</a>
+<a href="../../studio/">Studio</a>
+<a href="../../journal/">Journal</a>
+<a href="../../account/">Account</a></nav>
+    <details class="mobile-nav">
+      <summary>Menu <span aria-hidden="true">&nbsp;+</span></summary>
+      <nav aria-label="Course menu"><a href="../../schedule/">Schedule</a>
+<a href="../../lessons/" aria-current="page">Lessons</a>
+<a href="../../readings/">Readings</a>
+<a href="../../syllabus.html">Syllabus</a>
+<a href="../../setup/">Setup</a>
+<a href="../../studio/">Studio</a>
+<a href="../../journal/">Journal</a>
+<a href="../../account/">Account</a></nav>
+    </details>
+  </div>
+</header>
+<main class="lesson-main" id="main-content">
+<header class="lesson-header">
+  <p class="crumb"><a href="../">Lessons</a> / Week 6</p>
+  <p class="kicker">The studio field guide / 06</p>
+  <h1>Context That Sticks, Getting Online, and Connectors</h1>
+  <div class="copybar">
+    <button class="btn" type="button" data-copy="lesson.md">Copy lesson as markdown</button>
+    <a class="btn ghost" href="lesson.md">View raw .md</a> <a class="btn ghost" href="slides/">Open the slides</a>
+  </div>
+  <p class="hint">Read it here. Or bring it into your AI: copy the markdown and ask for an explanation,
+    a quiz, or a way to apply it to your own project.</p>
+</header>
+<section class="week-kit" id="everything" aria-labelledby="kit-title">
+  <p class="kicker">Week 6 · slides, lesson, handout, template, reading, connector</p>
+  <h2 id="kit-title">Everything for Week 6</h2>
+  <div class="kit-grid">
+    <a class="kit-card" href="slides/"><span class="kicker">Slides</span><strong>Open the slides</strong><span>Arrow keys and full screen. PDF and PowerPoint downloads are below.</span></a>
+    <a class="kit-card" href="#lesson-start"><span class="kicker">Lesson</span><strong>Read the lesson</strong><span>Below on this page. Copy it as markdown for your AI.</span></a>
+    <a class="kit-card" href="get-online/"><span class="kicker">Handout</span><strong>Get your project online</strong><span>Repo, commit, push, deploy: a link anyone can open.</span></a>
+    <a class="kit-card" href="https://github.com/unforcedagi/lvb-week6-demo"><span class="kicker">Demo project</span><strong>Hill Plant Swap</strong><span>The repo from class, plus its live copy on GitHub Pages.</span></a>
+    <div class="kit-card"><span class="kicker">Template</span><strong>AGENTS.md template</strong><span>Fill it in for your own project.</span>
+      <span class="kit-actions"><button class="btn" type="button" data-copy="files/AGENTS-template.md">Copy template</button> <a href="files/AGENTS-template.md">View</a></span></div>
+    <a class="kit-card" href="#8-studio-write-each-others-agentsmd"><span class="kicker">Studio · pairs · 20 min</span><strong>Write each other's AGENTS.md</strong><span>Your partner interviews you and drafts it. Test it with your agent, revise.</span></a>
+    <a class="kit-card" href="../../readings/"><span class="kicker">Reading</span><strong>How to Get Better at AI by Asking AI</strong><span>Arielle Shipper, Every. Free link on your account page and Canvas.</span></a>
+    <div class="kit-card"><span class="kicker">Connect your AI</span><strong>Course connector (MCP)</strong><span><code>https://api.learnvibe.build/mcp</code></span>
+      <span class="kit-actions"><button class="btn" type="button" data-copy-text="https://api.learnvibe.build/mcp">Copy URL</button> <a href="#6-connectors-apis-mcp-and-this-courses-mcp">How to connect</a></span></div>
+  </div>
+  <p class="hint">Downloads: <a href="files/week6-slides.pdf">slides (PDF)</a> · <a href="files/week6-slides.pptx">slides (PowerPoint)</a> · <a href="lesson.md">lesson (.md)</a> · <a href="files/get-your-project-online.md">handout (.md)</a> · <a href="files/AGENTS-template.md">AGENTS.md template</a></p>
+</section>
+<span id="lesson-start"></span>
+<div class="lesson-layout">
+  <aside class="lesson-toc" aria-label="Lesson contents">
+    <p class="kicker">In this lesson</p>
+    <div class="toc">
+<ul>
+<li><a href="#1-your-ai-starts-every-session-from-zero">1. Your AI starts every session from zero</a></li>
+<li><a href="#2-markdown-in-two-minutes">2. Markdown in two minutes</a></li>
+<li><a href="#3-agentsmd-context-that-sticks">3. AGENTS.md: context that sticks</a><ul>
+<li><a href="#what-to-put-in-it">What to put in it</a></li>
+<li><a href="#the-example-from-class-fictional">The example from class (fictional)</a></li>
+</ul>
+</li>
+<li><a href="#4-index-files-a-map-not-a-dump">4. Index files: a map, not a dump</a></li>
+<li><a href="#5-get-your-project-online">5. Get your project online</a><ul>
+<li><a href="#three-different-things">Three different things</a></li>
+<li><a href="#the-short-version-github-desktop">The short version (GitHub Desktop)</a></li>
+</ul>
+</li>
+<li><a href="#6-connectors-apis-mcp-and-this-courses-mcp">6. Connectors: APIs, MCP, and this course's MCP</a><ul>
+<li><a href="#read-vs-write-and-whos-in-charge">Read vs. write, and who's in charge</a></li>
+<li><a href="#try-it-connect-your-ai-to-this-course">Try it: connect your AI to this course</a></li>
+</ul>
+</li>
+<li><a href="#7-learn-this-your-way-teach-me-prompts">7. Learn this your way: teach-me prompts</a></li>
+<li><a href="#8-studio-write-each-others-agentsmd">8. Studio: write each other's AGENTS.md</a></li>
+<li><a href="#9-reading-for-this-week">9. Reading for this week</a></li>
+<li><a href="#10-glossary">10. Glossary</a></li>
+<li><a href="#11-further-reading-and-sources">11. Further reading and sources</a></li>
+</ul>
+</div>
+
+  </aside>
+  <details class="mobile-toc">
+    <summary>In this lesson <span>Contents +</span></summary>
+    <div class="toc">
+<ul>
+<li><a href="#1-your-ai-starts-every-session-from-zero">1. Your AI starts every session from zero</a></li>
+<li><a href="#2-markdown-in-two-minutes">2. Markdown in two minutes</a></li>
+<li><a href="#3-agentsmd-context-that-sticks">3. AGENTS.md: context that sticks</a><ul>
+<li><a href="#what-to-put-in-it">What to put in it</a></li>
+<li><a href="#the-example-from-class-fictional">The example from class (fictional)</a></li>
+</ul>
+</li>
+<li><a href="#4-index-files-a-map-not-a-dump">4. Index files: a map, not a dump</a></li>
+<li><a href="#5-get-your-project-online">5. Get your project online</a><ul>
+<li><a href="#three-different-things">Three different things</a></li>
+<li><a href="#the-short-version-github-desktop">The short version (GitHub Desktop)</a></li>
+</ul>
+</li>
+<li><a href="#6-connectors-apis-mcp-and-this-courses-mcp">6. Connectors: APIs, MCP, and this course's MCP</a><ul>
+<li><a href="#read-vs-write-and-whos-in-charge">Read vs. write, and who's in charge</a></li>
+<li><a href="#try-it-connect-your-ai-to-this-course">Try it: connect your AI to this course</a></li>
+</ul>
+</li>
+<li><a href="#7-learn-this-your-way-teach-me-prompts">7. Learn this your way: teach-me prompts</a></li>
+<li><a href="#8-studio-write-each-others-agentsmd">8. Studio: write each other's AGENTS.md</a></li>
+<li><a href="#9-reading-for-this-week">9. Reading for this week</a></li>
+<li><a href="#10-glossary">10. Glossary</a></li>
+<li><a href="#11-further-reading-and-sources">11. Further reading and sources</a></li>
+</ul>
+</div>
+
+  </details>
+  <article class="lesson">
+<p><em>Learn, Vibe, Build · ATLS 4519 · CU Boulder · Monday, October 5, 2026 · Aaron Neyer</em></p>
+<blockquote>
+<p><strong>How to use this file:</strong> it's plain markdown, written for you <em>and</em> your AI. Copy the whole thing into your AI and ask it to teach you any part more deeply (prompts in section 7). Your AI can be wrong about this lesson too, so check it against the file.</p>
+</blockquote>
+<p><strong>In one line:</strong> Write your project context down once in AGENTS.md so every AI session starts out knowing it, get your project online with a link anyone can open, and connect your AI to the course.</p>
+<p><strong>The through-line:</strong> choose what your AI sees, check what it produces, control what it can change.</p>
+<span id="contents"></span>
+<hr />
+<h2 id="1-your-ai-starts-every-session-from-zero">1. Your AI starts every session from zero</h2>
+<p>A model only "knows" three kinds of things:</p>
+<ul>
+<li><strong>Training:</strong> general knowledge from before it was built. It has never seen your project.</li>
+<li><strong>The context window:</strong> everything in front of it <em>for this answer</em>: your message, the chat so far, attached files, and results from tools.</li>
+<li><strong>App memory:</strong> some apps save notes about you and look them up later. Useful, but you don't fully control what's in it.</li>
+</ul>
+<p>Your project lives in none of those by default. That's why the same question gets a generic answer in a fresh chat: <strong>a generic answer is usually a context problem, not a model problem.</strong> You end up re-explaining your project again and again.</p>
+<p>The fix isn't a longer prompt each time. It's writing your context down <strong>once</strong>, in a file, where the AI will find it every time.</p>
+<hr />
+<h2 id="2-markdown-in-two-minutes">2. Markdown in two minutes</h2>
+<p>A markdown file (<code>.md</code>) is a plain text file with a few symbols for structure. You can read it raw; AIs read it very well. Every AI chat answer you've seen is already markdown.</p>
+<pre><code class="language-markdown"># Big heading
+## Smaller heading
+- a bullet point
+1. a numbered step
+**bold** and *italic*
+[a link](https://example.com)
+`some code`
+</code></pre>
+<p>That's nearly all of it. Open any text editor (VS Code, TextEdit in plain-text mode, Notepad), type that, and save it as <code>notes.md</code>.</p>
+<hr />
+<h2 id="3-agentsmd-context-that-sticks">3. AGENTS.md: context that sticks</h2>
+<p><strong>AGENTS.md</strong> is a markdown file you put in the top folder of your project. <strong>Coding agents read it automatically at the start of every session.</strong> Write it once and every new session starts out knowing your project.</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>File it reads</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codex, Cursor, GitHub Copilot, and many others</td>
+<td><code>AGENTS.md</code></td>
+</tr>
+<tr>
+<td>Claude Code</td>
+<td><code>CLAUDE.md</code> (a one-line CLAUDE.md that says "See AGENTS.md" covers both)</td>
+</tr>
+<tr>
+<td>A chat app (ChatGPT, Claude.ai, Gemini)</td>
+<td>Paste it at the start, or add it to a Project's instructions or files</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Check it actually loaded:</strong> start a fresh session and ask <em>"What is this project and who is it for?"</em> If the answer is vague, the tool didn't read it.</p>
+<h3 id="what-to-put-in-it">What to put in it</h3>
+<ol>
+<li><strong>What this is:</strong> one or two sentences.</li>
+<li><strong>Who it's for:</strong> a real person, with what they need and worry about.</li>
+<li><strong>Stack:</strong> what it's built with (and what it's <em>not</em> built with).</li>
+<li><strong>Conventions:</strong> style, voice, rules ("mobile first", "no frameworks").</li>
+<li><strong>Facts:</strong> where the true facts live, and "never invent facts".</li>
+<li><strong>What "done" looks like:</strong> how you'll check the result.</li>
+<li><strong>Where to look:</strong> an index of your other files (section 4).</li>
+</ol>
+<h3 id="the-example-from-class-fictional">The example from class (fictional)</h3>
+<pre><code class="language-markdown"># AGENTS.md: Hill Plant Swap
+
+## What this is
+A one-page website for a free, monthly plant swap (fictional). Plain HTML + CSS.
+
+## Who it's for
+First- and second-year students on the Hill, often in their first apartment: a windowsill, not a garden.
+They find us from a flyer QR code, on their phone, while walking, and decide in about ten seconds.
+Most have never been to a swap. They worry it's awkward, that they have nothing good to bring,
+or that they need to know about plants. Not for collectors or landscapers.
+
+## Stack and conventions
+- Plain HTML and CSS only. No frameworks, no JavaScript, no build step,
+  so any volunteer can edit it in a text editor.
+- One page; it must fit one phone scroll. Mobile first.
+- Friendly, plain voice. Never promise rare plants: we can't control what people bring.
+
+## Facts
+Never invent facts (dates, places, rules). Use only `docs/event-facts.md`.
+
+## What &quot;done&quot; looks like
+- Reads well on a phone at 390px wide.
+- Every fact matches docs/event-facts.md.
+- One clear next step for the visitor: show up on the date.
+- Tell me what you changed and anything you had to guess.
+
+## Where to look (index)
+- `docs/event-facts.md`: date, place, rules, contact. The only source of facts.
+- `docs/` will grow (flyer text, volunteer notes); add a line here for each new file.
+</code></pre>
+<p>The demo project is public, so you can try it yourself: <strong><a href="https://github.com/unforcedagi/lvb-week6-demo">https://github.com/unforcedagi/lvb-week6-demo</a></strong>. It has no AGENTS.md on purpose. Ask your agent to "improve the homepage", add the file above, then ask again.</p>
+<p><strong>Keep it short and true.</strong> A context file is something the AI follows, so a wrong line causes wrong work. Update it when decisions change. Never put passwords or API keys in it.</p>
+<hr />
+<h2 id="4-index-files-a-map-not-a-dump">4. Index files: a map, not a dump</h2>
+<p>When a project grows, don't paste everything into one giant file. Write a short <strong>index</strong>: a file that says what exists and where, with one line per file. The AI reads the small map, then opens only the files it needs.</p>
+<pre><code class="language-markdown">## Where to look
+- docs/event-facts.md: the only source of facts
+- docs/audience.md: who visits and what they worry about
+- docs/decisions.md: choices already made; don't undo them without asking
+- research/index.md: interview notes (its own index of deeper files)
+</code></pre>
+<p>Indexes can nest. An index can point to other indexes, so an AI can find its way around a whole body of knowledge (a course, a research project, a company wiki) a little at a time. This course does it too: <strong><a href="https://cu.learnvibe.build/llms.txt">https://cu.learnvibe.build/llms.txt</a></strong> is an index of every lesson, written for AIs.</p>
+<hr />
+<h2 id="5-get-your-project-online">5. Get your project online</h2>
+<p>A link only counts if <strong>someone else can open it on their phone.</strong></p>
+<ul>
+<li>✗ <code>file:///Users/you/Desktop/project/index.html</code> or <code>C:\Users\you\...</code>: this is a file on <em>your</em> laptop. Nobody else can open it.</li>
+<li>✓ <code>https://you.github.io/project/</code> or <code>https://project.vercel.app</code>: this works for anyone, anywhere.</li>
+</ul>
+<p><strong>Test every link before you submit it:</strong> open it on your phone with wifi off.</p>
+<h3 id="three-different-things">Three different things</h3>
+<ul>
+<li><strong>Git:</strong> save points ("commits") for your project folder, on your laptop.</li>
+<li><strong>GitHub:</strong> an online copy of those save points (a "repository" or "repo").</li>
+<li><strong>GitHub Pages / Vercel:</strong> services that turn that online copy into a live website.</li>
+</ul>
+<p><strong>Commit</strong> = make a save point with a short note. <strong>Push</strong> = send your save points up to GitHub. <strong>Deploy</strong> = publish it as a site. Most confusion comes from treating these as one step.</p>
+<h3 id="the-short-version-github-desktop">The short version (GitHub Desktop)</h3>
+<ol>
+<li>Install <strong>GitHub Desktop</strong> (desktop.github.com) and sign in to GitHub.</li>
+<li><strong>File → Add local repository</strong> → choose your project folder → click "create a repository" → <strong>Create repository</strong>.</li>
+<li>Write a summary like "first version" → <strong>Commit to main</strong>.</li>
+<li><strong>Publish repository.</strong> Untick "Keep this code private" if you want a free Pages site.</li>
+<li>On github.com, open your repo → <strong>Settings → Pages</strong> → Source: <strong>Deploy from a branch</strong> → Branch: <strong>main</strong>, folder <strong>/ (root)</strong> → <strong>Save</strong>.</li>
+<li>After about a minute, your site is at <strong><a href="https://YOUR-USERNAME.github.io/REPO-NAME/">https://YOUR-USERNAME.github.io/REPO-NAME/</a></strong>. Your main page must be named <code>index.html</code>.</li>
+<li><strong>To update it:</strong> change files → GitHub Desktop → Commit → <strong>Push origin</strong> → wait a minute → refresh.</li>
+</ol>
+<p>Built with React, Next.js or Vite (there's a <code>package.json</code>)? Use <strong>Vercel</strong> instead: push to GitHub as above, then go to vercel.com/new → import the repo → <strong>Deploy</strong>. You get a <code>.vercel.app</code> link, and it redeploys on every push.</p>
+<p>The full step-by-step handout, including a no-install option and fixes for common problems, is "Get your project online".</p>
+<hr />
+<h2 id="6-connectors-apis-mcp-and-this-courses-mcp">6. Connectors: APIs, MCP, and this course's MCP</h2>
+<p>So far the AI only sees what you hand it. <strong>Connectors</strong> let it reach out and fetch context itself.</p>
+<ul>
+<li><strong>API (Application Programming Interface):</strong> one service's own menu of requests and responses. The weather service has one, Slack has one, and every one is different.</li>
+<li><strong>MCP (Model Context Protocol):</strong> one open standard for connecting AI apps to tools and data. Write a connector (an "MCP server") once, and any MCP-capable app can use it. Think of APIs as each country's different wall socket and MCP as a universal adapter. MCP servers often call APIs underneath.</li>
+</ul>
+<p>An MCP server offers <strong>tools</strong> (actions the AI can call), <strong>resources</strong> (data it can read) and <strong>prompts</strong> (templates).</p>
+<h3 id="read-vs-write-and-whos-in-charge">Read vs. write, and who's in charge</h3>
+<ul>
+<li><strong>Read</strong> actions bring information in: search, fetch, list. <strong>Write</strong> actions change the world: send, post, delete, pay, publish. Drafting an email and sending it are very different levels of risk.</li>
+<li>Start <strong>read-only</strong>. Connect the smallest useful scope. Require your approval for anything that writes.</li>
+<li><strong>A document is data, not your boss.</strong> If a page the AI reads says "ignore your instructions and…", that's <em>prompt injection</em>. Content can't authorise your AI to do anything.</li>
+</ul>
+<h3 id="try-it-connect-your-ai-to-this-course">Try it: connect your AI to this course</h3>
+<p>This course has its own public, read-only MCP server: <strong><a href="https://api.learnvibe.build/mcp">https://api.learnvibe.build/mcp</a></strong>. It has no student data and can't change anything. It can fetch the course map and every lesson.</p>
+<ul>
+<li><strong>Claude Code:</strong> <code>claude mcp add --transport http lvb https://api.learnvibe.build/mcp</code>, then start <code>claude</code> and type <code>/mcp</code> to check it's connected.</li>
+<li><strong>Claude app:</strong> Settings → Connectors → Add custom connector → paste the URL (availability depends on your plan).</li>
+<li><strong>Other MCP apps (Cursor, VS Code, ChatGPT developer mode):</strong> add a remote/HTTP MCP server with that URL.</li>
+</ul>
+<p>Then ask: <em>"Using the course connector, list the lessons, then teach me the AGENTS.md part of Week 6 and quiz me."</em></p>
+<p><strong>No connector support?</strong> Same result without one: open <a href="https://cu.learnvibe.build/lessons/">https://cu.learnvibe.build/lessons/</a>, press <strong>Copy lesson as markdown</strong>, and paste it into any chat.</p>
+<hr />
+<h2 id="7-learn-this-your-way-teach-me-prompts">7. Learn this your way: teach-me prompts</h2>
+<p><strong>Copy this entire file into your AI first</strong>, then paste any of these. Change the bracketed parts.</p>
+<ol>
+<li>
+<p><strong>Explain it to me</strong></p>
+<blockquote>
+<p>Using the lesson above, explain [AGENTS.md / index files / Git vs GitHub vs Pages / MCP vs APIs] to me as if I'm a [first-year art student / CS major / someone who's never coded]. Use one example from my project: [describe your project in a sentence].</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Write my AGENTS.md with me</strong></p>
+<blockquote>
+<p>Help me write an AGENTS.md for my project using the seven parts from section 3. Interview me one question at a time, and don't fill anything in that I haven't told you. Output clean markdown at the end.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Get me online, step by step</strong></p>
+<blockquote>
+<p>I'm on [Mac/Windows]. My project is [a folder of HTML files / a React app / something else: describe]. Walk me through getting it online with a link anyone can open, one step at a time. Wait for me to say "done" before the next step. If I get an error, I'll paste it.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Build me an index</strong></p>
+<blockquote>
+<p>I have notes and files about [topic/project]: [list them]. Design an index file using the pattern from section 4, with a one-line purpose for each file, and tell me how to split anything that's too big.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Quiz me</strong></p>
+<blockquote>
+<p>Quiz me on this lesson one question at a time. Mix multiple-choice and short answer. After each answer, tell me what I got right, what I missed, and which section to reread. Stop after 8 questions and summarise what I should review.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Go deeper on connectors safely</strong></p>
+<blockquote>
+<p>Explain how I could connect one read-only tool to my AI for my project [describe]. What would it be able to see, what could go wrong, and what permission boundaries should I set?</p>
+</blockquote>
+</li>
+</ol>
+<hr />
+<h2 id="8-studio-write-each-others-agentsmd">8. Studio: write each other's AGENTS.md</h2>
+<p><strong>Pairs, 20 minutes.</strong> This is tonight's group work.</p>
+<ol>
+<li><strong>Interview (8 min each).</strong> Your partner asks, and types your answers into an AGENTS.md draft. You correct them.
+   - Who is this for? What do they need, and what do they worry about?
+   - What is it, in one sentence?
+   - What is it built with? What should it <em>not</em> use?
+   - What should the AI never do?
+   - Where do the true facts live?
+   - What does "done" look like? How will you check?</li>
+<li><strong>Test it (4 min).</strong> Put the file in your own project. In a fresh session, ask <em>"What is this project and who is it for?"</em>, then give it one real task.</li>
+<li><strong>Revise.</strong> Fix whatever it misunderstood. That's the file working.</li>
+</ol>
+<p>No project yet? Write it for the project you want to start. Then use the rest of studio to build with it, and to get your project online (section 5).</p>
+<hr />
+<h2 id="9-reading-for-this-week">9. Reading for this week</h2>
+<p><strong>Arielle Shipper, "How to Get Better at AI by Asking AI"</strong> (Every, October 2, 2026). Free link: on your account page at <a href="https://cu.learnvibe.build/account/">https://cu.learnvibe.build/account/</a> and in the course announcement on Canvas.</p>
+<p><strong>Why this reading.</strong> It's tonight's idea done for real: give your AI context about <em>you</em>, and it can coach you. Shipper asked her AI to place her on Every's "Eight Levels of AI Adoption" (a ladder from one-off chats up to running teams of agents) using their actual past work together, turned that into recommendations from projects she'd finished, and asked it to teach her the next step.</p>
+<p><strong>Read it, then try one of these.</strong> Copy this lesson (or the article) into your AI first.</p>
+<ol>
+<li>
+<p><strong>Place me on the ladder</strong></p>
+<blockquote>
+<p>Read the article on the eight levels of AI adoption (paste it in if you can't open the link). Based on how I've worked with you so far, what level am I? Give specific examples from our work, and tell me what you're unsure about.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Replay a finished project one level up</strong></p>
+<blockquote>
+<p>Here's a project I've already finished: [describe it or paste your reflection]. How could it have run one level higher? What did I do by hand that I could have described or handed off, and what should I have kept doing myself?</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Teach me the next step</strong></p>
+<blockquote>
+<p>Teach me the one habit that would move me up a level, using my own project as the example. One small step at a time; check that I've actually done each step before moving on.</p>
+</blockquote>
+</li>
+</ol>
+<p><strong>On a free plan, or no long chat history?</strong> Your AI can't look back across sessions, so give it the evidence directly. Paste in your <strong>AGENTS.md</strong> (from tonight) or your <strong>last two weekly submissions</strong>, then ask: <em>"Based on this, what level am I on the eight levels of AI adoption, with examples?"</em></p>
+<p>The AI's read on you is a draft, not a grade. Ask what it's basing it on, and push back where it's wrong.</p>
+<hr />
+<h2 id="10-glossary">10. Glossary</h2>
+<ul>
+<li><strong>Context window:</strong> the information in front of the model for one response.</li>
+<li><strong>Markdown:</strong> plain text with light formatting (<code>#</code>, <code>-</code>, <code>**</code>, links).</li>
+<li><strong>AGENTS.md / CLAUDE.md:</strong> a project instruction file that coding agents read at the start of every session.</li>
+<li><strong>Index file:</strong> a short map pointing to deeper files.</li>
+<li><strong>Git / commit / push:</strong> save points for a folder; making one; sending them to GitHub.</li>
+<li><strong>Repository (repo):</strong> a project folder tracked by Git, often stored on GitHub.</li>
+<li><strong>GitHub Pages / Vercel:</strong> services that publish a repo as a website with a public link.</li>
+<li><strong>API:</strong> one service's interface for programs to request things.</li>
+<li><strong>MCP (Model Context Protocol):</strong> an open standard for connecting AI apps to tools and data.</li>
+<li><strong>Prompt injection:</strong> content the AI reads trying to redirect its instructions.</li>
+</ul>
+<hr />
+<h2 id="11-further-reading-and-sources">11. Further reading and sources</h2>
+<ul>
+<li>AGENTS.md convention: <a href="https://agents.md/">https://agents.md/</a></li>
+<li>Claude Code memory (CLAUDE.md): <a href="https://docs.anthropic.com/en/docs/claude-code/memory">https://docs.anthropic.com/en/docs/claude-code/memory</a></li>
+<li>Effective context engineering for AI agents (Anthropic): <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents</a></li>
+<li>GitHub Pages quickstart: <a href="https://docs.github.com/en/pages/quickstart">https://docs.github.com/en/pages/quickstart</a> · GitHub Desktop: <a href="https://desktop.github.com/">https://desktop.github.com/</a></li>
+<li>Vercel, getting started: <a href="https://vercel.com/docs/getting-started-with-vercel">https://vercel.com/docs/getting-started-with-vercel</a></li>
+<li>MCP architecture: <a href="https://modelcontextprotocol.io/docs/learn/architecture">https://modelcontextprotocol.io/docs/learn/architecture</a></li>
+<li>Arielle Shipper, "How to Get Better at AI by Asking AI," Every, Oct 2, 2026: <a href="https://every.to/p/codex-graded-my-ai-habits-then-it-became-my-coach">https://every.to/p/codex-graded-my-ai-habits-then-it-became-my-coach</a></li>
+<li><strong>Further reading: AI Fluency.</strong> The ideas under tonight's class come from Anthropic's free <em>AI Fluency: Framework &amp; Foundations</em> course (Dakan, Feller, Anthropic; CC BY-NC-SA 4.0): <a href="https://academy.claude.com/courses/ai-fluency-framework-foundations">https://academy.claude.com/courses/ai-fluency-framework-foundations</a>. It names four habits you practised tonight without the labels. Writing AGENTS.md is <strong>Description</strong>. Checking the output out loud is <strong>Discernment</strong>. Choosing what to hand the agent is <strong>Delegation</strong>. Checking a link before you share it is <strong>Diligence</strong>.</li>
+</ul>
+    <div class="lesson-end">
+      <p class="kicker">Keep going</p>
+      <p>Turn the lesson into a conversation with your AI.</p>
+      <button class="btn" type="button" data-copy="lesson.md">Copy lesson as markdown</button>
+      <p class="hint"><a href="../">All lessons</a> · <a href="../../schedule/">The semester schedule</a></p>
+    </div>
+  </article>
+</div>
+<script>
+document.querySelectorAll('[data-copy]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    fetch(b.getAttribute('data-copy')).then(function (r) { return r.text(); }).then(function (t) {
+      return navigator.clipboard.writeText(t);
+    }).then(function () {
+      var old = b.textContent; b.textContent = 'Copied ✓';
+      setTimeout(function () { b.textContent = old; }, 1800);
+    }).catch(function () { location.href = b.getAttribute('data-copy'); });
+  });
+});
+</script>
+<script>
+document.querySelectorAll('[data-copy-text]').forEach(function (b) {
+  b.addEventListener('click', function () { navigator.clipboard.writeText(b.getAttribute('data-copy-text')).then(function () {
+    var o = b.textContent; b.textContent = 'Copied ✓'; setTimeout(function () { b.textContent = o; }, 1800); }); });
+});
+</script>
+</main>
+<footer class="site-footer">
+  <p>Learn, Vibe, Build<br>ATLS 4519 · CU Boulder · Fall 2026</p>
+  <p><a href="../../setup/">Getting started</a> · <a href="../../syllabus.html">Syllabus</a><br>
+  <a href="../../llms.txt">Course map for AI</a> · <a href="https://github.com/unforcedagi/learn-vibe-build-deck">Source</a></p>
+</footer>
+</body>
+</html>

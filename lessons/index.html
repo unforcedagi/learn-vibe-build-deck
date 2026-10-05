@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lessons — Learn, Vibe, Build · ATLS 4519</title>
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body class="lessons-index">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a class="brand" href="../"><span class="brand-mark" aria-hidden="true">L</span>Learn, Vibe, Build</a>
+    <nav class="desktop-nav" aria-label="Course"><a href="../schedule/">Schedule</a>
+<a href="../lessons/" aria-current="page">Lessons</a>
+<a href="../readings/">Readings</a>
+<a href="../syllabus.html">Syllabus</a>
+<a href="../setup/">Setup</a>
+<a href="../studio/">Studio</a>
+<a href="../journal/">Journal</a>
+<a href="../account/">Account</a></nav>
+    <details class="mobile-nav">
+      <summary>Menu <span aria-hidden="true">&nbsp;+</span></summary>
+      <nav aria-label="Course menu"><a href="../schedule/">Schedule</a>
+<a href="../lessons/" aria-current="page">Lessons</a>
+<a href="../readings/">Readings</a>
+<a href="../syllabus.html">Syllabus</a>
+<a href="../setup/">Setup</a>
+<a href="../studio/">Studio</a>
+<a href="../journal/">Journal</a>
+<a href="../account/">Account</a></nav>
+    </details>
+  </div>
+</header>
+<main class="lessons-index" id="main-content">
+  <p class="kicker">The studio field guide / read, copy, explore</p>
+  <h1>Lessons for<br>the making.</h1>
+  <p class="lead">Every lesson, as a page you can read and as a markdown file you can hand to your AI.
+    Copy a lesson, paste it into Claude, ChatGPT or any other assistant, and ask it to explain, quiz you,
+    or apply it to your project.</p>
+  <div class="cards">    <a class="card" href="week-6/">
+      <p class="kicker">Week 6</p>
+      <h2>Context That Sticks, Getting Online, and Connectors</h2>
+      <p>Write your project context down once in AGENTS.md so every AI session starts out knowing it, get your project online with a link anyone can open, and connect your AI to the course.</p>
+    </a>
+    <a class="card" href="week-3/">
+      <p class="kicker">Week 3</p>
+      <h2>Everyone demos, then the tools</h2>
+      <p>Everyone shows what they built; then the AI tool landscape and how to choose.</p>
+    </a>
+    <a class="card" href="week-2/">
+      <p class="kicker">Week 2</p>
+      <h2>Build night</h2>
+      <p>Tool tour, then building together in class: pick one tool, set it up, prove it works.</p>
+    </a>
+    <a class="card" href="week-1/">
+      <p class="kicker">Week 1</p>
+      <h2>Orientation: Learn, Vibe, Build</h2>
+      <p>What this course is, the three C&#x27;s (cognition, communication, creativity), the weekly rhythm, and the first shared practice.</p>
+    </a></div>
+  <h2>Bring the course into your AI.</h2>
+  <div class="copybar">
+    <button class="btn" type="button" data-copy="index.md">Copy the course map</button>
+    <a class="btn ghost" href="index.md">index.md</a>
+    <a class="btn ghost" href="../llms.txt">llms.txt</a>
+  </div>
+  <p class="hint">Using an AI that can read web pages? Give it <code>https://cu.learnvibe.build/llms.txt</code>.
+    It's a short map of the whole course with links to every lesson's markdown. That's the index-file idea from Week 6.</p>
+  <div class="card connect">
+    <p class="kicker">Connect your AI · MCP</p>
+    <h2>Let your AI read the course directly</h2>
+    <p>If your AI app supports custom MCP connectors, add this server URL:</p>
+    <pre><code>https://api.learnvibe.build/mcp</code></pre>
+    <p>It's read-only and public: it can list the lessons and open any one of them, nothing else.
+      No sign-in, and it never sees your account or your work. Where to add it varies by app
+      (in Claude it's under Settings → Connectors → Add custom connector). Then ask:
+      <em>“Use the Learn, Vibe, Build connector to quiz me on Week 6.”</em></p>
+    <p class="hint">No connector support? Copy a lesson instead. It's the same text.</p>
+  </div>
+  <p class="hint">Weeks 4–5 were studio nights, not missing lessons. See the <a href="../schedule/">full semester schedule</a> for the path through the term.</p>
+<script>
+document.querySelectorAll('[data-copy]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    fetch(b.getAttribute('data-copy')).then(function (r) { return r.text(); }).then(function (t) {
+      return navigator.clipboard.writeText(t);
+    }).then(function () {
+      var old = b.textContent; b.textContent = 'Copied ✓';
+      setTimeout(function () { b.textContent = old; }, 1800);
+    }).catch(function () { location.href = b.getAttribute('data-copy'); });
+  });
+});
+</script>
+</main>
+<footer class="site-footer">
+  <p>Learn, Vibe, Build<br>ATLS 4519 · CU Boulder · Fall 2026</p>
+  <p><a href="../setup/">Getting started</a> · <a href="../syllabus.html">Syllabus</a><br>
+  <a href="../llms.txt">Course map for AI</a> · <a href="https://github.com/unforcedagi/learn-vibe-build-deck">Source</a></p>
+</footer>
+</body>
+</html>

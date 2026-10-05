@@ -4,8 +4,7 @@
 // student checked "share my build with the class" (share_build=1). Signed
 // in only — that checkbox's copy promises the class, not the public
 // internet, so the wall honors the same audience as /feed rather than
-// broadening it. Aaron's founding tile above stays static; it's content he
-// put on a public page himself, not something a student's checkbox implied.
+// broadening it. No student work is embedded in the static page.
 //
 // The week filter is client-side over the one /feed payload. "All" shows one
 // tile per builder (their most recent shared build); a specific week shows
@@ -18,9 +17,8 @@ const wall = document.getElementById('wall');
 const hint = document.getElementById('wall-hint');
 const filterBox = document.getElementById('wall-filter');
 
-// Everything already in the wall when the page loaded (Aaron's founding tile)
-// stays put; only tiles this script added get cleared on a re-render.
-const staticTiles = wall ? [...wall.children] : [];
+// Loading placeholders are replaced, never treated as gallery entries.
+const staticTiles = wall ? [...wall.children].filter((tile) => !tile.hasAttribute('data-wall-placeholder')) : [];
 
 const state = { builds: [], weeks: [], week: null }; // week null = All
 
@@ -54,8 +52,33 @@ function drawFilter() {
 }
 
 function renderSignedOut() {
-  wall.appendChild(claimTile('Sign in to see who’s building'));
+  clearWall();
+  wall.appendChild(galleryNotice('A class-only gallery', 'Behind every build, a new possibility.',
+    'Sign in to explore the builds your classmates chose to share. Your own work stays private until you decide otherwise.',
+    'Sign in to the studio'));
   hint.remove();
+}
+
+function galleryNotice(kicker, title, description, action) {
+  const notice = document.createElement('div');
+  notice.className = 'gallery-empty';
+  const heading = document.createElement('div');
+  const label = document.createElement('p');
+  label.className = 'kicker';
+  label.textContent = kicker;
+  const h3 = document.createElement('h3');
+  h3.textContent = title;
+  heading.append(label, h3);
+  const detail = document.createElement('div');
+  const p = document.createElement('p');
+  p.textContent = description;
+  const a = document.createElement('a');
+  a.className = 'btn';
+  a.href = '../account/';
+  a.textContent = action;
+  detail.append(p, a);
+  notice.append(heading, detail);
+  return notice;
 }
 
 function clearWall() {
@@ -78,6 +101,14 @@ function visibleBuilds() {
 function renderTiles() {
   clearWall();
   const builds = visibleBuilds();
+
+  if (!builds.length) {
+    wall.appendChild(galleryNotice('Open space / ready for experiments',
+      state.week == null ? 'The wall starts with one brave experiment.' : 'No shared builds for this week yet.',
+      'Submit a build in your account and choose “Share my build with the class” to put it here. Writing is shared separately — both choices are yours.',
+      'Share your first build'));
+    return;
+  }
 
   for (const b of builds) {
     const tile = document.createElement('div');

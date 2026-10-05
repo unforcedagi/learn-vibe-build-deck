@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get your project online — Learn, Vibe, Build · ATLS 4519</title>
+<link rel="stylesheet" href="../../../assets/site.css">
+</head>
+<body class="lesson-page">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a class="brand" href="../../../"><span class="brand-mark" aria-hidden="true">L</span>Learn, Vibe, Build</a>
+    <nav class="desktop-nav" aria-label="Course"><a href="../../../schedule/">Schedule</a>
+<a href="../../../lessons/" aria-current="page">Lessons</a>
+<a href="../../../readings/">Readings</a>
+<a href="../../../syllabus.html">Syllabus</a>
+<a href="../../../setup/">Setup</a>
+<a href="../../../studio/">Studio</a>
+<a href="../../../journal/">Journal</a>
+<a href="../../../account/">Account</a></nav>
+    <details class="mobile-nav">
+      <summary>Menu <span aria-hidden="true">&nbsp;+</span></summary>
+      <nav aria-label="Course menu"><a href="../../../schedule/">Schedule</a>
+<a href="../../../lessons/" aria-current="page">Lessons</a>
+<a href="../../../readings/">Readings</a>
+<a href="../../../syllabus.html">Syllabus</a>
+<a href="../../../setup/">Setup</a>
+<a href="../../../studio/">Studio</a>
+<a href="../../../journal/">Journal</a>
+<a href="../../../account/">Account</a></nav>
+    </details>
+  </div>
+</header>
+<main class="lesson-main" id="main-content">
+<header class="lesson-header">
+  <p class="crumb"><a href="../../">Lessons</a> / <a href="../">Week 6</a> / Handout</p>
+  <p class="kicker">Week 6 handout</p>
+  <h1>Get your project online</h1>
+  <div class="copybar">
+    <button class="btn" type="button" data-copy="../files/get-your-project-online.md">Copy handout as markdown</button>
+    <a class="btn ghost" href="../">Everything for Week 6</a>
+  </div>
+</header>
+<div class="lesson-layout single"><article class="lesson">
+<p><em>Learn, Vibe, Build · Week 6 handout · copy this into your AI and ask it to walk you through it</em></p>
+<p><strong>Goal:</strong> a link that <strong>anyone</strong> can open on <strong>their phone</strong>, like <code>https://yourname.github.io/my-project/</code>.</p>
+<h2>First: is your link actually online?</h2>
+<table>
+<thead>
+<tr>
+<th>If your link starts with…</th>
+<th>It is…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>file:///…</code> or <code>C:\Users\…</code> or <code>/Users/…</code></td>
+<td><strong>A file on your laptop.</strong> Nobody else can open it.</td>
+</tr>
+<tr>
+<td><code>localhost:…</code> or <code>127.0.0.1:…</code></td>
+<td><strong>Running only on your laptop.</strong> Nobody else can open it.</td>
+</tr>
+<tr>
+<td><code>https://…github.io/…</code> or <code>https://…vercel.app</code> or <code>https://…netlify.app</code></td>
+<td><strong>Online.</strong> 🎉</td>
+</tr>
+<tr>
+<td><code>https://github.com/you/project</code></td>
+<td><strong>Your code, not your site.</strong> Fine to share as code, but it isn't the working app.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The test:</strong> open the link on your phone with <strong>wifi off</strong>. If it works, it's online.</p>
+<h2>Three words that cause most of the confusion</h2>
+<ul>
+<li><strong>Git:</strong> save points ("commits") for your project folder. It lives on your laptop.</li>
+<li><strong>GitHub:</strong> a website that stores a copy of your project and its save points (a "repository" or "repo").</li>
+<li><strong>GitHub Pages / Vercel:</strong> free services that turn a GitHub repo into a live website.</li>
+</ul>
+<p><strong>Commit</strong> = make a save point. <strong>Push</strong> = send your save points to GitHub. <strong>Deploy</strong> = publish it as a site.</p>
+<hr />
+<h2>Path A: GitHub Desktop + GitHub Pages (recommended for HTML/CSS/JS sites)</h2>
+<p>Use this if your project is a folder with an <code>index.html</code> in it.</p>
+<ol>
+<li><strong>Make a GitHub account</strong> at github.com if you don't have one. Pick a short username; it becomes part of your link.</li>
+<li><strong>Install GitHub Desktop</strong> from desktop.github.com and sign in with your GitHub account.</li>
+<li><strong>Check your folder.</strong> The main page must be called exactly <code>index.html</code> and sit in the top level of the folder (not inside a subfolder).</li>
+<li>In GitHub Desktop: <strong>File → Add local repository…</strong> → choose your project folder.
+   - If it says "This directory does not appear to be a Git repository", click <strong>create a repository</strong> → <strong>Create repository</strong>.</li>
+<li>Bottom left: type a summary like <code>first version</code> → <strong>Commit to main</strong>.</li>
+<li>Top bar: <strong>Publish repository</strong>. <strong>Untick "Keep this code private"</strong> (free Pages sites need a public repo) → <strong>Publish</strong>.</li>
+<li>Click <strong>View on GitHub</strong> (or open github.com/YOU/REPO).</li>
+<li>On the repo page: <strong>Settings</strong> (top tab) → <strong>Pages</strong> (left sidebar).</li>
+<li>Under <strong>Build and deployment</strong>: Source <strong>Deploy from a branch</strong> → Branch <strong>main</strong> → folder <strong>/ (root)</strong> → <strong>Save</strong>.</li>
+<li>Wait about <strong>one minute</strong>, then refresh the Pages settings page. It shows <strong>"Your site is live at <a href="https://YOU.github.io/REPO/"">https://YOU.github.io/REPO/"</a></strong>. Click <strong>Visit site</strong>.</li>
+<li><strong>Test it on your phone, wifi off.</strong> Submit that link.</li>
+</ol>
+<h3>Updating your site later</h3>
+<p>Change your files → GitHub Desktop shows the changes → write a summary → <strong>Commit to main</strong> → <strong>Push origin</strong> → wait a minute → refresh your site (on a phone, pull down to refresh).</p>
+<h2>Path B: no installs (upload in the browser)</h2>
+<p>Good for a quick first try or a borrowed computer.</p>
+<ol>
+<li>github.com → <strong>+</strong> (top right) → <strong>New repository</strong> → name it → <strong>Public</strong> → <strong>Create repository</strong>.</li>
+<li>Click <strong>uploading an existing file</strong> → drag in the <em>contents</em> of your project folder (so <code>index.html</code> sits at the top) → <strong>Commit changes</strong>.</li>
+<li><strong>Settings → Pages →</strong> Deploy from a branch → <strong>main</strong> / <strong>(root)</strong> → <strong>Save</strong>. Wait a minute → <strong>Visit site</strong>.</li>
+<li>To update: open the file on github.com → pencil icon to edit, or <strong>Add file → Upload files</strong> again.</li>
+</ol>
+<h2>Path C: VS Code's built-in Git</h2>
+<p>If you already work in VS Code: open your folder → <strong>Source Control</strong> icon (left bar) → <strong>Publish to GitHub</strong> → choose <strong>public</strong> → it creates the repo and pushes for you. Then do steps 8–11 of Path A. To update later: Source Control → type a message → <strong>Commit</strong> → <strong>Sync Changes</strong>.</p>
+<h2>Path D: React, Next.js, Vite, Svelte… (there's a <code>package.json</code>)</h2>
+<p>These need a build step, so use <strong>Vercel</strong>:</p>
+<ol>
+<li>Get the code onto GitHub with Path A or C (skip the Pages settings).</li>
+<li>Go to <strong>vercel.com/new</strong>, sign in with GitHub, and <strong>Import</strong> your repo.</li>
+<li>Leave the settings it detects → <strong>Deploy</strong>. Wait a minute or two.</li>
+<li>You get a link like <code>https://my-project.vercel.app</code>. Every push to GitHub redeploys it.</li>
+</ol>
+<p>Built in a tool that hosts for you (Lovable, Bolt, Replit, v0)? Use its <strong>Publish/Deploy/Share</strong> button, and check that the link opens on your phone while you're logged out.</p>
+<hr />
+<h2>When it doesn't work</h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>404</strong> at your github.io link</td>
+<td>Wait 2 minutes. Check that the file is named exactly <code>index.html</code> (lowercase) and is at the top of the repo, not in a subfolder. Check Settings → Pages says it's live.</td>
+</tr>
+<tr>
+<td>Page loads but <strong>no styling or images</strong></td>
+<td>Paths are wrong. Use relative paths like <code>style.css</code> or <code>images/cat.png</code>, not <code>/Users/you/...</code> or <code>C:\...</code>. File names are case-sensitive online: <code>Cat.PNG</code> ≠ <code>cat.png</code>.</td>
+</tr>
+<tr>
+<td><strong>Pages option missing</strong> or asks for an upgrade</td>
+<td>The repo is private. Settings → General → bottom → Change visibility → Public.</td>
+</tr>
+<tr>
+<td><strong>"Push rejected"</strong> or "fetch first"</td>
+<td>Someone (or you, on github.com) changed it online. In GitHub Desktop: <strong>Fetch origin → Pull origin</strong>, then push again.</td>
+</tr>
+<tr>
+<td>Vercel <strong>build failed</strong></td>
+<td>Open the build log, copy the red error, and paste it to your AI with: "My Vercel deploy failed with this error. Explain it and give me the smallest fix."</td>
+</tr>
+<tr>
+<td>It works for you but <strong>not for others</strong></td>
+<td>You're logged into something, or it's a <code>localhost</code> link. Test on your phone with wifi off.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Never commit secrets.</strong> API keys and passwords don't go in your repo: anything in a public repo is public. Ask your AI how to use environment variables if your project needs a key.</p>
+<h2>Ask your AI to walk you through it</h2>
+<blockquote>
+<p>I'm on [Mac/Windows]. My project is [a folder of HTML files / a React app / built in Lovable / something else]. Walk me through getting it online with a link anyone can open, using the handout above. One step at a time; wait for me to say "done" before the next step. If I get an error I'll paste it.</p>
+</blockquote>
+<p><em>Official docs: GitHub Pages quickstart <a href="https://docs.github.com/en/pages/quickstart">https://docs.github.com/en/pages/quickstart</a> · GitHub Desktop <a href="https://docs.github.com/en/desktop">https://docs.github.com/en/desktop</a> · Vercel <a href="https://vercel.com/docs/getting-started-with-vercel">https://vercel.com/docs/getting-started-with-vercel</a></em></p>
+</article></div>
+<script>
+document.querySelectorAll('[data-copy]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    fetch(b.getAttribute('data-copy')).then(function (r) { return r.text(); }).then(function (t) { return navigator.clipboard.writeText(t); })
+    .then(function () { var o = b.textContent; b.textContent = 'Copied ✓'; setTimeout(function () { b.textContent = o; }, 1800); })
+    .catch(function () { location.href = b.getAttribute('data-copy'); });
+  });
+});
+</script>
+</main>
+<footer class="site-footer">
+  <p>Learn, Vibe, Build<br>ATLS 4519 · CU Boulder · Fall 2026</p>
+  <p><a href="../../../setup/">Getting started</a> · <a href="../../../syllabus.html">Syllabus</a><br>
+  <a href="../../../llms.txt">Course map for AI</a> · <a href="https://github.com/unforcedagi/learn-vibe-build-deck">Source</a></p>
+</footer>
+</body>
+</html>

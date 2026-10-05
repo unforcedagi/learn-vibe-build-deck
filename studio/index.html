@@ -3,115 +3,64 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="The Learn, Vibe, Build studio: a class-only gallery of student builds shared by choice.">
 <title>The Studio — Learn, Vibe, Build · ATLS 4519</title>
 <link rel="stylesheet" href="../assets/site.css">
-<style>
-  :root { --navy: #101a2e; }
-  .hero { position: relative; background: var(--navy); color: #fdfcf9; overflow: hidden; }
-  .hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .hero-inner { position: relative; max-width: 860px; margin: 0 auto; padding: 3.5rem 1.25rem 4rem; }
-  .hero h1 { font-size: 2.6rem; margin: 0 0 0.4rem; letter-spacing: -0.02em; }
-  .hero p { margin: 0; color: rgba(253,252,249,0.85); max-width: 46ch; }
-  h2 { font-size: 1.4rem; margin: 2.2rem 0 0.4rem; }
-  .sub { color: var(--muted); margin: 0 0 1.2rem; }
-</style>
 </head>
-<body>
+<body class="studio-page">
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="site-nav">
   <div class="site-nav-inner">
-    <a class="brand" href="../">Learn, Vibe, Build</a>
-    <nav>
-      <a href="../schedule/">Schedule</a>
-      <a href="../syllabus.html">Syllabus</a>
-      <a href="../setup/">Setup</a>
-      <a href="../studio/" aria-current="page">Studio</a>
-      <a href="../journal/">Journal</a>
-      <a href="../account/">Account</a>
-    </nav>
+    <a class="brand" href="../"><span class="brand-mark" aria-hidden="true">L</span>Learn, Vibe, Build</a>
+    <nav class="desktop-nav" aria-label="Course"><a href="../schedule/">Schedule</a>
+<a href="../lessons/">Lessons</a>
+<a href="../readings/">Readings</a>
+<a href="../syllabus.html">Syllabus</a>
+<a href="../setup/">Setup</a>
+<a href="../studio/" aria-current="page">Studio</a>
+<a href="../journal/">Journal</a>
+<a href="../account/">Account</a></nav>
+    <details class="mobile-nav">
+      <summary>Menu <span aria-hidden="true">&nbsp;+</span></summary>
+      <nav aria-label="Course menu"><a href="../schedule/">Schedule</a>
+<a href="../lessons/">Lessons</a>
+<a href="../readings/">Readings</a>
+<a href="../syllabus.html">Syllabus</a>
+<a href="../setup/">Setup</a>
+<a href="../studio/" aria-current="page">Studio</a>
+<a href="../journal/">Journal</a>
+<a href="../account/">Account</a></nav>
+    </details>
   </div>
 </header>
-<div class="hero">
-  <canvas id="net"></canvas>
-  <div class="hero-inner">
-    <h1>The Studio</h1>
-    <p>Fall 2026 cohort. One tile per builder. This page is the class keeping tabs on what everyone is making — and the record a future semester will look back at.</p>
-  </div>
-</div>
-<main>
-  <h2>The wall</h2>
-  <p class="sub">Claim your tile: pick a display name, say what you're working on, add a link when there's something to see. Tiles fill as work lands each Sunday.</p>
-  <div class="chips" id="wall-filter"></div>
+<section class="studio-hero" aria-labelledby="studio-title">
+  <p class="kicker">The shared studio / Fall 2026</p>
+  <h1 id="studio-title">Made in this room.</h1>
+  <p class="lead">Experiments, works in progress, and things that surprised us. A gallery of what this class is making — shared by choice, seen by classmates.</p>
+</section>
+<main class="studio-main" id="main-content">
+  <div class="gallery-header"><h2>The build wall</h2><p class="kicker">Work in progress is welcome</p></div>
+  <div class="chips" id="wall-filter" role="group" aria-label="Filter builds by week"></div>
   <div class="wall" id="wall">
-    <div class="tile">
-      <h3>Aaron</h3>
-      <p>Parachute — a memory layer for AIs. And this class.</p>
-      <a href="https://cu.learnvibe.build">cu.learnvibe.build</a>
+    <div class="gallery-empty" data-wall-placeholder>
+      <div><p class="kicker">A class-only gallery</p><h3>Behind every build,<br>a new possibility.</h3></div>
+      <div><p>Sign in to explore the builds your classmates chose to share. Your own work stays private until you decide otherwise.</p><a class="btn" href="../account/">Sign in to the studio <span aria-hidden="true">↗</span></a></div>
     </div>
   </div>
-  <p class="sub" id="wall-hint" style="margin-top:0.8rem; font-size:0.88rem;">Loading the rest of the wall&hellip;</p>
-
-  <h2>More rooms</h2>
+  <p class="hint" id="wall-hint" role="status">Checking the studio…</p>
+  <noscript><p class="hint">The live gallery needs JavaScript and a class account. You can still explore the idea wall, tools, and class journal below.</p></noscript>
+  <div class="section-heading"><h2>Keep exploring.</h2></div>
   <div class="cards">
-    <a class="card" href="ideas.html">
-      <h3>The idea wall</h3>
-      <p>Unrealized ideas, posted for input. Seeded with ideas from this room.</p>
-    </a>
-    <a class="card" href="tools.html">
-      <h3>Tools</h3>
-      <p>What the class is using, what it costs, what it's good at — grows from real use.</p>
-    </a>
-    <a class="card" href="../journal/">
-      <h3>Class journal</h3>
-      <p>One entry per Monday night. What we did, what got made, what came up.</p>
-    </a>
+    <a class="card" href="ideas.html"><p class="kicker">01 / Possibilities</p><h3>The idea wall</h3><p>Ideas still looking for a builder. Bring a question, find a direction, or pick up a thread from the room.</p></a>
+    <a class="card" href="tools.html"><p class="kicker">02 / Your toolkit</p><h3>Tools for making</h3><p>What's available, what it costs, and where to start. Choose something that serves the work.</p></a>
   </div>
-
-  <p class="archive-note">This studio stays up after December. Next semester's class will see what this room made — the wall, the ideas, the journal, all of it. Build accordingly.</p>
+  <p class="archive-note">The studio is a record of learning, not just finished products. <a href="../journal/">Read the class journal</a> for notes from Monday nights.</p>
 </main>
-<script type="module" src="./app.js?v=2"></script>
-<script>
-  // drifting constellation in the hero
-  const c = document.getElementById('net'), x = c.getContext('2d');
-  let W, H, pts = [];
-  function size() {
-    W = c.width = c.offsetWidth * devicePixelRatio;
-    H = c.height = c.offsetHeight * devicePixelRatio;
-  }
-  size(); addEventListener('resize', size);
-  for (let i = 0; i < 55; i++) pts.push({
-    px: Math.random(), py: Math.random(),
-    vx: (Math.random() - 0.5) * 0.0006, vy: (Math.random() - 0.5) * 0.0006
-  });
-  (function tick() {
-    x.clearRect(0, 0, W, H);
-    for (const p of pts) {
-      p.px += p.vx; p.py += p.vy;
-      if (p.px < 0 || p.px > 1) p.vx *= -1;
-      if (p.py < 0 || p.py > 1) p.vy *= -1;
-    }
-    for (let i = 0; i < pts.length; i++) {
-      for (let j = i + 1; j < pts.length; j++) {
-        const a = pts[i], b = pts[j];
-        const dx = (a.px - b.px), dy = (a.py - b.py);
-        const d = Math.hypot(dx, dy);
-        if (d < 0.14) {
-          x.strokeStyle = `rgba(255,140,105,${(1 - d / 0.14) * 0.35})`;
-          x.lineWidth = devicePixelRatio;
-          x.beginPath();
-          x.moveTo(a.px * W, a.py * H);
-          x.lineTo(b.px * W, b.py * H);
-          x.stroke();
-        }
-      }
-    }
-    for (const p of pts) {
-      x.fillStyle = 'rgba(253,252,249,0.85)';
-      x.beginPath();
-      x.arc(p.px * W, p.py * H, 1.6 * devicePixelRatio, 0, 7);
-      x.fill();
-    }
-    requestAnimationFrame(tick);
-  })();
-</script>
+<script type="module" src="./app.js?v=3"></script>
+<footer class="site-footer">
+  <p>Learn, Vibe, Build<br>ATLS 4519 · CU Boulder · Fall 2026</p>
+  <p><a href="../setup/">Getting started</a> · <a href="../syllabus.html">Syllabus</a><br>
+  <a href="../llms.txt">Course map for AI</a> · <a href="https://github.com/unforcedagi/learn-vibe-build-deck">Source</a></p>
+</footer>
 </body>
 </html>
