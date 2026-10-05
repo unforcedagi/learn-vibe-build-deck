@@ -74,13 +74,13 @@
  },
  {
   "kind": "bullets",
-  "title": "Automatic loading is tool-specific",
+  "title": "A context file loads every session",
   "bullets": [
-   "Codex uses AGENTS.md; Claude Code uses CLAUDE.md.",
-   "Other tools have their own rules and supported filenames—check yours.",
-   "In a chat app, paste the context or add it to a Project; it may not read local files."
+   "Coding agents such as Claude Code, Codex and Cursor can read AGENTS.md automatically.",
+   "Your project context is there at the start of every session—no retyping.",
+   "In a chat app, paste the context or add it to a Project."
   ],
-  "notes": "Do not imply any file name works universally. Our tested Claude Code installation also found AGENTS.md, but teach documented primary filenames. A fresh-session question can reveal whether the tool saw the file.",
+  "notes": "Put the file in the top folder of the project. Verified tonight: Claude Code picked up AGENTS.md in a fresh session. Keep the point simple: write the context once, and the agent starts with it.",
   "extra": null,
   "section": "Ongoing context"
  },
@@ -206,25 +206,13 @@
  },
  {
   "kind": "bullets",
-  "title": "API, connector, MCP: what is the difference?",
+  "title": "APIs and MCP: how AI connects to other tools",
   "bullets": [
-   "API: a service’s menu of requests that another program can make.",
-   "Connector: a bridge that lets your AI reach a service or files.",
-   "MCP: a shared protocol for AI apps to use tools; an MCP server may call an API."
+   "API: how one program requests information or actions from another.",
+   "MCP: a standard way for AI tools to connect to other services and data.",
+   "In Claude, these MCP connections are called connectors."
   ],
-  "notes": "Example: weather service API returns a forecast; an AI connector calls it for a conversation. Conceptual only: no course server URL, setup or connector demo this week.",
-  "extra": null,
-  "section": "Connections—concept only"
- },
- {
-  "kind": "bullets",
-  "title": "Access is a choice: read versus write",
-  "bullets": [
-   "Read access can expose data; write access can change or delete it.",
-   "Give only the access needed; review changes before publishing or sending.",
-   "Keep keys, passwords and private data out of public files and repositories."
-  ],
-  "notes": "Tools extend what the AI can do, not what it should be allowed to do. Responsibilities remain with the person using it. Four Ds stay implicit.",
+  "notes": "Example: a weather service has an API that returns a forecast. An MCP connection lets your AI use services like that inside a conversation. In Claude these show up as connectors. Concept only tonight; next week we connect.",
   "extra": null,
   "section": "Connections—concept only"
  },
