@@ -160,7 +160,6 @@ KIT = f'''<section class="week-kit" id="everything" aria-labelledby="kit-title">
     <a class="kit-card" href="slides/"><span class="kicker">Slides</span><strong>Open the slides</strong><span>Arrow keys and full screen. PDF and PowerPoint downloads are below.</span></a>
     <a class="kit-card" href="#lesson-start"><span class="kicker">Lesson</span><strong>Read the lesson</strong><span>Below on this page. Copy it as markdown for your AI.</span></a>
     <a class="kit-card" href="get-online/"><span class="kicker">Handout</span><strong>Get your project online</strong><span>Repo, commit, push, deploy: a link anyone can open.</span></a>
-    <a class="kit-card" href="https://github.com/unforcedagi/lvb-week6-demo"><span class="kicker">Demo project</span><strong>Hill Plant Swap</strong><span>The repo from class, plus its live copy on GitHub Pages.</span></a>
     <a class="kit-card" href="../../readings/"><span class="kicker">Reading</span><strong>How to Get Better at AI by Asking AI</strong><span>Arielle Shipper, Every. Free link on your account page and Canvas.</span></a>
   </div>
   <p class="hint">Downloads: <a href="files/week6-slides.pdf">slides (PDF)</a> · <a href="files/week6-slides.pptx">slides (PowerPoint)</a> · <a href="lesson.md">lesson (.md)</a> · <a href="files/get-your-project-online.md">handout (.md)</a></p>
@@ -216,7 +215,6 @@ if os.path.isdir(CLASS):
     links = [("https://cu.learnvibe.build/lessons/week-6/", "Everything for Week 6 (the student page)"),
              ("week6/slides.html", "Present: slides with speaker notes (press N)"),
              ("week6/teach-card.html", "Teach card"), ("week6/demo-script.html", "Demo script, with fallbacks"),
-             ("week6/lvb-week6-demo.zip", "Demo project folder (.zip)"),
              ("week6/week6-lecture.pptx", "Slides (PowerPoint)"), ("week6/week6-lecture.pdf", "Slides (PDF)")]
     cards = "".join(f'<a class="kit-card" href="{u}"><strong>{esc(t)}</strong></a>' for u, t in links)
     open(f"{CLASS}/index.html", "w").write(f'''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
