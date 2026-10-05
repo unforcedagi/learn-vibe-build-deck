@@ -194,13 +194,13 @@
  },
  {
   "kind": "bullets",
-  "title": "A practical path to publishing",
+  "title": "Getting it online, your way",
   "bullets": [
-   "GitHub Desktop: create a repository → commit → publish to GitHub.",
-   "Plain HTML/CSS: GitHub Settings → Pages → main branch / root → Save.",
-   "A framework app may need Vercel: allow repository access, deploy, then test the URL."
+   "Ask the AI tool you already use: “Help me get this online with the tools I have. Explain each step as we go.”",
+   "It will save a version, send it to GitHub, and publish it with a host.",
+   "Done means a public link that opens on someone else’s phone."
   ],
-  "notes": "Recent Week 5 publishing confusion was partly Vercel needing GitHub repo access. Do not prescribe Pages for every framework app; the handout is supplemental detail, not essential to the invitation.",
+  "notes": "No prescribed app. Students use whatever tool they already have; the point is understanding the steps and checking the public link.",
   "extra": null,
   "section": "Getting online"
  },
