@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lessons — Learn, Vibe, Build · ATLS 4519</title>
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a class="brand" href="../">Learn, Vibe, Build</a>
+    <nav>
+      <a href="../schedule/">Schedule</a>
+      <a href="../lessons/" aria-current="page">Lessons</a>
+      <a href="../syllabus.html">Syllabus</a>
+      <a href="../setup/">Setup</a>
+      <a href="../studio/">Studio</a>
+      <a href="../journal/">Journal</a>
+      <a href="../account/">Account</a>
+    </nav>
+  </div>
+</header>
+<main class="lesson-main">
+  <h1>Lessons</h1>
+  <p class="lead">Every lesson, as a page you can read and as a markdown file you can hand to your AI.
+    Copy a lesson, paste it into Claude, ChatGPT or any other assistant, and ask it to explain, quiz you,
+    or apply it to your project.</p>
+  <div class="copybar">
+    <button class="btn" type="button" data-copy="index.md">Copy the course map</button>
+    <a class="btn ghost" href="index.md">index.md</a>
+    <a class="btn ghost" href="../llms.txt">llms.txt</a>
+  </div>
+  <p class="hint">Using an AI that can read web pages? Give it <code>https://cu.learnvibe.build/llms.txt</code>.
+    It's a short map of the whole course with links to every lesson's markdown. That's the index-file idea from Week 6.</p>
+  <div class="cards">
+    <a class="card" href="week-6/">
+      <p class="kicker">Week 6</p>
+      <h2>Context, Fluency, and Connectors</h2>
+      <p>Choose what the AI sees. Check what it produces. Control what it can change.</p>
+    </a>
+    <a class="card" href="week-3/">
+      <p class="kicker">Week 3</p>
+      <h2>Everyone demos, then the tools</h2>
+      <p>Everyone shows what they built; then the AI tool landscape and how to choose.</p>
+    </a>
+    <a class="card" href="week-2/">
+      <p class="kicker">Week 2</p>
+      <h2>Build night</h2>
+      <p>Tool tour, then building together in class: pick one tool, set it up, prove it works.</p>
+    </a>
+    <a class="card" href="week-1/">
+      <p class="kicker">Week 1</p>
+      <h2>Orientation: Learn, Vibe, Build</h2>
+      <p>What this course is, the three C&#x27;s (cognition, communication, creativity), the weekly rhythm, and the first shared practice.</p>
+    </a>
+  </div>
+<script>
+document.querySelectorAll('[data-copy]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    fetch(b.getAttribute('data-copy')).then(function (r) { return r.text(); }).then(function (t) {
+      return navigator.clipboard.writeText(t);
+    }).then(function () {
+      var old = b.textContent; b.textContent = 'Copied ✓';
+      setTimeout(function () { b.textContent = old; }, 1800);
+    }).catch(function () { location.href = b.getAttribute('data-copy'); });
+  });
+});
+</script>
+</main>
+</body>
+</html>

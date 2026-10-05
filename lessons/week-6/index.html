@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 6 — Context, Fluency, and Connectors — Learn, Vibe, Build · ATLS 4519</title>
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body>
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a class="brand" href="../../">Learn, Vibe, Build</a>
+    <nav>
+      <a href="../../schedule/">Schedule</a>
+      <a href="../../lessons/" aria-current="page">Lessons</a>
+      <a href="../../syllabus.html">Syllabus</a>
+      <a href="../../setup/">Setup</a>
+      <a href="../../studio/">Studio</a>
+      <a href="../../journal/">Journal</a>
+      <a href="../../account/">Account</a>
+    </nav>
+  </div>
+</header>
+<main class="lesson-main">
+  <p class="crumb"><a href="../">Lessons</a> · Week 6</p>
+  <h1>Week 6 — Context, Fluency, and Connectors</h1>
+  <div class="copybar">
+    <button class="btn" type="button" data-copy="lesson.md">Copy lesson as markdown</button>
+    <a class="btn ghost" href="lesson.md">View raw .md</a>
+  </div>
+  <p class="hint">Paste the copied lesson into any AI (Claude, ChatGPT, Gemini, a local model) and ask it to teach you more.
+    Or point your AI at <code>https://cu.learnvibe.build/lessons/week-6/lesson.md</code>.</p>
+  <article class="lesson">
+<p><em>Learn, Vibe, Build · CU Boulder ATLAS · Monday October 5, 2026 · Aaron Neyer</em></p>
+<blockquote>
+<p><strong>How to use this file.</strong> This is the whole lesson as plain markdown. Copy all of it into your AI (Claude, ChatGPT, Gemini, a local model — anything) and ask it to teach you more. Ready-to-paste prompts are at the end. Your AI can explain, quiz you, give examples from <em>your</em> project, and go deeper on anything here. Check what it tells you against the sources listed at the bottom.</p>
+</blockquote>
+<p><strong>Through-line for today:</strong> <em>Choose what the AI sees. Check what it produces. Control what it can change.</em></p>
+<hr />
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#1-what-the-ai-can-actually-see">What the AI can actually see</a></li>
+<li><a href="#2-the-4d-ai-fluency-framework">The 4D AI Fluency framework</a></li>
+<li><a href="#3-context-files-a-description-that-doesnt-go-away">Context files: a description that doesn't go away</a></li>
+<li><a href="#4-markdown-and-indexes-maps-for-a-body-of-knowledge">Markdown and indexes: maps for a body of knowledge</a></li>
+<li><a href="#5-connectors-apis-and-mcp">Connectors: APIs and MCP</a></li>
+<li><a href="#6-permission-and-trust">Permission and trust</a></li>
+<li><a href="#7-from-build-to-product">From build to product</a></li>
+<li><a href="#8-learn-this-your-way-teach-me-prompts">Learn this your way: teach-me prompts</a></li>
+<li><a href="#9-glossary">Glossary</a></li>
+<li><a href="#10-sources">Sources</a></li>
+</ol>
+<hr />
+<h2 id="1-what-the-ai-can-actually-see">1. What the AI can actually see</h2>
+<p>When you send a message, the model responds using two very different things:</p>
+<ul>
+<li><strong>Training knowledge</strong> — general patterns learned before you ever met it. It knows a lot about the world, but nothing about <em>your</em> project unless you tell it.</li>
+<li><strong>Context</strong> — everything supplied for <em>this</em> response: system instructions, the conversation so far, files you attached or pasted, and results from any tools it used.</li>
+</ul>
+<p>The space for context is called the <strong>context window</strong>. It is large but finite, and more is not always better: a big dump of loosely related material can distract the model and bury the important facts. Good context is <strong>relevant, labelled, and current</strong>.</p>
+<p>Some apps add saved "memory" or project instructions into a new chat automatically. That is the <em>app</em> doing retrieval — not the model remembering. Check what actually got loaded.</p>
+<p><strong>A generic answer is usually a context problem, not a model problem.</strong> "Improve my portfolio" gets a generic answer. "Improve the opening of my portfolio for a scholarship panel that reads each one in 30 seconds; here's the current text and my two strongest pieces; don't invent achievements" gets a specific one. Same task, different context.</p>
+<p><strong>Handoff habit.</strong> Before you start a fresh chat on an ongoing project, write a short note: goal · current state · decisions made · relevant files · next step · open questions. Keep the original evidence too — a summary can drop things.</p>
+<hr />
+<h2 id="2-the-4d-ai-fluency-framework">2. The 4D AI Fluency framework</h2>
+<p>Developed by Prof. Rick Dakan (Ringling College of Art and Design) and Prof. Joseph Feller (University College Cork), and turned into a free course with Anthropic. It describes <strong>AI fluency</strong> as working with AI in ways that are <strong>effective, efficient, ethical, and safe</strong> — and it's built to outlast any particular tool.</p>
+<h3 id="three-modes-of-working-with-ai">Three modes of working with AI</h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>What it means</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Automation</strong></td>
+<td>AI executes a specific task you defined</td>
+<td>"Resize these 40 images to 1200px wide"</td>
+</tr>
+<tr>
+<td><strong>Augmentation</strong></td>
+<td>You and AI think together as partners</td>
+<td>Brainstorming story directions, critiquing a draft</td>
+</tr>
+<tr>
+<td><strong>Agency</strong></td>
+<td>You configure AI to act on its own for future tasks</td>
+<td>An agent that checks your project every morning and files issues</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-four-competencies-the-4-ds">The four competencies (the "4 Ds")</h3>
+<p><strong>1. Delegation — deciding <em>whether, when, and how</em> to use AI.</strong>
+- Know your goal and the task before reaching for a tool.
+- Know what AI is good and bad at, and which tool fits.
+- Split the work between you and the AI deliberately, and pick the mode.
+- <strong>Keep the work where the thinking is the deliverable.</strong> If the point of the task is for <em>you</em> to learn, decide, or express something, handing it off defeats the purpose. In a class, that's often the case.</p>
+<p><strong>2. Description — communicating clearly enough to get useful behaviour.</strong> Three things to describe:
+- <strong>Product</strong> — what you want out: format, audience, length, style, examples.
+- <strong>Process</strong> — how to approach it: steps, what to consider, what to read first.
+- <strong>Performance</strong> — how the AI should behave: concise or detailed, challenge me or just help, ask questions when unsure.</p>
+<p><strong>3. Discernment — judging what comes back.</strong>
+- Judge the <strong>product</strong> (is it accurate, appropriate, good?), the <strong>process</strong> (did it reason sensibly?), and the <strong>performance</strong> (did it behave the way you asked?).
+- <strong>Fluent ≠ correct.</strong> AI output sounds confident whether or not it's right. Check facts, run the code, look at the image closely.</p>
+<p><strong>4. Diligence — taking responsibility.</strong>
+- <strong>Creation diligence:</strong> choose tools and data thoughtfully (privacy, consent, bias).
+- <strong>Transparency diligence:</strong> be honest with others about how AI was involved.
+- <strong>Deployment diligence:</strong> verify before you share, publish, or ship. <strong>Responsibility doesn't transfer to the AI.</strong> If you put it out, it's yours.</p>
+<h3 id="two-loops">Two loops</h3>
+<ul>
+<li><strong>Description ↔ Discernment</strong> — the working loop. Describe, look at what comes back, refine the description, look again. Most good AI work is several turns of this.</li>
+<li><strong>Delegation ↔ Diligence</strong> — the responsibility loop. What you choose to hand off determines what you're accountable for checking; what you've learned about responsibility shapes what you delegate next time.</li>
+</ul>
+<hr />
+<h2 id="3-context-files-a-description-that-doesnt-go-away">3. Context files: a description that doesn't go away</h2>
+<p>A <strong>context file</strong> is a Description you write once and reuse — so you stop re-explaining your project every chat. It's a working agreement between you and the AI.</p>
+<p>A good one answers four questions:</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Question</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Goal</strong></td>
+<td>Who is this for, and what should change?</td>
+</tr>
+<tr>
+<td><strong>Inputs</strong></td>
+<td>What should the AI read or know?</td>
+</tr>
+<tr>
+<td><strong>Boundaries</strong></td>
+<td>What must it preserve, never do, or ask about first?</td>
+</tr>
+<tr>
+<td><strong>Check</strong></td>
+<td>How will you know the result works?</td>
+</tr>
+</tbody>
+</table>
+<p>Example (fictional student):</p>
+<pre><code class="language-markdown"># Project: Mara Ellison — portfolio homepage
+
+## Goal and audience
+- Rewrite the opening section for a scholarship panel (≈30 seconds per applicant).
+
+## Inputs
+- Current text: &quot;Hi! I'm Mara. I like making stuff.&quot;
+- Strongest pieces: *Tide Lines* (cut-paper stop-motion), *Quiet Map* (campus audio walk).
+
+## Boundaries
+- Don't invent awards, jobs, or numbers. Ask if something is missing.
+- Under 80 words. Warm and plain; no buzzwords.
+
+## Check
+- A reader can name both projects after one read.
+- Every fact appears in this file.
+</code></pre>
+<p>Notice how it maps onto the 4Ds: Goal and Inputs are <strong>Description</strong> (product + process), Boundaries are <strong>Diligence</strong>, and Check makes <strong>Discernment</strong> concrete <em>before</em> you see the output.</p>
+<p><strong>Where context files live.</strong> Chat tools: paste or attach it. Many coding agents read a project file automatically — <code>AGENTS.md</code> is an open convention several tools support; some tools use their own names (e.g. <code>CLAUDE.md</code>). Loading rules vary by tool, so check the docs and confirm the tool actually read it. A file sitting on disk does nothing until something loads it.</p>
+<p><strong>Three kinds of persistent files, three jobs:</strong>
+- <strong>Instructions</strong> — how to work on this project ("ask before publishing").
+- <strong>Recipes</strong> (sometimes called skills) — how to repeat a task ("export the animation, then check playback").
+- <strong>Knowledge</strong> — facts and decisions worth retrieving later ("we chose the scholarship audience because…").</p>
+<p>Writing files doesn't retrain the model. It changes what the model sees.</p>
+<hr />
+<h2 id="4-markdown-and-indexes-maps-for-a-body-of-knowledge">4. Markdown and indexes: maps for a body of knowledge</h2>
+<p><strong>Markdown</strong> is plain text with a little structure: <code>#</code> headings, <code>-</code> lists, <code>**bold**</code>, <code>[links](file.md)</code>. Humans can read it as-is, and AI models handle it very well. That makes it the default format for writing things both you and an AI will use.</p>
+<h3 id="the-index-pattern">The index pattern</h3>
+<p>One context file works for one project. For a bigger body of knowledge — a semester of notes, a research project, a team's documentation — use an <strong>index</strong>: a short top-level file that describes what exists and points to deeper files.</p>
+<pre><code class="language-markdown"># Course knowledge — index
+
+Start here. Each line says what a file is for, so you only open what you need.
+
+- [syllabus.md](syllabus.md) — schedule, grading, policies
+- [week-06/lesson.md](week-06/lesson.md) — context, 4D fluency, connectors
+- [week-06/my-notes.md](week-06/my-notes.md) — what I tried and what happened
+- [projects/animation/context.md](projects/animation/context.md) — my animation project brief
+- [glossary.md](glossary.md) — terms, one line each
+</code></pre>
+<p>Why it works:
+- <strong>The AI navigates instead of drowning.</strong> It reads the small map, then opens only the relevant file — the "choose context, don't dump everything" principle, applied at scale.
+- <strong>It nests.</strong> A folder can have its own index pointing deeper. Three levels of short maps can organise thousands of pages.
+- <strong>It's yours.</strong> Plain files in a folder outlast any app.</p>
+<p>Tips: one topic per file; a one-line description per link; put the most-used things first; keep indexes short and update them when you add files.</p>
+<p>This is the same idea behind how websites expose <code>llms.txt</code>, how agents use <code>AGENTS.md</code>, and how note tools like Obsidian work. This lesson itself is written as one file in that kind of library.</p>
+<hr />
+<h2 id="5-connectors-apis-and-mcp">5. Connectors: APIs and MCP</h2>
+<p>So far the AI only sees what you give it. <strong>Connectors</strong> let it reach out: read a note, search a folder, check a calendar, query a database. A connector's result becomes <strong>new context</strong>.</p>
+<h3 id="api-application-programming-interface">API — Application Programming Interface</h3>
+<p>An <strong>API</strong> is a defined way for one program to talk to another: a menu of requests a service accepts and the responses it gives back. Weather apps use a weather API; a bot that posts to Slack uses Slack's API. Every service's API is different, so connecting an AI app to ten services traditionally meant ten custom integrations.</p>
+<h3 id="mcp-model-context-protocol">MCP — Model Context Protocol</h3>
+<p><strong>MCP</strong> is an open standard for connecting AI applications to tools and data in <em>one common shape</em>.</p>
+<pre><code>Host app  →  MCP client  →  MCP server  →  data or service (often via its API)
+(Claude,     (manages the    (exposes tools,
+ an IDE…)     connection)     resources, prompts)
+</code></pre>
+<ul>
+<li>The <strong>host</strong> is the AI app you use.</li>
+<li>The <strong>MCP server</strong> wraps some data or service and offers:</li>
+<li><strong>tools</strong> — actions the AI can call (<code>search_notes</code>, <code>create_issue</code>)</li>
+<li><strong>resources</strong> — data it can read (a file, a page)</li>
+<li><strong>prompts</strong> — reusable templates</li>
+<li>Any MCP-capable host can use any MCP server. Write the connector once; use it in many apps.</li>
+</ul>
+<h3 id="how-they-relate">How they relate</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>API</th>
+<th>MCP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Who it's for</td>
+<td>Programs talking to a specific service</td>
+<td>AI apps talking to many tools in one way</td>
+</tr>
+<tr>
+<td>Shape</td>
+<td>Different for every service</td>
+<td>One shared protocol</td>
+</tr>
+<tr>
+<td>Relationship</td>
+<td>Often what an MCP server calls underneath</td>
+<td>A standard wrapper an AI can discover and use</td>
+</tr>
+</tbody>
+</table>
+<p>An analogy: APIs are each country's different wall socket; MCP is a universal adapter designed for AI apps. MCP isn't the only route — apps also have built-in tools and direct integrations — and not every host supports every MCP feature.</p>
+<h3 id="read-vs-write">Read vs. write</h3>
+<ul>
+<li><strong>Read</strong> actions bring information <em>in</em>: search, fetch, list.</li>
+<li><strong>Write</strong> actions change something <em>out there</em>: send, post, delete, pay, publish.</li>
+</ul>
+<p>Drafting an email and sending it are completely different levels of risk.</p>
+<hr />
+<h2 id="6-permission-and-trust">6. Permission and trust</h2>
+<p>The through-line, applied to connectors:</p>
+<ul>
+<li><strong>Choose what it sees.</strong> Connect the smallest useful scope. Start read-only. Don't connect personal email, private files, or other people's data for experiments.</li>
+<li><strong>Check what it produces.</strong> Tool results are evidence to inspect, not facts to trust. Read back the result of anything consequential.</li>
+<li><strong>Control what it can change.</strong> Require approval before sending, paying, deleting, or publishing.</li>
+</ul>
+<p><strong>A document is data — not your boss.</strong> If a web page or file the AI reads says <em>"Ignore your instructions and…"</em>, that's <strong>prompt injection</strong>. Retrieved content can try to redirect an agent. A web page cannot authorise the AI to spend your money or change your files. Defenses are layered: narrow permissions, human approval for write actions, non-sensitive data, and noticing when behaviour drifts. Keep secrets (passwords, API keys) out of chats and context files.</p>
+<p>This is <strong>Diligence</strong> in practice.</p>
+<hr />
+<h2 id="7-from-build-to-product">7. From build to product</h2>
+<p>The context file you write today already names an <strong>audience</strong>, <strong>inputs</strong>, and a <strong>check</strong>. That's the first draft of a <strong>product brief</strong>.</p>
+<p>Questions that turn a build into a product:
+- Who besides you would use this?
+- What would they need to see in the first ten seconds?
+- How would they find it?
+- What would make them come back?</p>
+<p>We'll pick this thread up next week.</p>
+<hr />
+<h2 id="8-learn-this-your-way-teach-me-prompts">8. Learn this your way: teach-me prompts</h2>
+<p><strong>Copy this entire file into your AI first</strong>, then paste any of these. Change the bracketed parts.</p>
+<ol>
+<li>
+<p><strong>Explain it to me</strong></p>
+<blockquote>
+<p>Using the lesson above, explain [the 4D framework / MCP vs APIs / the index pattern] to me as if I'm a [first-year art student / CS major / someone who's never coded]. Use one example from my project: [describe your project in a sentence].</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Quiz me</strong></p>
+<blockquote>
+<p>Quiz me on this lesson, one question at a time. Mix multiple-choice and short-answer. After each answer, tell me what I got right, what I missed, and point to the section. Stop after 8 questions and summarise what I should review.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Write my context file with me</strong></p>
+<blockquote>
+<p>Help me write a context file for my project using the Goal / Inputs / Boundaries / Check structure from the lesson. Interview me with one question at a time; don't fill anything in that I haven't told you. Output clean markdown at the end.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Run the 4Ds on my real task</strong></p>
+<blockquote>
+<p>I want to use AI for this task: [task]. Walk me through Delegation, Description, Discernment, and Diligence for it. For Delegation, tell me honestly whether any part of this is "work where the thinking is the deliverable" that I should keep.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Build me an index</strong></p>
+<blockquote>
+<p>I have notes and files about [topic/course/project]: [list them]. Design an index.md using the index pattern from the lesson, with a one-line purpose for each file, and suggest how to split anything that's too big.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Go deeper on connectors safely</strong></p>
+<blockquote>
+<p>Using section 5 and 6, explain how I could connect one read-only tool to my AI for my project [describe]. What would it be able to see, what could go wrong, and what permission boundaries should I set? Don't give me setup steps I'd need to pay for unless I ask.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Challenge me</strong></p>
+<blockquote>
+<p>Play a skeptical reviewer. Push back on three claims in this lesson and make me defend or refine them. Then tell me which of your pushbacks were fair.</p>
+</blockquote>
+</li>
+</ol>
+<p>Remember <strong>Discernment</strong>: your AI can be wrong about this lesson too. If something it says conflicts with the file or the sources, check.</p>
+<hr />
+<h2 id="9-glossary">9. Glossary</h2>
+<ul>
+<li><strong>Context window</strong> — the information supplied to the model for one response.</li>
+<li><strong>Context file</strong> — a reusable written description of a project for an AI to read.</li>
+<li><strong>Markdown</strong> — plain text with lightweight formatting (<code>#</code>, <code>-</code>, <code>**</code>, links).</li>
+<li><strong>Index file</strong> — a short map pointing to deeper files, so a reader or AI can navigate.</li>
+<li><strong>AGENTS.md</strong> — an open convention for project instruction files that some coding agents load.</li>
+<li><strong>API</strong> — a defined interface for programs to request things from a service.</li>
+<li><strong>MCP (Model Context Protocol)</strong> — an open standard connecting AI apps to tools, resources, and prompts.</li>
+<li><strong>Tool call</strong> — the AI invoking an action through a connector; the result becomes context.</li>
+<li><strong>Prompt injection</strong> — retrieved content trying to redirect an AI's instructions.</li>
+<li><strong>Automation / Augmentation / Agency</strong> — the three modes of human-AI interaction in the 4D framework.</li>
+<li><strong>4Ds</strong> — Delegation, Description, Discernment, Diligence.</li>
+</ul>
+<hr />
+<h2 id="10-sources">10. Sources</h2>
+<ul>
+<li>AI Fluency: Framework &amp; Foundations — Anthropic Academy (Dakan, Feller, Anthropic): <a href="https://academy.claude.com/courses/ai-fluency-framework-foundations">https://academy.claude.com/courses/ai-fluency-framework-foundations</a> · overview: <a href="https://www.anthropic.com/ai-fluency">https://www.anthropic.com/ai-fluency</a></li>
+<li>Framework for AI Fluency, practical summary (Dakan &amp; Feller): <a href="https://ringling.libguides.com/ai/framework">https://ringling.libguides.com/ai/framework</a> · <a href="https://aifluencyframework.org/">https://aifluencyframework.org/</a></li>
+<li>AI Fluency framework one-pager (CC BY-NC-SA 4.0): <a href="https://www-cdn.anthropic.com/b383cf6baddbfc72fdf8b0ed533a518e2872d531.pdf">https://www-cdn.anthropic.com/b383cf6baddbfc72fdf8b0ed533a518e2872d531.pdf</a></li>
+<li>Effective context engineering for AI agents — Anthropic: <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents</a></li>
+<li>AGENTS.md convention: <a href="https://agents.md/">https://agents.md/</a></li>
+<li>MCP architecture: <a href="https://modelcontextprotocol.io/docs/learn/architecture">https://modelcontextprotocol.io/docs/learn/architecture</a></li>
+<li>MCP tools and user control (specification): <a href="https://modelcontextprotocol.io/specification/2025-11-25/server/tools">https://modelcontextprotocol.io/specification/2025-11-25/server/tools</a></li>
+</ul>
+<p><em>The 4D framework material is summarised from the sources above (CC BY-NC-SA 4.0); the classroom rules and examples are this course's own.</em></p>
+  </article>
+<script>
+document.querySelectorAll('[data-copy]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    fetch(b.getAttribute('data-copy')).then(function (r) { return r.text(); }).then(function (t) {
+      return navigator.clipboard.writeText(t);
+    }).then(function () {
+      var old = b.textContent; b.textContent = 'Copied ✓';
+      setTimeout(function () { b.textContent = old; }, 1800);
+    }).catch(function () { location.href = b.getAttribute('data-copy'); });
+  });
+});
+</script>
+</main>
+</body>
+</html>

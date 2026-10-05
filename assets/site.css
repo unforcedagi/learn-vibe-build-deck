@@ -447,3 +447,64 @@ table.schedule td a { color: var(--accent); }
   .week-tabs .wt-title { display: none; }
   .stat-tiles { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ---------------------------------------------------------------------- */
+/* Lessons (lessons/) and copy buttons.                                    */
+/* ---------------------------------------------------------------------- */
+.lesson-main { max-width: 760px; }
+.crumb { font-size: 0.9rem; color: var(--muted); margin: 0 0 0.6rem; }
+.crumb a { color: var(--muted); }
+.kicker { color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.2rem; }
+.copybar { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1rem 0 0.4rem; }
+.btn {
+  display: inline-block; font: inherit; font-size: 0.92rem; font-weight: 600; cursor: pointer;
+  padding: 0.6rem 1rem; min-height: 44px; border-radius: 8px; border: 1px solid var(--accent);
+  background: var(--accent); color: #fff; text-decoration: none; line-height: 1.5;
+}
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn:hover { filter: brightness(1.08); }
+.lesson { margin-top: 1.8rem; overflow-wrap: anywhere; }
+.lesson h2 { margin: 2.4rem 0 0.6rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 1.45rem; }
+.lesson h3 { margin: 1.6rem 0 0.4rem; font-size: 1.12rem; }
+.lesson blockquote { margin: 1rem 0; padding: 0.7rem 1rem; border-left: 4px solid var(--accent); background: var(--card); color: var(--ink); border-radius: 0 8px 8px 0; }
+.lesson pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; background: #f4f2ec; border: 1px solid var(--border); border-radius: 8px; padding: 0.9rem 1rem; overflow-x: auto; font-size: 0.88rem; line-height: 1.5; }
+.lesson code { font-size: 0.9em; background: #f4f2ec; padding: 0.05rem 0.3rem; border-radius: 4px; }
+.lesson pre code { background: none; padding: 0; }
+.lesson table { border-collapse: collapse; width: 100%; font-size: 0.92rem; margin: 0.8rem 0 1.2rem; display: block; overflow-x: auto; }
+.lesson th, .lesson td { border: 1px solid var(--border); padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+.lesson th { background: #f4f2ec; }
+.lesson img { max-width: 100%; }
+code { overflow-wrap: anywhere; }
+a.card .kicker { color: var(--muted); }
+
+/* Schedule: on phones the table becomes stacked cards instead of overflowing. */
+.week-links { display: flex; flex-wrap: wrap; gap: 0.3rem 0.8rem; }
+@media (max-width: 640px) {
+  table.schedule, table.schedule tbody, table.schedule tr, table.schedule td { display: block; width: 100%; }
+  table.schedule thead { display: none; }
+  table.schedule { border: none; background: none; }
+  table.schedule tr { background: var(--card); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 0.7rem; padding: 0.5rem 0.2rem; }
+  table.schedule td { border: none; padding: 0.2rem 0.8rem; }
+  table.schedule td.week::before { content: "Week "; }
+  table.schedule tr.no-class td.week::before { content: ""; }
+  table.schedule td[data-label]::before { content: attr(data-label) ": "; color: var(--muted); font-size: 0.82rem; }
+  .site-nav-inner { gap: 0.5rem; padding: 0.7rem 1rem; }
+  .site-nav .brand { width: 100%; }
+  .site-nav nav { gap: 0.2rem 0.9rem; }
+  .site-nav nav a { padding: 0.35rem 0; font-size: 0.95rem; }
+  h1 { font-size: 1.7rem; }
+}
+
+/* Polish pass (T-48): one link colour, a distinct "this week" card, phone buttons. */
+main a:not(.card):not(.btn) { color: var(--accent); }
+a.card.now-card { border-left: 4px solid var(--accent); background: #f3f6fb; margin-bottom: 2rem; }
+a.card.now-card .kicker { color: var(--accent); font-weight: 600; }
+a.card.now-card h2 { font-size: 1.3rem; line-height: 1.25; }
+.now h2, a.card h2 { line-height: 1.25; }
+.lesson blockquote > :first-child { margin-top: 0; }
+.lesson blockquote > :last-child { margin-bottom: 0; }
+.hint code { overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .copybar .btn { flex: 1 1 100%; text-align: center; }
+  .site-nav nav { gap: 0.1rem 1.1rem; }
+}
