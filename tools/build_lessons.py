@@ -16,7 +16,7 @@ import markdown
 
 SITE = "https://cu.learnvibe.build"
 DECKS = {1: "slides/first-class/", 2: "slides/week-2/lite/", 3: "slides/week-3/"}
-NAV = [("schedule/", "Schedule"), ("lessons/", "Lessons"), ("syllabus.html", "Syllabus"),
+NAV = [("schedule/", "Schedule"), ("lessons/", "Lessons"), ("readings/", "Readings"), ("syllabus.html", "Syllabus"),
        ("setup/", "Setup"), ("studio/", "Studio"), ("journal/", "Journal"), ("account/", "Account")]
 
 

@@ -18,8 +18,9 @@
 6. [Permission and trust](#6-permission-and-trust)
 7. [From build to product](#7-from-build-to-product)
 8. [Learn this your way: teach-me prompts](#8-learn-this-your-way-teach-me-prompts)
-9. [Glossary](#9-glossary)
-10. [Sources](#10-sources)
+9. [Reading for this week](#9-reading-for-this-week)
+10. [Glossary](#10-glossary)
+11. [Sources](#11-sources)
 
 ---
 
@@ -260,7 +261,30 @@ Remember **Discernment**: your AI can be wrong about this lesson too. If somethi
 
 ---
 
-## 9. Glossary
+## 9. Reading for this week
+
+**Arielle Shipper, "How to Get Better at AI by Asking AI"** (Every, October 2, 2026). https://every.to/p/codex-graded-my-ai-habits-then-it-became-my-coach. The **free gift link** (no paywall) is on your [account page](https://cu.learnvibe.build/account/) once you sign in, and in Canvas.
+
+**Why this reading.** It's tonight's "ask your AI to teach you" idea, done for real. Shipper asked her AI to place her on Every's "Eight Levels of AI Adoption" (a ladder from one-off chats up to running teams of agents), using their actual past work together. Then she turned that assessment into recommendations from projects she'd already finished, and asked the AI to teach her the next step. It closes the loop on the 4Ds: the AI helps you see what you could **delegate** next, you **describe** what you want to learn, you **discern** whether its read on you is fair, and **diligence** stays yours.
+
+**Read it, then try one of these.** Copy this lesson (or the article) into your AI first.
+
+1. **Place me on the ladder**
+   > Read the article on the eight levels of AI adoption (paste it in if you can't open the link). Based on how I've worked with you so far, what level am I? Give specific examples from our work, and tell me what you're unsure about.
+
+2. **Replay a finished project one level up**
+   > Here's a project I've already finished: [describe it or paste your reflection]. How could it have run one level higher? What did I do by hand that I could have described or delegated, and what should I have kept doing myself?
+
+3. **Teach me the next step**
+   > Teach me the one habit that would move me up a level, using my own project as the example. One small step at a time; check that I've actually done each step before moving on.
+
+**On a free plan, or no long chat history?** Your AI can't look back across sessions, so give it the evidence directly. Paste in your **context file** (from tonight) or your **last two weekly submissions**, then ask: *"Based on this, what level am I on the eight levels of AI adoption, with examples?"* Same exercise, and you choose what it sees.
+
+**Discernment applies.** The AI's assessment of you is a draft, not a grade. Ask what it's basing it on, and push back where it's wrong.
+
+---
+
+## 10. Glossary
 
 - **Context window** — the information supplied to the model for one response.
 - **Context file** — a reusable written description of a project for an AI to read.
@@ -276,7 +300,7 @@ Remember **Discernment**: your AI can be wrong about this lesson too. If somethi
 
 ---
 
-## 10. Sources
+## 11. Sources
 
 - AI Fluency: Framework & Foundations — Anthropic Academy (Dakan, Feller, Anthropic): https://academy.claude.com/courses/ai-fluency-framework-foundations · overview: https://www.anthropic.com/ai-fluency
 - Framework for AI Fluency, practical summary (Dakan & Feller): https://ringling.libguides.com/ai/framework · https://aifluencyframework.org/
@@ -285,5 +309,6 @@ Remember **Discernment**: your AI can be wrong about this lesson too. If somethi
 - AGENTS.md convention: https://agents.md/
 - MCP architecture: https://modelcontextprotocol.io/docs/learn/architecture
 - MCP tools and user control (specification): https://modelcontextprotocol.io/specification/2025-11-25/server/tools
+- Arielle Shipper, "How to Get Better at AI by Asking AI," Every, Oct 2, 2026: https://every.to/p/codex-graded-my-ai-habits-then-it-became-my-coach
 
 *The 4D framework material is summarised from the sources above (CC BY-NC-SA 4.0); the classroom rules and examples are this course's own.*
