@@ -3,156 +3,312 @@
   "kind": "title",
   "title": "Learn with your AI",
   "bullets": [
-   "Use AI to understand AI. Then build something that helps you learn.",
+   "Context, communication, checking, and building for your learning.",
    "Week 6 · Learn, Vibe, Build · October 5, 2026"
   ],
-  "notes": "5:05–5:06. Teach through the slides first. One open-ended live conversation with Claude at the end, then small-group building. No predetermined build.",
+  "notes": "Teach the substantive slides first, then one open live conversation with Claude, then small-group work. No timed demo interruptions.",
   "extra": null,
   "section": "Opening"
  },
  {
   "kind": "bullets",
-  "title": "Your AI can help you learn about AI",
+  "title": "What your recent builds taught us",
   "bullets": [
-   "Ask for an explanation at your level.",
-   "Ask it to quiz you, then explain what you missed.",
-   "Check its claims against the material you gave it."
+   "The AI can finish a prompt and still miss the design you intended.",
+   "A page can look finished while its buttons do not work.",
+   "A local link or a repo alone is not a published website."
   ],
-  "notes": "5:06–5:08. Students can learn the tools by asking the tools. The answer is a starting point, not an authority.",
+  "notes": "Grounded in actual Week 4/5 submissions: visual intent failed to translate; one build had non-clickable cards; localhost and deployment-permission confusion persisted. Public slides deliberately omit names and private quotes.",
+  "extra": null,
+  "section": "Why this matters"
+ },
+ {
+  "kind": "bullets",
+  "title": "Use AI to learn about AI",
+  "bullets": [
+   "Ask for an explanation, an example, and a question to check your understanding.",
+   "Say what you already know: “I know HTML; Git is new to me.”",
+   "Compare its explanation with your source—not just how confident it sounds."
+  ],
+  "notes": "Students recently asked their tools to explain the tool itself while building. Model this as a learning practice, not outsourcing understanding.",
   "extra": null,
   "section": "Learn with AI"
  },
  {
   "kind": "bullets",
-  "title": "This week’s reading: your AI as a coach",
+  "title": "The reading: your AI as a coach",
   "bullets": [
-   "Arielle Shipper · How to Get Better at AI by Asking AI",
-   "Use examples of your own work to ask: “What should I learn next?”",
-   "Then: “Teach me that next step.”"
+   "Arielle Shipper · “How to Get Better at AI by Asking AI” · Every",
+   "Ask where you are on the Eight Levels of AI Adoption, with evidence from your work.",
+   "Ask for one next step, then: “Teach me that and help me practise.”"
   ],
-  "notes": "5:08–5:10. Explicit tie: Shipper used her AI as a coach, reflecting on actual projects and learning the next step. Without long chat history, paste your last two submissions or describe what you have tried. The free reading link is in your account. No due date announced.",
+  "notes": "Assigned reading. Shipper turned reflection on actual projects into a coaching conversation. The reading link is in students’ accounts; no new due date.",
   "extra": null,
   "section": "Learn with AI"
  },
  {
   "kind": "bullets",
-  "title": "Markdown is just a text file",
+  "title": "No long chat history? Bring your own evidence",
   "bullets": [
-   "A .md file is plain text, with headings and lists.",
-   "You can read it. Your AI can read it.",
-   "A lesson or project context can live in that file."
+   "Paste your last two submissions or describe a recent project.",
+   "Ask: “What can I do already? Show examples. What should I learn next?”",
+   "Treat the AI’s assessment as a suggestion; correct its assumptions."
   ],
-  "notes": "5:10–5:12. # marks a heading; - marks a list. The lesson itself is markdown. No technical deep dive.",
+  "notes": "Free plans need not have long-term memory. Give a small truthful sample, not every private conversation.",
   "extra": null,
-  "section": "Context"
+  "section": "Learn with AI"
  },
  {
   "kind": "bullets",
-  "title": "Context that sticks",
+  "title": "Markdown: readable, portable text",
   "bullets": [
-   "Claude Code loads CLAUDE.md at session start.",
-   "Cursor and other coding tools can load AGENTS.md.",
-   "In a chat app: paste the file or add it to a Project."
+   "A .md file is a plain-text file—not a special app or database.",
+   "A little punctuation adds structure: headings, lists, links, code.",
+   "Read it in an editor, render it as a page, or paste it into your AI."
   ],
-  "notes": "5:12–5:14. Specific support varies by tool. These are ordinary files with plain words. They help the next session know what you mean without re-explaining everything. No live demo here and no template.",
+  "notes": "Explain portability: the same text works across tools. A file can be edited without a platform account.",
   "extra": null,
-  "section": "Context"
+  "section": "Markdown"
  },
  {
   "kind": "code",
-  "title": "One small example",
+  "title": "Markdown you can read and write",
   "bullets": [
-   "# Hill Plant Swap",
-   "A one-page website for a free plant swap near CU.",
-   "For first-year students who are nervous about going.",
-   "Keep it plain HTML and CSS. No JavaScript.",
-   "Use docs/event-facts.md. Never make up dates."
+   "# Project notes",
+   "## What I want to learn",
+   "- Explain commits before changing files.",
+   "[Course lesson](https://cu.learnvibe.build/lessons/week-6/)",
+   "Use `git status` to see what changed."
   ],
-  "notes": "5:14–5:16. Read the example as what you would tell a new teammate. The point is persistent context, not a prescribed format.",
-  "extra": "Plain words. Nothing fancy.",
-  "section": "Context"
+  "notes": "Point out # and ## headings; - list; [label](URL) link; backticks for code. These are examples, not a context template.",
+  "extra": "Headings, lists, links, and code—with plain text underneath.",
+  "section": "Markdown"
  },
  {
   "kind": "bullets",
-  "title": "A link someone else can open",
+  "title": "Context: what the AI can actually see",
   "bullets": [
-   "file:// and localhost links only work on your computer.",
-   "A public HTTPS link works on someone else’s phone.",
-   "Commit → push → deploy are three different steps."
+   "Its answer depends on the messages, files and tool results available now.",
+   "It does not automatically know your audience, preferences or project history.",
+   "“Improve my site” is weaker than a clear audience, goal and example."
   ],
-  "notes": "5:16–5:18. Commit saves a version locally. Push sends it to GitHub. Deploy publishes a website.",
+  "notes": "Avoid claiming every app literally starts at zero: some add saved memory or project files. Ask what context the tool loaded.",
+  "extra": null,
+  "section": "Ongoing context"
+ },
+ {
+  "kind": "bullets",
+  "title": "Save project context instead of repeating it",
+  "bullets": [
+   "Write down what the project is, who it is for, and what should stay true.",
+   "Keep it short, correct and editable; update it when the project changes.",
+   "Example: “For nervous first-time visitors. Plain HTML/CSS. Do not invent event dates.”"
+  ],
+  "notes": "These are useful questions, not a rigid template or pair interview. Student projects vary: portfolios, creative work, tools, simulations.",
+  "extra": null,
+  "section": "Ongoing context"
+ },
+ {
+  "kind": "bullets",
+  "title": "Automatic loading is tool-specific",
+  "bullets": [
+   "Codex uses AGENTS.md; Claude Code uses CLAUDE.md.",
+   "Other tools have their own rules and supported filenames—check yours.",
+   "In a chat app, paste the context or add it to a Project; it may not read local files."
+  ],
+  "notes": "Do not imply any file name works universally. Our tested Claude Code installation also found AGENTS.md, but teach documented primary filenames. A fresh-session question can reveal whether the tool saw the file.",
+  "extra": null,
+  "section": "Ongoing context"
+ },
+ {
+  "kind": "bullets",
+  "title": "An index points to deeper context",
+  "bullets": [
+   "A small index says which files exist and what each is for.",
+   "Example: docs/facts.md → verified facts; docs/design.md → visual direction.",
+   "The AI can open the relevant document instead of receiving one giant prompt."
+  ],
+  "notes": "Index files are a map, not evidence that the AI read the linked files. Ask it which sources it used.",
+  "extra": null,
+  "section": "Ongoing context"
+ },
+ {
+  "kind": "bullets",
+  "title": "Describe the design, not just the features",
+  "bullets": [
+   "“Make it better” leaves the visual choices to the model.",
+   "Name the audience, feeling, hierarchy and interactions you want.",
+   "Example: “Calm portfolio. Work first, muted colours, clickable project cards.”"
+  ],
+  "notes": "Week 4/5 reflections describe trouble communicating aesthetics; a recent rebuild improved when the student described the feeling instead of only listing features.",
+  "extra": null,
+  "section": "Communicate intent"
+ },
+ {
+  "kind": "bullets",
+  "title": "Make your feedback observable",
+  "bullets": [
+   "Give a reference or screenshot; say what to keep and what to change.",
+   "Instead of “It’s broken”: “Clicking this card should open the project; nothing happens.”",
+   "Ask for one small change, then compare the result with your intention."
+  ],
+  "notes": "Recent Week 5 work caught non-clickable cards through use. Specific observed behavior gives the agent something testable.",
+  "extra": null,
+  "section": "Communicate intent"
+ },
+ {
+  "kind": "bullets",
+  "title": "Debugging: find the mismatch",
+  "bullets": [
+   "A bug is a difference between expected and observed behavior.",
+   "Reproduce it: what exact actions cause it? Capture the error or screenshot.",
+   "Ask the AI for a cause and a small fix; rerun the same check afterward."
+  ],
+  "notes": "Do not blindly rewrite the whole app. Before a risky fix, save a working version. Recent students used AI for testing/debugging but still needed to notice what failed.",
+  "extra": null,
+  "section": "Check the work"
+ },
+ {
+  "kind": "bullets",
+  "title": "Check the experience—not just the code",
+  "bullets": [
+   "Open it on a phone. Click every important button and link.",
+   "Try empty input, a strange answer, or a first-time visitor’s path.",
+   "For a learning tool, check its facts and quiz answers against a trustworthy source."
+  ],
+  "notes": "A running build is not proof it is correct or useful. This transfers directly to the small-group learning builds.",
+  "extra": null,
+  "section": "Check the work"
+ },
+ {
+  "kind": "bullets",
+  "title": "When free credits run out",
+  "bullets": [
+   "Save files and a short note: what works, what failed, what to try next.",
+   "Use that note to continue in a fresh session or another tool.",
+   "Reduce the request: one change or one explanation at a time."
+  ],
+  "notes": "Recent Week 5 submissions described switching tools and running out of credits. Persistent context is a practical continuity aid; do not imply unlimited free usage.",
+  "extra": null,
+  "section": "Working within limits"
+ },
+ {
+  "kind": "bullets",
+  "title": "Folder, repository, website: different things",
+  "bullets": [
+   "Local folder: files on your own computer.",
+   "Git repository: those files plus a recorded history of versions.",
+   "Deployment: a published version that other people can open."
+  ],
+  "notes": "A GitHub repo can hold code without having a live website. A folder path cannot be submitted as an accessible build link.",
   "extra": null,
   "section": "Getting online"
  },
  {
   "kind": "bullets",
-  "title": "The short path online",
+  "title": "Commit, push, deploy: three actions",
   "bullets": [
-   "GitHub Desktop: create repo → commit → publish.",
-   "GitHub: Settings → Pages → main / root → Save.",
-   "Open the published link on another phone."
+   "Commit saves a version and a message in your local Git history.",
+   "Push sends your commits to the repository on GitHub.",
+   "Deploy publishes the project through a host such as GitHub Pages or Vercel."
   ],
-  "notes": "5:18–5:20. Plain HTML/CSS: Pages. A framework app may need a different host such as Vercel. The handout is optional detail; all essential concepts are on this slide. No deployment demo tonight.",
+  "notes": "Use an ordinary change as an example: fix a heading, commit “Clarify heading”, push, wait for deployment, verify the live page.",
   "extra": null,
   "section": "Getting online"
  },
  {
   "kind": "bullets",
-  "title": "Next week: your AI reaches your tools",
+  "title": "Your link must work on someone else’s phone",
   "bullets": [
-   "API: one program asking another for something.",
-   "Connector: your AI reaches tools directly, instead of you pasting.",
-   "This week we copy. Next week we’ll connect."
+   "file:///… and localhost:8000 point to your own computer—not a public site.",
+   "A GitHub repository URL shows source; it may not be the live app URL.",
+   "Use the deployed HTTPS URL; test it on another device or in a private window."
   ],
-  "notes": "5:20–5:22. Concept only; no course connector, server address or setup.",
+  "notes": "Repeated local-link issues in actual submissions. For a public build, check that it does not require your account to open.",
   "extra": null,
-  "section": "Looking ahead"
+  "section": "Getting online"
  },
  {
   "kind": "bullets",
-  "title": "Everything you need is on the Week 6 page",
+  "title": "A practical path to publishing",
   "bullets": [
-   "cu.learnvibe.build → Everything for Week 6",
-   "Click “Copy lesson as markdown” → paste into your AI.",
-   "Ask: “Teach me this and quiz me.”"
+   "GitHub Desktop: create a repository → commit → publish to GitHub.",
+   "Plain HTML/CSS: GitHub Settings → Pages → main branch / root → Save.",
+   "A framework app may need Vercel: allow repository access, deploy, then test the URL."
   ],
-  "notes": "5:22–5:25. Show where the button is without starting the demo yet. The lesson includes this invitation and enough context for the group work.",
+  "notes": "Recent Week 5 publishing confusion was partly Vercel needing GitHub repo access. Do not prescribe Pages for every framework app; the handout is supplemental detail, not essential to the invitation.",
   "extra": null,
-  "section": "Learn with AI"
+  "section": "Getting online"
  },
  {
   "kind": "bullets",
-  "title": "One live conversation with Claude",
+  "title": "API, connector, MCP: what is the difference?",
   "bullets": [
-   "Copy the lesson markdown into Claude.",
-   "Talk through what you want to understand.",
-   "Maybe ask Claude to build a little thing from that conversation."
+   "API: a service’s menu of requests that another program can make.",
+   "Connector: a bridge that lets your AI reach a service or files.",
+   "MCP: a shared protocol for AI apps to use tools; an MCP server may call an API."
   ],
-  "notes": "5:25–5:35. Aaron chooses the conversation and any build in the moment. No scripted project or staged before/after. If Claude stalls, discuss what you would ask and move into group work.",
+  "notes": "Example: weather service API returns a forecast; an AI connector calls it for a conversation. Conceptual only: no course server URL, setup or connector demo this week.",
   "extra": null,
-  "section": "Live demo"
+  "section": "Connections—concept only"
  },
  {
   "kind": "bullets",
-  "title": "In small groups: build something that helps you learn",
+  "title": "Access is a choice: read versus write",
   "bullets": [
-   "Choose your own topic and approach.",
-   "Try a quiz, interactive explainer, practice tool—or your own idea.",
-   "Use your AI, test what you build, and show what it helped you learn."
+   "Read access can expose data; write access can change or delete it.",
+   "Give only the access needed; review changes before publishing or sending.",
+   "Keep keys, passwords and private data out of public files and repositories."
   ],
-  "notes": "5:35 onward. This is the group-work invitation, not a rigid template. Students choose who to work with, what to learn and what to build. No predefined roles or prescribed file format.",
+  "notes": "Tools extend what the AI can do, not what it should be allowed to do. Responsibilities remain with the person using it. Four Ds stay implicit.",
+  "extra": null,
+  "section": "Connections—concept only"
+ },
+ {
+  "kind": "bullets",
+  "title": "Bring this lesson into your own AI",
+  "bullets": [
+   "Open cu.learnvibe.build → Everything for Week 6.",
+   "Click “Copy lesson as markdown”; paste it into Claude or another AI.",
+   "Ask: “Teach me this and quiz me”—then ask follow-ups in your own words."
+  ],
+  "notes": "Every essential access instruction is here, not hidden in a handout. This is how the reading’s coaching idea becomes something students can do tonight.",
+  "extra": null,
+  "section": "Use the lesson"
+ },
+ {
+  "kind": "bullets",
+  "title": "After the slides: one conversation with Claude",
+  "bullets": [
+   "Aaron will paste the lesson and talk through it with Claude.",
+   "The conversation may lead to building a little thing.",
+   "Watch how questions, context and checking shape the result."
+  ],
+  "notes": "This is the only live demo slot, after the teaching content. Do not prescribe a project, script or output. If delayed, discuss a question from the lesson and move to group work.",
+  "extra": null,
+  "section": "One live demo"
+ },
+ {
+  "kind": "bullets",
+  "title": "In small groups: build for your learning",
+  "bullets": [
+   "Choose a topic you want to understand or practise, and your own approach.",
+   "Make a quiz, interactive explainer, practice tool—or an idea of your own.",
+   "Use your AI; try the first version yourselves; check it and revise."
+  ],
+  "notes": "Open-ended invitation, no fixed template or prescribed roles. Help students choose a small first learning goal without deciding their project for them.",
   "extra": null,
   "section": "Group work"
  },
  {
   "kind": "bullets",
-  "title": "Start with a learning question",
+  "title": "How to start—and what to share",
   "bullets": [
-   "What do you want to understand or practise?",
-   "Give your AI the lesson, your question, or both.",
-   "Build a small first version; try it and revise."
+   "Give your AI the lesson, your learning question, or both.",
+   "Ask for a small first version. Test whether it actually helps you learn.",
+   "Show what you made, what you learned, and one thing you checked or changed."
   ],
-  "notes": "Group work. Optional nudge: ask your AI what it needs to know about your project and save that context as markdown. If unsure where to start, use the Week 6 Copy button and ask for help choosing a learning idea. Work is not done merely because code runs: check whether it teaches the right thing.",
+  "notes": "Optional: ask your AI what it needs to know about your project; save the useful context in markdown. Students can find the lesson from the preceding slide. No due date added.",
   "extra": null,
   "section": "Group work"
  }

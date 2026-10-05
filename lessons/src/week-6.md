@@ -73,6 +73,29 @@ That's it. No special format. Write what you'd tell a new teammate.
 
 ---
 
+### Communicate the design you mean
+
+Recent Week 4/5 work showed that an AI can technically satisfy a prompt while missing the intended experience. Describe the **audience, feeling, hierarchy and interactions**, not just a list of features.
+
+- Vague: “Make my portfolio better.”
+- Concrete: “A calm portfolio for someone skimming my work on a phone. Put projects before biography, use muted colours, and make each project card open its detail page.”
+- Give a reference or screenshot and explain what you want to keep or change. Ask for one change, try it, and compare it with your intention.
+
+### Debugging means finding a mismatch
+
+A bug is the difference between **expected** and **observed** behavior. Recent builds looked finished until the student tried clicking the cards and discovered they did nothing.
+
+1. Reproduce the problem. “When I click this card, I expect the project to open, but nothing happens.”
+2. Capture the steps and any error message or screenshot.
+3. Ask the AI to explain the likely cause and propose a small fix—not rewrite everything.
+4. Apply the fix, repeat the same check, then test nearby behavior.
+
+Save a working version before risky changes. Check the **experience**, not just whether the code runs: phone layout, links, empty input, unexpected answers, and a new user's path. A learning tool also needs correct explanations and quiz answers; check them against a trustworthy source.
+
+### Working within free-plan limits
+
+Recent submissions also described running out of credits and moving between tools. Keep a small handoff note: what the project is, what works, what failed, and the next thing to try. Save the actual files. Bring the note into a fresh session or another tool. Smaller requests—one explanation or one change—are easier to check and continue.
+
 ## 4. Get your project online
 
 A link only counts if **someone else can open it on their phone.**
@@ -106,14 +129,17 @@ The full step-by-step handout, with a no-install option and fixes for common pro
 
 ---
 
-## 5. Next week: connecting your AI to your tools
+## 5. APIs, connectors, MCP and permissions (concepts only)
 
-Tonight you hand your AI context by pasting it or saving it in a file. Next week we go one step further.
+- **API:** a service's menu of requests another program can make. A weather API might return a forecast for a place.
+- **Connector:** a bridge that lets an AI app reach a service or files rather than you manually copying everything.
+- **MCP (Model Context Protocol):** a shared protocol for AI apps to discover and use tools. An MCP server may call service APIs underneath. It is not the same thing as every API.
 
-- An **API** is how one program asks another for something, like a weather app asking a weather service for today's forecast.
-- A **connector** lets your AI reach your tools and files directly, instead of you copying and pasting.
+**Access matters.** Read access can expose information; write access can change or delete it. Give only the permissions needed for the task, check what was read, and review changes before publishing or sending. A document's contents are data, not permission to take an action.
 
-Next week we'll connect.
+Never put passwords or API keys in public markdown or repositories. A private Project in an AI app and a public GitHub repository have very different audiences.
+
+**Tonight, these are concepts—not setup instructions.** No live course connector this week. We copy the lesson now; next week we'll connect.
 
 ---
 
