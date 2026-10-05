@@ -249,12 +249,14 @@ def build_sql(roster, submissions_by_week):
                 "INSERT INTO submissions (student_id, week, body, submitted_at, link_url) "
                 f"SELECT id, {int(week)}, {q(s['body_md'])}, {q(s['submitted_at'])}, {q(s.get('link_url'))} "
                 f"FROM students WHERE canvas_id = {q(str(s['user_id']))} "
+                # Only fill rows that have no writing yet. A row with a body is
+                # either site-native (the student's own words) or already synced;
+                # Canvas must never overwrite it (it did: two Week 2 site
+                # reflections were replaced by shorter Canvas text on 10-05).
                 "ON CONFLICT (student_id, week) DO UPDATE SET "
-                "body = COALESCE(excluded.body, submissions.body), "
-                "submitted_at = excluded.submitted_at, "
+                "body = excluded.body, submitted_at = excluded.submitted_at, "
                 "link_url = COALESCE(submissions.link_url, excluded.link_url) "
-                "WHERE submissions.share_build = 0 AND submissions.share_writing = 0 "
-                "AND (submissions.link_url IS NULL OR submissions.link_url = excluded.link_url);"
+                "WHERE submissions.body IS NULL OR TRIM(submissions.body) = '';"
             )
     return "\n".join(stmts)
 
