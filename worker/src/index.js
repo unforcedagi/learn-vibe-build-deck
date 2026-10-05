@@ -46,17 +46,50 @@ const WEEKS = [
       'plus at least three paragraphs on your experience with each. ' +
       "This brief is a suggestion; if you'd rather show your learning about the tools another way, that's fine.",
   },
+  {
+    week: 4, title: 'Studio cycle', due_at: '2026-10-05T05:59:00Z',
+    canvas_url: `${CANVAS_COURSE}/2858626`,
+    prompt: 'A link to what you built, plus your writing on how it went.',
+  },
+  {
+    week: 5, title: 'Studio cycle', due_at: '2026-10-05T05:59:00Z',
+    canvas_url: `${CANVAS_COURSE}/2858627`,
+    prompt: 'A link to what you built, plus your writing on how it went.',
+  },
+  {
+    week: 6, title: 'Context: a description that does not go away', due_at: '2026-10-12T05:59:00Z',
+    canvas_url: `${CANVAS_COURSE}/2858628`,
+    prompt: 'A link to what you built, plus your writing on how it went.',
+  },
+  {
+    week: 7, title: 'Studio cycle', due_at: '2026-10-19T05:59:00Z',
+    canvas_url: `${CANVAS_COURSE}/2858629`,
+    prompt: 'A link to what you built, plus your writing on how it went.',
+  },
+  {
+    week: 8, title: 'Studio cycle', due_at: '2026-10-26T05:59:00Z',
+    canvas_url: `${CANVAS_COURSE}/2858630`,
+    prompt: 'A link to what you built, plus your writing on how it went.',
+  },
 ];
 
 // The week currently accepting new site-native submissions (build link +
 // writing, both share flags). Bump when a new week's assignment opens.
-const OPEN_WEEK = 3;
+// The open week is derived from the calendar: the first week whose due date
+// hasn't passed yet (so it never gets stuck again). Students may submit or
+// update ANY week up to and including the open one; late work is accepted,
+// same as Canvas.
+function openWeek(now = Date.now()) {
+  const next = WEEKS.find((w) => Date.parse(w.due_at) > now);
+  return next ? next.week : WEEKS[WEEKS.length - 1].week;
+}
+
 
 // Legacy alias, kept so a cached client still reading `current_week` keeps
-// working. It derives from OPEN_WEEK now instead of drifting on its own.
+// working. It derives from openWeek() now instead of drifting on its own.
 // (The old DEMO_WEEK lived in instructor/app.js and is gone — the instructor
 // view's week tabs decide which week is on screen.)
-const CURRENT_WEEK = OPEN_WEEK;
+
 
 const MIN_WRITING_CHARS = 120; // roughly a short paragraph
 
@@ -360,7 +393,7 @@ async function handleMe(request, env) {
     email: me.email,
     is_instructor: !!me.is_instructor,
     weeks: WEEKS,
-    open_week: OPEN_WEEK,
+    open_week: openWeek(),
     submissions: subs.results.map((s) => ({
       ...s, share_build: !!s.share_build, share_writing: !!s.share_writing,
     })),
@@ -399,7 +432,7 @@ async function handleSubmit(request, env) {
   const shareBuild = !!body.share_build;
   const shareWriting = !!body.share_writing;
 
-  if (week !== OPEN_WEEK) return json(env, { error: 'week_closed' }, 400);
+  if (!WEEKS.some((w) => w.week === week) || week > openWeek()) return json(env, { error: 'week_closed' }, 400);
   if (!isHttpUrl(linkUrl)) return json(env, { error: 'bad_link' }, 400);
   if (writing.length < MIN_WRITING_CHARS) {
     return json(env, { error: 'writing_too_short', min_chars: MIN_WRITING_CHARS }, 400);
@@ -446,8 +479,8 @@ async function handleInstructorData(request, env) {
     roster,
     stats: rosterStats(roster),
     weeks: WEEKS,
-    open_week: OPEN_WEEK,
-    current_week: CURRENT_WEEK, // legacy field, still the open week
+    open_week: openWeek(),
+    current_week: openWeek(), // legacy field, still the open week
   });
 }
 
@@ -471,7 +504,7 @@ function rosterStats(roster) {
     signed_in: roster.filter((s) => s.signed_in).length,
     by_week,
     // Legacy flat field — the open week's count, as the old stats line read it.
-    submitted: by_week[String(OPEN_WEEK)]?.submitted ?? 0,
+    submitted: by_week[String(openWeek())]?.submitted ?? 0,
   };
 }
 
@@ -569,7 +602,7 @@ async function handleFeed(request, env) {
     share_build: !!r.share_build,
     share_writing: !!r.share_writing,
   }));
-  return json(env, { feed, weeks: WEEKS, open_week: OPEN_WEEK });
+  return json(env, { feed, weeks: WEEKS, open_week: openWeek() });
 }
 
 // Legacy endpoint (week-1 Canvas cards, cached pre-share-flags clients):

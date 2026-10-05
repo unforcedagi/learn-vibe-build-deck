@@ -202,7 +202,7 @@ function selectWeek(week) {
   const panel = $('week-panel');
   panel.textContent = '';
 
-  if (week === state.openWeek) {
+  if (state.openWeek != null && week <= state.openWeek) {
     show($('submit-form'));
     fillSubmitForm(mySub(week));
   } else {
