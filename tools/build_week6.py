@@ -37,33 +37,6 @@ os.makedirs(f"{OUT}/files", exist_ok=True)
 shutil.copy(f"{SRC}/week6-lecture.pdf", f"{OUT}/files/week6-slides.pdf")
 shutil.copy(f"{SRC}/week6-lecture.pptx", f"{OUT}/files/week6-slides.pptx")
 
-TEMPLATE = """# [Project name]
-
-## Who it's for
-[Who uses this, and what they need from it. One or two lines.]
-
-## What it is
-[One sentence.]
-
-## Stack and conventions
-- [e.g. plain HTML + CSS, no build step / React + Vite / a Google Sheet + Apps Script]
-- [Style or naming rules the AI should follow]
-
-## Where the facts live
-- [docs/facts.md: the only source for dates, names, numbers. Never invent facts.]
-
-## Rules
-- [Things the AI must never do, e.g. "don't add JavaScript", "ask before deleting files"]
-- Never put passwords or API keys in this file.
-
-## What "done" looks like
-- [e.g. "the date and place are readable on a phone in 10 seconds"]
-
-## Where to look (index)
-- [docs/...: what's in it]
-"""
-open(f"{OUT}/files/AGENTS-template.md", "w").write(TEMPLATE)
-
 # ---------------------------------------------------------------- slides (HTML)
 slides = json.load(open(f"{SRC}/slides.json"))
 
@@ -181,21 +154,16 @@ open(f"{OUT}/get-online/index.html", "w").write(page("Get your project online", 
 
 # ---------------------------------------------------------------- the kit block
 KIT = f'''<section class="week-kit" id="everything" aria-labelledby="kit-title">
-  <p class="kicker">Week 6 · slides, lesson, handout, template, reading, connector</p>
+  <p class="kicker">Week 6 · slides, lesson, handout, demo project, reading</p>
   <h2 id="kit-title">Everything for Week 6</h2>
   <div class="kit-grid">
     <a class="kit-card" href="slides/"><span class="kicker">Slides</span><strong>Open the slides</strong><span>Arrow keys and full screen. PDF and PowerPoint downloads are below.</span></a>
     <a class="kit-card" href="#lesson-start"><span class="kicker">Lesson</span><strong>Read the lesson</strong><span>Below on this page. Copy it as markdown for your AI.</span></a>
     <a class="kit-card" href="get-online/"><span class="kicker">Handout</span><strong>Get your project online</strong><span>Repo, commit, push, deploy: a link anyone can open.</span></a>
     <a class="kit-card" href="https://github.com/unforcedagi/lvb-week6-demo"><span class="kicker">Demo project</span><strong>Hill Plant Swap</strong><span>The repo from class, plus its live copy on GitHub Pages.</span></a>
-    <div class="kit-card"><span class="kicker">Template</span><strong>AGENTS.md template</strong><span>Fill it in for your own project.</span>
-      <span class="kit-actions"><button class="btn" type="button" data-copy="files/AGENTS-template.md">Copy template</button> <a href="files/AGENTS-template.md">View</a></span></div>
-    <a class="kit-card" href="#8-studio-write-each-others-agentsmd"><span class="kicker">Studio · pairs · 20 min</span><strong>Write each other's AGENTS.md</strong><span>Your partner interviews you and drafts it. Test it with your agent, revise.</span></a>
     <a class="kit-card" href="../../readings/"><span class="kicker">Reading</span><strong>How to Get Better at AI by Asking AI</strong><span>Arielle Shipper, Every. Free link on your account page and Canvas.</span></a>
-    <div class="kit-card"><span class="kicker">Connect your AI</span><strong>Course connector (MCP)</strong><span><code>https://api.learnvibe.build/mcp</code></span>
-      <span class="kit-actions"><button class="btn" type="button" data-copy-text="https://api.learnvibe.build/mcp">Copy URL</button> <a href="#6-connectors-apis-mcp-and-this-courses-mcp">How to connect</a></span></div>
   </div>
-  <p class="hint">Downloads: <a href="files/week6-slides.pdf">slides (PDF)</a> · <a href="files/week6-slides.pptx">slides (PowerPoint)</a> · <a href="lesson.md">lesson (.md)</a> · <a href="files/get-your-project-online.md">handout (.md)</a> · <a href="files/AGENTS-template.md">AGENTS.md template</a></p>
+  <p class="hint">Downloads: <a href="files/week6-slides.pdf">slides (PDF)</a> · <a href="files/week6-slides.pptx">slides (PowerPoint)</a> · <a href="lesson.md">lesson (.md)</a> · <a href="files/get-your-project-online.md">handout (.md)</a></p>
 </section>
 <span id="lesson-start"></span>
 '''
@@ -214,7 +182,7 @@ if "week-kit" not in h:
     open(p, "w").write(h)
 
 # check ids used by the kit exist
-for anchor in ["8-studio-write-each-others-agentsmd", "6-connectors-apis-mcp-and-this-courses-mcp"]:
+for anchor in []:
     if f'id="{anchor}"' not in h:
         print("WARN missing anchor", anchor)
 

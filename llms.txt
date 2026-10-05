@@ -7,7 +7,7 @@
 - [Week 1 — Orientation: Learn, Vibe, Build](https://cu.learnvibe.build/lessons/week-1/lesson.md): What this course is, the three C's (cognition, communication, creativity), the weekly rhythm, and the first shared practice.
 - [Week 2 — Build night](https://cu.learnvibe.build/lessons/week-2/lesson.md): Tool tour, then building together in class: pick one tool, set it up, prove it works.
 - [Week 3 — Everyone demos, then the tools](https://cu.learnvibe.build/lessons/week-3/lesson.md): Everyone shows what they built; then the AI tool landscape and how to choose.
-- [Week 6: Context That Sticks, Getting Online, and Connectors](https://cu.learnvibe.build/lessons/week-6/lesson.md): Write your project context down once in AGENTS.md so every AI session starts out knowing it, get your project online with a link anyone can open, and connect your AI to the course.
+- [Week 6: Context That Sticks, and Getting Online](https://cu.learnvibe.build/lessons/week-6/lesson.md): Your AI only knows what it can see. Give it your project's context in a markdown file so it sticks, and put your project online with a link anyone can open.
 
 ## Course
 
@@ -16,6 +16,5 @@
 - [Setup](https://cu.learnvibe.build/setup/): accounts, one tool, one proof
 - [Tools](https://cu.learnvibe.build/studio/tools.html): the AI tools the class uses, with costs
 
-## Connect
-
-- MCP server (read-only, public, no auth): https://api.learnvibe.build/mcp. Tools: get_course_map, list_lessons, get_lesson(week).
+## Learn with your AI
+Copy any lesson markdown into your AI and ask it to teach you, then quiz you.
