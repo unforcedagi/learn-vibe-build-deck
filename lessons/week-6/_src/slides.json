@@ -1,7 +1,7 @@
 [
  {
   "kind": "title",
-  "title": "Learn with your AI",
+  "title": "Context, building, and learning with AI",
   "bullets": [
    "Context, communication, checking, and building for your learning.",
    "Week 6 · Learn, Vibe, Build · October 5, 2026"
@@ -21,42 +21,6 @@
   "notes": "Grounded in actual Week 4/5 submissions: visual intent failed to translate; one build had non-clickable cards; localhost and deployment-permission confusion persisted. Public slides deliberately omit names and private quotes.",
   "extra": null,
   "section": "Why this matters"
- },
- {
-  "kind": "bullets",
-  "title": "Use AI to learn about AI",
-  "bullets": [
-   "Ask for an explanation, an example, and a question to check your understanding.",
-   "Say what you already know: “I know HTML; Git is new to me.”",
-   "Compare its explanation with your source—not just how confident it sounds."
-  ],
-  "notes": "Students recently asked their tools to explain the tool itself while building. Model this as a learning practice, not outsourcing understanding.",
-  "extra": null,
-  "section": "Learn with AI"
- },
- {
-  "kind": "bullets",
-  "title": "The reading: your AI as a coach",
-  "bullets": [
-   "Arielle Shipper · “How to Get Better at AI by Asking AI” · Every",
-   "Ask where you are on the Eight Levels of AI Adoption, with evidence from your work.",
-   "Ask for one next step, then: “Teach me that and help me practise.”"
-  ],
-  "notes": "Assigned reading. Shipper turned reflection on actual projects into a coaching conversation. The reading link is in students’ accounts; no new due date.",
-  "extra": null,
-  "section": "Learn with AI"
- },
- {
-  "kind": "bullets",
-  "title": "No long chat history? Bring your own evidence",
-  "bullets": [
-   "Paste your last two submissions or describe a recent project.",
-   "Ask: “What can I do already? Show examples. What should I learn next?”",
-   "Treat the AI’s assessment as a suggestion; correct its assumptions."
-  ],
-  "notes": "Free plans need not have long-term memory. Give a small truthful sample, not every private conversation.",
-  "extra": null,
-  "section": "Learn with AI"
  },
  {
   "kind": "bullets",
@@ -263,6 +227,42 @@
   "notes": "Tools extend what the AI can do, not what it should be allowed to do. Responsibilities remain with the person using it. Four Ds stay implicit.",
   "extra": null,
   "section": "Connections—concept only"
+ },
+ {
+  "kind": "bullets",
+  "title": "Use AI to learn about AI",
+  "bullets": [
+   "Ask for an explanation, an example, and a question to check your understanding.",
+   "Say what you already know: “I know HTML; Git is new to me.”",
+   "Compare its explanation with your source—not just how confident it sounds."
+  ],
+  "notes": "Students recently asked their tools to explain the tool itself while building. Model this as a learning practice, not outsourcing understanding.",
+  "extra": null,
+  "section": "Learn with AI"
+ },
+ {
+  "kind": "bullets",
+  "title": "The reading: your AI as a coach",
+  "bullets": [
+   "Arielle Shipper · “How to Get Better at AI by Asking AI” · Every",
+   "Ask where you are on the Eight Levels of AI Adoption, with evidence from your work.",
+   "Ask for one next step, then: “Teach me that and help me practise.”"
+  ],
+  "notes": "Assigned reading. Shipper turned reflection on actual projects into a coaching conversation. The reading link is in students’ accounts; no new due date.",
+  "extra": null,
+  "section": "Learn with AI"
+ },
+ {
+  "kind": "bullets",
+  "title": "No long chat history? Bring your own evidence",
+  "bullets": [
+   "Paste your last two submissions or describe a recent project.",
+   "Ask: “What can I do already? Show examples. What should I learn next?”",
+   "Treat the AI’s assessment as a suggestion; correct its assumptions."
+  ],
+  "notes": "Free plans need not have long-term memory. Give a small truthful sample, not every private conversation.",
+  "extra": null,
+  "section": "Learn with AI"
  },
  {
   "kind": "bullets",

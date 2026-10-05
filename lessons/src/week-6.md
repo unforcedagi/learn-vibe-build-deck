@@ -21,7 +21,7 @@
 
 Your AI can explain a concept, ask you questions, and help you practise. Tell it what you are trying to understand, ask it to teach you at your level, and check its explanation against the source.
 
-**Tonight's sequence:** first we work through the slides. Then Aaron has one live conversation with Claude using this lesson. Then you build in small groups.
+**Tonight's sequence:** first we work through markdown/context, design/debugging/checking, publishing, and conceptual connections. At the end of the teaching we use AI-as-coach and the Every reading to bring it together. Then Aaron has one live conversation with Claude using this lesson. Then you build in small groups.
 
 **Where to find everything:** open https://cu.learnvibe.build/, choose **Everything for Week 6**, then click **Copy lesson as markdown**. Paste it into your AI and ask:
 
