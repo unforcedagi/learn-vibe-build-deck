@@ -508,3 +508,13 @@ a.card.now-card h2 { font-size: 1.3rem; line-height: 1.25; }
   .copybar .btn { flex: 1 1 100%; text-align: center; }
   .site-nav nav { gap: 0.1rem 1.1rem; }
 }
+
+/* Phone-first account page (T-48): long student links wrap instead of widening
+   the page; share checkboxes get a real tap target. */
+main a, .feed a, .body.md { overflow-wrap: anywhere; word-break: break-word; }
+main input[type="checkbox"] { width: 1.25rem; height: 1.25rem; accent-color: var(--accent); vertical-align: -0.2rem; margin-right: 0.4rem; }
+main label:has(input[type="checkbox"]) { display: inline-flex; align-items: center; min-height: 44px; }
+@media (max-width: 560px) {
+  #submit-form input[type="url"], #submit-form textarea, #submit-form button[type="submit"] { width: 100%; }
+  .chips .chip { min-height: 40px; }
+}
