@@ -47,7 +47,7 @@ test('get_lesson returns the markdown; bad or missing weeks are tool errors', as
 });
 
 test('only fixed public paths on the site are ever fetched', () => {
-  for (const u of fetched) assert.match(u, /^https:\/\/cu\.learnvibe\.build\/(llms\.txt|lessons\/week-\d+\/lesson\.md)$/);
+  for (const u of fetched) assert.match(u, /^https:\/\/(cu\.learnvibe\.build|raw\.githubusercontent\.com\/unforcedagi\/learn-vibe-build-deck\/main)\/(llms\.txt|lessons\/week-\d+\/lesson\.md)$/);
 });
 
 test('unknown method and parse errors are JSON-RPC errors', async () => {

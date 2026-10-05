@@ -57,10 +57,19 @@ export function parseLessons(llmsTxt) {
   return out.sort((a, b) => a.week - b.week);
 }
 
+// Lessons are public markdown in the repo. If the Pages site hasn't published a file
+// yet (or a Pages build is stuck), fall back to the same file on the repo's main branch.
+const REPO_RAW = 'https://raw.githubusercontent.com/unforcedagi/learn-vibe-build-deck/main';
+
 async function siteText(env, path, fetchImpl) {
-  const res = await fetchImpl(env.SITE_ORIGIN + path, { cf: { cacheTtl: 300, cacheEverything: true } });
-  if (!res.ok) return null;
-  return res.text();
+  for (const origin of [env.SITE_ORIGIN, env.REPO_RAW_ORIGIN || REPO_RAW]) {
+    if (!origin) continue;
+    try {
+      const res = await fetchImpl(origin + path, { cf: { cacheTtl: 300, cacheEverything: true } });
+      if (res.ok) return res.text();
+    } catch (_) { /* try the next origin */ }
+  }
+  return null;
 }
 
 const text = (t) => ({ content: [{ type: 'text', text: t }] });
