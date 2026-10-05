@@ -1,3 +1,4 @@
+import { handleMcp } from './mcp.js';
 // Learn, Vibe, Build — accounts API (Cloudflare Worker + D1).
 //
 // Auth model: passwordless magic links. We store only sha256 hashes of both
@@ -677,6 +678,9 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, '') || '/';
+
+    // Public read-only MCP server (lessons only); its own CORS, before the site CORS.
+    if (path === '/mcp') return handleMcp(request, env);
 
     if (request.method === 'OPTIONS') {
       return new Response(null, {
