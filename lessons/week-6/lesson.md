@@ -175,7 +175,7 @@ The existing deadline remains **Sunday, October 11, 11:59 PM MT**. Submit throug
 
 ## Reading for this week
 
-Arielle Shipper, **How to Get Better at AI by Asking AI** (Every). Ask your AI to assess your actual work, suggest a next learning step, and teach it. No long history? Paste your context or last two submissions. The free class link is in your signed-in account.
+Arielle Shipper, **How to Get Better at AI by Asking AI** (Every). Ask your AI to assess your actual work, suggest a next learning step, and teach it. No long history? Paste your context or last two submissions. Free class link: https://every.to/p/codex-graded-my-ai-habits-then-it-became-my-coach?gift=Z2sKGROhf_Gfo9Cy3gFT-Rc6iwdt7qWH
 
 ## Further reading
 
