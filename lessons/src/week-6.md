@@ -1,271 +1,241 @@
-# Week 6 — Context, Fluency, and Connectors
+# Week 6: Context That Sticks, Getting Online, and Connectors
 
-*Learn, Vibe, Build · CU Boulder ATLAS · Monday October 5, 2026 · Aaron Neyer*
+*Learn, Vibe, Build · ATLS 4519 · CU Boulder · Monday, October 5, 2026 · Aaron Neyer*
 
-> **How to use this file.** This is the whole lesson as plain markdown. Copy all of it into your AI (Claude, ChatGPT, Gemini, a local model — anything) and ask it to teach you more. Ready-to-paste prompts are at the end. Your AI can explain, quiz you, give examples from *your* project, and go deeper on anything here. Check what it tells you against the sources listed at the bottom.
+> **How to use this file:** it's plain markdown, written for you *and* your AI. Copy the whole thing into your AI and ask it to teach you any part more deeply (prompts in section 7). Your AI can be wrong about this lesson too, so check it against the file.
 
-**Through-line for today:** *Choose what the AI sees. Check what it produces. Control what it can change.*
-
----
+**The through-line:** choose what your AI sees, check what it produces, control what it can change.
 
 ## Contents
-
-1. [What the AI can actually see](#1-what-the-ai-can-actually-see)
-2. [The 4D AI Fluency framework](#2-the-4d-ai-fluency-framework)
-3. [Context files: a description that doesn't go away](#3-context-files-a-description-that-doesnt-go-away)
-4. [Markdown and indexes: maps for a body of knowledge](#4-markdown-and-indexes-maps-for-a-body-of-knowledge)
-5. [Connectors: APIs and MCP](#5-connectors-apis-and-mcp)
-6. [Permission and trust](#6-permission-and-trust)
-7. [From build to product](#7-from-build-to-product)
-8. [Learn this your way: teach-me prompts](#8-learn-this-your-way-teach-me-prompts)
-9. [Reading for this week](#9-reading-for-this-week)
-10. [Glossary](#10-glossary)
-11. [Sources](#11-sources)
+1. Your AI starts every session from zero
+2. Markdown in two minutes
+3. AGENTS.md: context that sticks
+4. Index files: a map, not a dump
+5. Get your project online (Git, GitHub, a live link)
+6. Connectors: APIs, MCP, and this course's MCP
+7. Learn this your way: teach-me prompts
+8. Studio: write each other's AGENTS.md
+9. Reading for this week
+10. Glossary · 11. Further reading and sources
 
 ---
 
-## 1. What the AI can actually see
+## 1. Your AI starts every session from zero
 
-When you send a message, the model responds using two very different things:
+A model only "knows" three kinds of things:
 
-- **Training knowledge** — general patterns learned before you ever met it. It knows a lot about the world, but nothing about *your* project unless you tell it.
-- **Context** — everything supplied for *this* response: system instructions, the conversation so far, files you attached or pasted, and results from any tools it used.
+- **Training:** general knowledge from before it was built. It has never seen your project.
+- **The context window:** everything in front of it *for this answer*: your message, the chat so far, attached files, and results from tools.
+- **App memory:** some apps save notes about you and look them up later. Useful, but you don't fully control what's in it.
 
-The space for context is called the **context window**. It is large but finite, and more is not always better: a big dump of loosely related material can distract the model and bury the important facts. Good context is **relevant, labelled, and current**.
+Your project lives in none of those by default. That's why the same question gets a generic answer in a fresh chat: **a generic answer is usually a context problem, not a model problem.** You end up re-explaining your project again and again.
 
-Some apps add saved "memory" or project instructions into a new chat automatically. That is the *app* doing retrieval — not the model remembering. Check what actually got loaded.
-
-**A generic answer is usually a context problem, not a model problem.** "Improve my portfolio" gets a generic answer. "Improve the opening of my portfolio for a scholarship panel that reads each one in 30 seconds; here's the current text and my two strongest pieces; don't invent achievements" gets a specific one. Same task, different context.
-
-**Handoff habit.** Before you start a fresh chat on an ongoing project, write a short note: goal · current state · decisions made · relevant files · next step · open questions. Keep the original evidence too — a summary can drop things.
+The fix isn't a longer prompt each time. It's writing your context down **once**, in a file, where the AI will find it every time.
 
 ---
 
-## 2. The 4D AI Fluency framework
+## 2. Markdown in two minutes
 
-Developed by Prof. Rick Dakan (Ringling College of Art and Design) and Prof. Joseph Feller (University College Cork), and turned into a free course with Anthropic. It describes **AI fluency** as working with AI in ways that are **effective, efficient, ethical, and safe** — and it's built to outlast any particular tool.
+A markdown file (`.md`) is a plain text file with a few symbols for structure. You can read it raw; AIs read it very well. Every AI chat answer you've seen is already markdown.
 
-### Three modes of working with AI
+```markdown
+# Big heading
+## Smaller heading
+- a bullet point
+1. a numbered step
+**bold** and *italic*
+[a link](https://example.com)
+`some code`
+```
 
-| Mode | What it means | Example |
-|---|---|---|
-| **Automation** | AI executes a specific task you defined | "Resize these 40 images to 1200px wide" |
-| **Augmentation** | You and AI think together as partners | Brainstorming story directions, critiquing a draft |
-| **Agency** | You configure AI to act on its own for future tasks | An agent that checks your project every morning and files issues |
-
-### The four competencies (the "4 Ds")
-
-**1. Delegation — deciding *whether, when, and how* to use AI.**
-- Know your goal and the task before reaching for a tool.
-- Know what AI is good and bad at, and which tool fits.
-- Split the work between you and the AI deliberately, and pick the mode.
-- **Keep the work where the thinking is the deliverable.** If the point of the task is for *you* to learn, decide, or express something, handing it off defeats the purpose. In a class, that's often the case.
-
-**2. Description — communicating clearly enough to get useful behaviour.** Three things to describe:
-- **Product** — what you want out: format, audience, length, style, examples.
-- **Process** — how to approach it: steps, what to consider, what to read first.
-- **Performance** — how the AI should behave: concise or detailed, challenge me or just help, ask questions when unsure.
-
-**3. Discernment — judging what comes back.**
-- Judge the **product** (is it accurate, appropriate, good?), the **process** (did it reason sensibly?), and the **performance** (did it behave the way you asked?).
-- **Fluent ≠ correct.** AI output sounds confident whether or not it's right. Check facts, run the code, look at the image closely.
-
-**4. Diligence — taking responsibility.**
-- **Creation diligence:** choose tools and data thoughtfully (privacy, consent, bias).
-- **Transparency diligence:** be honest with others about how AI was involved.
-- **Deployment diligence:** verify before you share, publish, or ship. **Responsibility doesn't transfer to the AI.** If you put it out, it's yours.
-
-### Two loops
-
-- **Description ↔ Discernment** — the working loop. Describe, look at what comes back, refine the description, look again. Most good AI work is several turns of this.
-- **Delegation ↔ Diligence** — the responsibility loop. What you choose to hand off determines what you're accountable for checking; what you've learned about responsibility shapes what you delegate next time.
+That's nearly all of it. Open any text editor (VS Code, TextEdit in plain-text mode, Notepad), type that, and save it as `notes.md`.
 
 ---
 
-## 3. Context files: a description that doesn't go away
+## 3. AGENTS.md: context that sticks
 
-A **context file** is a Description you write once and reuse — so you stop re-explaining your project every chat. It's a working agreement between you and the AI.
+**AGENTS.md** is a markdown file you put in the top folder of your project. **Coding agents read it automatically at the start of every session.** Write it once and every new session starts out knowing your project.
 
-A good one answers four questions:
-
-| Section | Question |
+| Tool | File it reads |
 |---|---|
-| **Goal** | Who is this for, and what should change? |
-| **Inputs** | What should the AI read or know? |
-| **Boundaries** | What must it preserve, never do, or ask about first? |
-| **Check** | How will you know the result works? |
+| Codex, Cursor, GitHub Copilot, and many others | `AGENTS.md` |
+| Claude Code | `CLAUDE.md` (a one-line CLAUDE.md that says "See AGENTS.md" covers both) |
+| A chat app (ChatGPT, Claude.ai, Gemini) | Paste it at the start, or add it to a Project's instructions or files |
 
-Example (fictional student):
+**Check it actually loaded:** start a fresh session and ask *"What is this project and who is it for?"* If the answer is vague, the tool didn't read it.
 
-```markdown
-# Project: Mara Ellison — portfolio homepage
+### What to put in it
 
-## Goal and audience
-- Rewrite the opening section for a scholarship panel (≈30 seconds per applicant).
+1. **What this is:** one or two sentences.
+2. **Who it's for:** a real person, with what they need and worry about.
+3. **Stack:** what it's built with (and what it's *not* built with).
+4. **Conventions:** style, voice, rules ("mobile first", "no frameworks").
+5. **Facts:** where the true facts live, and "never invent facts".
+6. **What "done" looks like:** how you'll check the result.
+7. **Where to look:** an index of your other files (section 4).
 
-## Inputs
-- Current text: "Hi! I'm Mara. I like making stuff."
-- Strongest pieces: *Tide Lines* (cut-paper stop-motion), *Quiet Map* (campus audio walk).
-
-## Boundaries
-- Don't invent awards, jobs, or numbers. Ask if something is missing.
-- Under 80 words. Warm and plain; no buzzwords.
-
-## Check
-- A reader can name both projects after one read.
-- Every fact appears in this file.
-```
-
-Notice how it maps onto the 4Ds: Goal and Inputs are **Description** (product + process), Boundaries are **Diligence**, and Check makes **Discernment** concrete *before* you see the output.
-
-**Where context files live.** Chat tools: paste or attach it. Many coding agents read a project file automatically — `AGENTS.md` is an open convention several tools support; some tools use their own names (e.g. `CLAUDE.md`). Loading rules vary by tool, so check the docs and confirm the tool actually read it. A file sitting on disk does nothing until something loads it.
-
-**Three kinds of persistent files, three jobs:**
-- **Instructions** — how to work on this project ("ask before publishing").
-- **Recipes** (sometimes called skills) — how to repeat a task ("export the animation, then check playback").
-- **Knowledge** — facts and decisions worth retrieving later ("we chose the scholarship audience because…").
-
-Writing files doesn't retrain the model. It changes what the model sees.
-
----
-
-## 4. Markdown and indexes: maps for a body of knowledge
-
-**Markdown** is plain text with a little structure: `#` headings, `-` lists, `**bold**`, `[links](file.md)`. Humans can read it as-is, and AI models handle it very well. That makes it the default format for writing things both you and an AI will use.
-
-### The index pattern
-
-One context file works for one project. For a bigger body of knowledge — a semester of notes, a research project, a team's documentation — use an **index**: a short top-level file that describes what exists and points to deeper files.
+### The example from class (fictional)
 
 ```markdown
-# Course knowledge — index
+# AGENTS.md: Hill Plant Swap
 
-Start here. Each line says what a file is for, so you only open what you need.
+## What this is
+A one-page website for a free, monthly plant swap (fictional). Plain HTML + CSS.
 
-- [syllabus.md](syllabus.md) — schedule, grading, policies
-- [week-06/lesson.md](week-06/lesson.md) — context, 4D fluency, connectors
-- [week-06/my-notes.md](week-06/my-notes.md) — what I tried and what happened
-- [projects/animation/context.md](projects/animation/context.md) — my animation project brief
-- [glossary.md](glossary.md) — terms, one line each
+## Who it's for
+First- and second-year students on the Hill, on their phones, deciding in ~10 seconds.
+Most have never been to a swap and worry it's awkward or that they have nothing good to bring.
+
+## Stack and conventions
+- Plain HTML and CSS only. No frameworks, no JavaScript, no build step.
+- One page; it must fit one phone scroll. Mobile first.
+- Friendly, plain voice. Never promise rare plants.
+
+## Facts
+Never invent facts (dates, places, rules). Use only `docs/event-facts.md`.
+
+## What "done" looks like
+- Reads well on a phone at 390px wide.
+- Every fact matches docs/event-facts.md.
+- One clear next step for the visitor (show up on the date).
+- Tell me what you changed and anything you had to guess.
+
+## Where to look (index)
+- `docs/event-facts.md`: date, place, rules, contact. The only source of facts.
+- `docs/audience.md`: who visits and what they worry about.
+- `docs/decisions.md`: choices already made; don't undo them without asking.
 ```
 
-Why it works:
-- **The AI navigates instead of drowning.** It reads the small map, then opens only the relevant file — the "choose context, don't dump everything" principle, applied at scale.
-- **It nests.** A folder can have its own index pointing deeper. Three levels of short maps can organise thousands of pages.
-- **It's yours.** Plain files in a folder outlast any app.
+The demo project is public, so you can try it yourself: **https://github.com/unforcedagi/lvb-week6-demo**. It has no AGENTS.md on purpose. Ask your agent to "improve the homepage", add the file above, then ask again.
 
-Tips: one topic per file; a one-line description per link; put the most-used things first; keep indexes short and update them when you add files.
-
-This is the same idea behind how websites expose `llms.txt`, how agents use `AGENTS.md`, and how note tools like Obsidian work. This lesson itself is written as one file in that kind of library.
+**Keep it short and true.** A context file is something the AI follows, so a wrong line causes wrong work. Update it when decisions change. Never put passwords or API keys in it.
 
 ---
 
-## 5. Connectors: APIs and MCP
+## 4. Index files: a map, not a dump
 
-So far the AI only sees what you give it. **Connectors** let it reach out: read a note, search a folder, check a calendar, query a database. A connector's result becomes **new context**.
+When a project grows, don't paste everything into one giant file. Write a short **index**: a file that says what exists and where, with one line per file. The AI reads the small map, then opens only the files it needs.
 
-### API — Application Programming Interface
-
-An **API** is a defined way for one program to talk to another: a menu of requests a service accepts and the responses it gives back. Weather apps use a weather API; a bot that posts to Slack uses Slack's API. Every service's API is different, so connecting an AI app to ten services traditionally meant ten custom integrations.
-
-### MCP — Model Context Protocol
-
-**MCP** is an open standard for connecting AI applications to tools and data in *one common shape*.
-
-```
-Host app  →  MCP client  →  MCP server  →  data or service (often via its API)
-(Claude,     (manages the    (exposes tools,
- an IDE…)     connection)     resources, prompts)
+```markdown
+## Where to look
+- docs/event-facts.md: the only source of facts
+- docs/audience.md: who visits and what they worry about
+- docs/decisions.md: choices already made
 ```
 
-- The **host** is the AI app you use.
-- The **MCP server** wraps some data or service and offers:
-  - **tools** — actions the AI can call (`search_notes`, `create_issue`)
-  - **resources** — data it can read (a file, a page)
-  - **prompts** — reusable templates
-- Any MCP-capable host can use any MCP server. Write the connector once; use it in many apps.
-
-### How they relate
-
-| | API | MCP |
-|---|---|---|
-| Who it's for | Programs talking to a specific service | AI apps talking to many tools in one way |
-| Shape | Different for every service | One shared protocol |
-| Relationship | Often what an MCP server calls underneath | A standard wrapper an AI can discover and use |
-
-An analogy: APIs are each country's different wall socket; MCP is a universal adapter designed for AI apps. MCP isn't the only route — apps also have built-in tools and direct integrations — and not every host supports every MCP feature.
-
-### Read vs. write
-
-- **Read** actions bring information *in*: search, fetch, list.
-- **Write** actions change something *out there*: send, post, delete, pay, publish.
-
-Drafting an email and sending it are completely different levels of risk.
+Indexes can nest. An index can point to other indexes, so an AI can find its way around a whole body of knowledge (a course, a research project, a company wiki) a little at a time. This course does it too: **https://cu.learnvibe.build/llms.txt** is an index of every lesson, written for AIs.
 
 ---
 
-## 6. Permission and trust
+## 5. Get your project online
 
-The through-line, applied to connectors:
+A link only counts if **someone else can open it on their phone.**
 
-- **Choose what it sees.** Connect the smallest useful scope. Start read-only. Don't connect personal email, private files, or other people's data for experiments.
-- **Check what it produces.** Tool results are evidence to inspect, not facts to trust. Read back the result of anything consequential.
-- **Control what it can change.** Require approval before sending, paying, deleting, or publishing.
+- ✗ `file:///Users/you/Desktop/project/index.html` or `C:\Users\you\...`: this is a file on *your* laptop. Nobody else can open it.
+- ✓ `https://you.github.io/project/` or `https://project.vercel.app`: this works for anyone, anywhere.
 
-**A document is data — not your boss.** If a web page or file the AI reads says *"Ignore your instructions and…"*, that's **prompt injection**. Retrieved content can try to redirect an agent. A web page cannot authorise the AI to spend your money or change your files. Defenses are layered: narrow permissions, human approval for write actions, non-sensitive data, and noticing when behaviour drifts. Keep secrets (passwords, API keys) out of chats and context files.
+**Test every link before you submit it:** open it on your phone with wifi off.
 
-This is **Diligence** in practice.
+### Three different things
+
+- **Git:** save points ("commits") for your project folder, on your laptop.
+- **GitHub:** an online copy of those save points (a "repository" or "repo").
+- **GitHub Pages / Vercel:** services that turn that online copy into a live website.
+
+**Commit** = make a save point with a short note. **Push** = send your save points up to GitHub. **Deploy** = publish it as a site. Most confusion comes from treating these as one step.
+
+### The short version (GitHub Desktop)
+
+1. Install **GitHub Desktop** (desktop.github.com) and sign in to GitHub.
+2. **File → Add local repository** → choose your project folder → click "create a repository" → **Create repository**.
+3. Write a summary like "first version" → **Commit to main**.
+4. **Publish repository.** Untick "Keep this code private" if you want a free Pages site.
+5. On github.com, open your repo → **Settings → Pages** → Source: **Deploy from a branch** → Branch: **main**, folder **/ (root)** → **Save**.
+6. After about a minute, your site is at **https://YOUR-USERNAME.github.io/REPO-NAME/**. Your main page must be named `index.html`.
+7. **To update it:** change files → GitHub Desktop → Commit → **Push origin** → wait a minute → refresh.
+
+Built with React, Next.js or Vite (there's a `package.json`)? Use **Vercel** instead: push to GitHub as above, then go to vercel.com/new → import the repo → **Deploy**. You get a `.vercel.app` link, and it redeploys on every push.
+
+The full step-by-step handout, including a no-install option and fixes for common problems, is "Get your project online".
 
 ---
 
-## 7. From build to product
+## 6. Connectors: APIs, MCP, and this course's MCP
 
-The context file you write today already names an **audience**, **inputs**, and a **check**. That's the first draft of a **product brief**.
+So far the AI only sees what you hand it. **Connectors** let it reach out and fetch context itself.
 
-Questions that turn a build into a product:
-- Who besides you would use this?
-- What would they need to see in the first ten seconds?
-- How would they find it?
-- What would make them come back?
+- **API (Application Programming Interface):** one service's own menu of requests and responses. The weather service has one, Slack has one, and every one is different.
+- **MCP (Model Context Protocol):** one open standard for connecting AI apps to tools and data. Write a connector (an "MCP server") once, and any MCP-capable app can use it. Think of APIs as each country's different wall socket and MCP as a universal adapter. MCP servers often call APIs underneath.
 
-We'll pick this thread up next week.
+An MCP server offers **tools** (actions the AI can call), **resources** (data it can read) and **prompts** (templates).
+
+### Read vs. write, and who's in charge
+
+- **Read** actions bring information in: search, fetch, list. **Write** actions change the world: send, post, delete, pay, publish. Drafting an email and sending it are very different levels of risk.
+- Start **read-only**. Connect the smallest useful scope. Require your approval for anything that writes.
+- **A document is data, not your boss.** If a page the AI reads says "ignore your instructions and…", that's *prompt injection*. Content can't authorise your AI to do anything.
+
+### Try it: connect your AI to this course
+
+This course has its own public, read-only MCP server: **https://api.learnvibe.build/mcp**. It has no student data and can't change anything. It can fetch the course map and every lesson.
+
+- **Claude Code:** `claude mcp add --transport http lvb https://api.learnvibe.build/mcp`, then start `claude` and type `/mcp` to check it's connected.
+- **Claude app:** Settings → Connectors → Add custom connector → paste the URL (availability depends on your plan).
+- **Other MCP apps (Cursor, VS Code, ChatGPT developer mode):** add a remote/HTTP MCP server with that URL.
+
+Then ask: *"Using the course connector, list the lessons, then teach me the AGENTS.md part of Week 6 and quiz me."*
+
+**No connector support?** Same result without one: open https://cu.learnvibe.build/lessons/, press **Copy lesson as markdown**, and paste it into any chat.
 
 ---
 
-## 8. Learn this your way: teach-me prompts
+## 7. Learn this your way: teach-me prompts
 
 **Copy this entire file into your AI first**, then paste any of these. Change the bracketed parts.
 
 1. **Explain it to me**
-   > Using the lesson above, explain [the 4D framework / MCP vs APIs / the index pattern] to me as if I'm a [first-year art student / CS major / someone who's never coded]. Use one example from my project: [describe your project in a sentence].
+   > Using the lesson above, explain [AGENTS.md / index files / Git vs GitHub vs Pages / MCP vs APIs] to me as if I'm a [first-year art student / CS major / someone who's never coded]. Use one example from my project: [describe your project in a sentence].
 
-2. **Quiz me**
-   > Quiz me on this lesson, one question at a time. Mix multiple-choice and short-answer. After each answer, tell me what I got right, what I missed, and point to the section. Stop after 8 questions and summarise what I should review.
+2. **Write my AGENTS.md with me**
+   > Help me write an AGENTS.md for my project using the seven parts from section 3. Interview me one question at a time, and don't fill anything in that I haven't told you. Output clean markdown at the end.
 
-3. **Write my context file with me**
-   > Help me write a context file for my project using the Goal / Inputs / Boundaries / Check structure from the lesson. Interview me with one question at a time; don't fill anything in that I haven't told you. Output clean markdown at the end.
+3. **Get me online, step by step**
+   > I'm on [Mac/Windows]. My project is [a folder of HTML files / a React app / something else: describe]. Walk me through getting it online with a link anyone can open, one step at a time. Wait for me to say "done" before the next step. If I get an error, I'll paste it.
 
-4. **Run the 4Ds on my real task**
-   > I want to use AI for this task: [task]. Walk me through Delegation, Description, Discernment, and Diligence for it. For Delegation, tell me honestly whether any part of this is "work where the thinking is the deliverable" that I should keep.
+4. **Build me an index**
+   > I have notes and files about [topic/project]: [list them]. Design an index file using the pattern from section 4, with a one-line purpose for each file, and tell me how to split anything that's too big.
 
-5. **Build me an index**
-   > I have notes and files about [topic/course/project]: [list them]. Design an index.md using the index pattern from the lesson, with a one-line purpose for each file, and suggest how to split anything that's too big.
+5. **Quiz me**
+   > Quiz me on this lesson one question at a time. Mix multiple-choice and short answer. After each answer, tell me what I got right, what I missed, and which section to reread. Stop after 8 questions and summarise what I should review.
 
 6. **Go deeper on connectors safely**
-   > Using section 5 and 6, explain how I could connect one read-only tool to my AI for my project [describe]. What would it be able to see, what could go wrong, and what permission boundaries should I set? Don't give me setup steps I'd need to pay for unless I ask.
+   > Explain how I could connect one read-only tool to my AI for my project [describe]. What would it be able to see, what could go wrong, and what permission boundaries should I set?
 
-7. **Challenge me**
-   > Play a skeptical reviewer. Push back on three claims in this lesson and make me defend or refine them. Then tell me which of your pushbacks were fair.
+---
 
-Remember **Discernment**: your AI can be wrong about this lesson too. If something it says conflicts with the file or the sources, check.
+## 8. Studio: write each other's AGENTS.md
+
+**Pairs, 20 minutes.** This is tonight's group work.
+
+1. **Interview (8 min each).** Your partner asks, and types your answers into an AGENTS.md draft. You correct them.
+   - Who is this for? What do they need, and what do they worry about?
+   - What is it, in one sentence?
+   - What is it built with? What should it *not* use?
+   - What should the AI never do?
+   - Where do the true facts live?
+   - What does "done" look like? How will you check?
+2. **Test it (4 min).** Put the file in your own project. In a fresh session, ask *"What is this project and who is it for?"*, then give it one real task.
+3. **Revise.** Fix whatever it misunderstood. That's the file working.
+
+No project yet? Write it for the project you want to start. Then use the rest of studio to build with it, and to get your project online (section 5).
 
 ---
 
 ## 9. Reading for this week
 
-**Arielle Shipper, "How to Get Better at AI by Asking AI"** (Every, October 2, 2026). https://every.to/p/codex-graded-my-ai-habits-then-it-became-my-coach. The **free gift link** (no paywall) is on your [account page](https://cu.learnvibe.build/account/) once you sign in, and in Canvas.
+**Arielle Shipper, "How to Get Better at AI by Asking AI"** (Every, October 2, 2026). Free link: on your account page at https://cu.learnvibe.build/account/ and in the course announcement on Canvas.
 
-**Why this reading.** It's tonight's "ask your AI to teach you" idea, done for real. Shipper asked her AI to place her on Every's "Eight Levels of AI Adoption" (a ladder from one-off chats up to running teams of agents), using their actual past work together. Then she turned that assessment into recommendations from projects she'd already finished, and asked the AI to teach her the next step. It closes the loop on the 4Ds: the AI helps you see what you could **delegate** next, you **describe** what you want to learn, you **discern** whether its read on you is fair, and **diligence** stays yours.
+**Why this reading.** It's tonight's idea done for real: give your AI context about *you*, and it can coach you. Shipper asked her AI to place her on Every's "Eight Levels of AI Adoption" (a ladder from one-off chats up to running teams of agents) using their actual past work together, turned that into recommendations from projects she'd finished, and asked it to teach her the next step.
 
 **Read it, then try one of these.** Copy this lesson (or the article) into your AI first.
 
@@ -273,42 +243,39 @@ Remember **Discernment**: your AI can be wrong about this lesson too. If somethi
    > Read the article on the eight levels of AI adoption (paste it in if you can't open the link). Based on how I've worked with you so far, what level am I? Give specific examples from our work, and tell me what you're unsure about.
 
 2. **Replay a finished project one level up**
-   > Here's a project I've already finished: [describe it or paste your reflection]. How could it have run one level higher? What did I do by hand that I could have described or delegated, and what should I have kept doing myself?
+   > Here's a project I've already finished: [describe it or paste your reflection]. How could it have run one level higher? What did I do by hand that I could have described or handed off, and what should I have kept doing myself?
 
 3. **Teach me the next step**
    > Teach me the one habit that would move me up a level, using my own project as the example. One small step at a time; check that I've actually done each step before moving on.
 
-**On a free plan, or no long chat history?** Your AI can't look back across sessions, so give it the evidence directly. Paste in your **context file** (from tonight) or your **last two weekly submissions**, then ask: *"Based on this, what level am I on the eight levels of AI adoption, with examples?"* Same exercise, and you choose what it sees.
+**On a free plan, or no long chat history?** Your AI can't look back across sessions, so give it the evidence directly. Paste in your **AGENTS.md** (from tonight) or your **last two weekly submissions**, then ask: *"Based on this, what level am I on the eight levels of AI adoption, with examples?"*
 
-**Discernment applies.** The AI's assessment of you is a draft, not a grade. Ask what it's basing it on, and push back where it's wrong.
+The AI's read on you is a draft, not a grade. Ask what it's basing it on, and push back where it's wrong.
 
 ---
 
 ## 10. Glossary
 
-- **Context window** — the information supplied to the model for one response.
-- **Context file** — a reusable written description of a project for an AI to read.
-- **Markdown** — plain text with lightweight formatting (`#`, `-`, `**`, links).
-- **Index file** — a short map pointing to deeper files, so a reader or AI can navigate.
-- **AGENTS.md** — an open convention for project instruction files that some coding agents load.
-- **API** — a defined interface for programs to request things from a service.
-- **MCP (Model Context Protocol)** — an open standard connecting AI apps to tools, resources, and prompts.
-- **Tool call** — the AI invoking an action through a connector; the result becomes context.
-- **Prompt injection** — retrieved content trying to redirect an AI's instructions.
-- **Automation / Augmentation / Agency** — the three modes of human-AI interaction in the 4D framework.
-- **4Ds** — Delegation, Description, Discernment, Diligence.
+- **Context window:** the information in front of the model for one response.
+- **Markdown:** plain text with light formatting (`#`, `-`, `**`, links).
+- **AGENTS.md / CLAUDE.md:** a project instruction file that coding agents read at the start of every session.
+- **Index file:** a short map pointing to deeper files.
+- **Git / commit / push:** save points for a folder; making one; sending them to GitHub.
+- **Repository (repo):** a project folder tracked by Git, often stored on GitHub.
+- **GitHub Pages / Vercel:** services that publish a repo as a website with a public link.
+- **API:** one service's interface for programs to request things.
+- **MCP (Model Context Protocol):** an open standard for connecting AI apps to tools and data.
+- **Prompt injection:** content the AI reads trying to redirect its instructions.
 
 ---
 
-## 11. Sources
+## 11. Further reading and sources
 
-- AI Fluency: Framework & Foundations — Anthropic Academy (Dakan, Feller, Anthropic): https://academy.claude.com/courses/ai-fluency-framework-foundations · overview: https://www.anthropic.com/ai-fluency
-- Framework for AI Fluency, practical summary (Dakan & Feller): https://ringling.libguides.com/ai/framework · https://aifluencyframework.org/
-- AI Fluency framework one-pager (CC BY-NC-SA 4.0): https://www-cdn.anthropic.com/b383cf6baddbfc72fdf8b0ed533a518e2872d531.pdf
-- Effective context engineering for AI agents — Anthropic: https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
 - AGENTS.md convention: https://agents.md/
+- Claude Code memory (CLAUDE.md): https://docs.anthropic.com/en/docs/claude-code/memory
+- Effective context engineering for AI agents (Anthropic): https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
+- GitHub Pages quickstart: https://docs.github.com/en/pages/quickstart · GitHub Desktop: https://desktop.github.com/
+- Vercel, getting started: https://vercel.com/docs/getting-started-with-vercel
 - MCP architecture: https://modelcontextprotocol.io/docs/learn/architecture
-- MCP tools and user control (specification): https://modelcontextprotocol.io/specification/2025-11-25/server/tools
 - Arielle Shipper, "How to Get Better at AI by Asking AI," Every, Oct 2, 2026: https://every.to/p/codex-graded-my-ai-habits-then-it-became-my-coach
-
-*The 4D framework material is summarised from the sources above (CC BY-NC-SA 4.0); the classroom rules and examples are this course's own.*
+- **Further reading: AI Fluency.** The ideas under tonight's class come from Anthropic's free *AI Fluency: Framework & Foundations* course (Dakan, Feller, Anthropic; CC BY-NC-SA 4.0): https://academy.claude.com/courses/ai-fluency-framework-foundations. It names four habits you practised tonight without the labels. Writing AGENTS.md is **Description**. Checking the output out loud is **Discernment**. Choosing what to hand the agent is **Delegation**. Checking a link before you share it is **Diligence**.

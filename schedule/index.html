@@ -5,27 +5,35 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Schedule — Learn, Vibe, Build · ATLS 4519 · Fall 2026</title>
 <link rel="stylesheet" href="../assets/site.css">
-<style>
-  main { max-width: 900px; }
-</style>
 </head>
-<body>
+<body class="schedule-page">
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="site-nav">
   <div class="site-nav-inner">
-    <a class="brand" href="../">Learn, Vibe, Build</a>
-    <nav>
-      <a href="../schedule/" aria-current="page">Schedule</a>
-      <a href="../lessons/">Lessons</a>
-      <a href="../readings/">Readings</a>
-      <a href="../syllabus.html">Syllabus</a>
-      <a href="../setup/">Setup</a>
-      <a href="../studio/">Studio</a>
-      <a href="../journal/">Journal</a>
-      <a href="../account/">Account</a>
-    </nav>
+    <a class="brand" href="../"><span class="brand-mark" aria-hidden="true">L</span>Learn, Vibe, Build</a>
+    <nav class="desktop-nav" aria-label="Course"><a href="../schedule/" aria-current="page">Schedule</a>
+<a href="../lessons/">Lessons</a>
+<a href="../readings/">Readings</a>
+<a href="../syllabus.html">Syllabus</a>
+<a href="../setup/">Setup</a>
+<a href="../studio/">Studio</a>
+<a href="../journal/">Journal</a>
+<a href="../account/">Account</a></nav>
+    <details class="mobile-nav">
+      <summary>Menu <span aria-hidden="true">&nbsp;+</span></summary>
+      <nav aria-label="Course menu"><a href="../schedule/" aria-current="page">Schedule</a>
+<a href="../lessons/">Lessons</a>
+<a href="../readings/">Readings</a>
+<a href="../syllabus.html">Syllabus</a>
+<a href="../setup/">Setup</a>
+<a href="../studio/">Studio</a>
+<a href="../journal/">Journal</a>
+<a href="../account/">Account</a></nav>
+    </details>
   </div>
 </header>
-<main>
+<main class="schedule-main" id="main-content">
+  <p class="kicker">The semester / week by week</p>
   <h1>Schedule</h1>
   <p class="lead">Every Monday meeting, what it covers, what's due, and a direct
     link to that week's slides and lesson. Weekly briefs aren't fixed in advance &mdash;
@@ -34,9 +42,9 @@
 
   <div class="now">
     <div class="eyebrow">This week &mdash; Week 6 &middot; Oct 5</div>
-    <h2>Context, fluency, and connectors</h2>
-    <p>What your AI can see, the 4D AI Fluency framework (Delegation, Description, Discernment,
-      Diligence), context files and index files in markdown, and how APIs and MCP connect AI to the world.</p>
+    <h2>Context that sticks, getting online, and connectors</h2>
+    <p>Write AGENTS.md so your AI starts with useful context, use index files to point it toward the right details,
+      get your project online, and connect your assistant through APIs and MCP.</p>
     <p>Weekly work: see the <a href="https://canvas.colorado.edu/courses/145074/assignments/2858628">Week 6 studio cycle on Canvas</a>.</p>
     <div class="copybar">
       <a class="btn" href="../lessons/week-6/">Read the lesson</a>
@@ -76,47 +84,60 @@
         <td data-label="Due">Three tools, evidence + 3 paragraphs (<a href="https://canvas.colorado.edu/courses/145074/assignments/2858625">Canvas</a>)</td>
         <td data-label="Materials"><span class="week-links"><a href="../slides/week-3/">Slides</a> <a href="../lessons/week-3/">Lesson .md</a></span></td>
       </tr>
-      <tr>
+      <tr id="week-4">
         <td class="week">4</td>
         <td class="date" data-label="Date">Sep 21</td>
         <td data-label="Covers">Studio cycle</td>
         <td data-label="Due">Week 4 studio cycle (<a href="https://canvas.colorado.edu/courses/145074/assignments/2858626">Canvas</a>)</td>
-        <td data-label="Materials"><span class="week-links"><span class="hint">Added the week of</span></span></td>
+        <td data-label="Materials"><span class="hint">Studio night · no lesson</span></td>
       </tr>
-      <tr>
+      <tr id="week-5">
         <td class="week">5</td>
         <td class="date" data-label="Date">Sep 28</td>
         <td data-label="Covers">Group work: one shared project, or parallel exploration then pooled learning</td>
         <td data-label="Due">Week 5 studio cycle (<a href="https://canvas.colorado.edu/courses/145074/assignments/2858627">Canvas</a>)</td>
-        <td data-label="Materials"><span class="week-links"><span class="hint">Added the week of</span></span></td>
+        <td data-label="Materials"><span class="hint">Studio night · no lesson</span></td>
       </tr>
       <tr class="current">
         <td class="week">6</td>
         <td class="date" data-label="Date">Oct 5</td>
-        <td data-label="Covers">Context, AI fluency (the 4Ds), markdown context files and indexes, APIs and MCP</td>
+        <td data-label="Covers">AGENTS.md, index files, getting your project online, APIs and MCP</td>
         <td data-label="Due">Week 6 studio cycle (<a href="https://canvas.colorado.edu/courses/145074/assignments/2858628">Canvas</a>)</td>
         <td data-label="Materials"><span class="week-links"><a href="../lessons/week-6/">Lesson .md</a> <a href="../slides/week-6/week6-slides.pdf">Slides PDF</a></span></td>
       </tr>
-      <tr>
-        <td class="week">7–10</td>
-        <td class="date" data-label="Date">Oct 12 – Nov 2</td>
-        <td data-label="Covers">Weekly studio cycles: briefs set week to week, demo groups alternate</td>
-        <td data-label="Due">Weekly build + writing</td>
-        <td data-label="Materials"><span class="week-links"><span class="hint">Added the week of</span></span></td>
+      <tr id="week-7">
+        <td class="week">7</td><td class="date" data-label="Date">Oct 12</td>
+        <td data-label="Covers">Studio cycle · brief set that week</td><td data-label="Due">Weekly build + writing</td>
+        <td data-label="Materials"><span class="hint">Brief added that week</span></td>
+      </tr>
+      <tr id="week-8">
+        <td class="week">8</td><td class="date" data-label="Date">Oct 19</td>
+        <td data-label="Covers">Studio cycle · brief set that week</td><td data-label="Due">Weekly build + writing</td>
+        <td data-label="Materials"><span class="hint">Brief added that week</span></td>
+      </tr>
+      <tr id="week-9">
+        <td class="week">9</td><td class="date" data-label="Date">Oct 26</td>
+        <td data-label="Covers">Studio cycle · brief set that week</td><td data-label="Due">Weekly build + writing</td>
+        <td data-label="Materials"><span class="hint">Brief added that week</span></td>
+      </tr>
+      <tr id="week-10">
+        <td class="week">10</td><td class="date" data-label="Date">Nov 2</td>
+        <td data-label="Covers">Studio cycle · brief set that week</td><td data-label="Due">Weekly build + writing</td>
+        <td data-label="Materials"><span class="hint">Brief added that week</span></td>
       </tr>
       <tr>
         <td class="week">11</td>
         <td class="date" data-label="Date">Nov 9</td>
         <td data-label="Covers">Final project proposals</td>
         <td data-label="Due">—</td>
-        <td data-label="Materials"><span class="week-links"><span class="hint">Added the week of</span></span></td>
+        <td data-label="Materials"><span class="hint">Brief added that week</span></td>
       </tr>
       <tr>
         <td class="week">12</td>
         <td class="date" data-label="Date">Nov 16</td>
         <td data-label="Covers">Project studio</td>
         <td data-label="Due">—</td>
-        <td data-label="Materials"><span class="week-links"><span class="hint">Added the week of</span></span></td>
+        <td data-label="Materials"><span class="hint">Brief added that week</span></td>
       </tr>
       <tr class="no-class">
         <td class="week">&mdash;</td>
@@ -128,18 +149,23 @@
         <td class="date" data-label="Date">Nov 30</td>
         <td data-label="Covers">Showcase night 1 + project studio</td>
         <td data-label="Due">—</td>
-        <td data-label="Materials"><span class="week-links"><span class="hint">Added the week of</span></span></td>
+        <td data-label="Materials"><span class="hint">Brief added that week</span></td>
       </tr>
       <tr>
         <td class="week">14</td>
         <td class="date" data-label="Date">Dec 4 (Fri)</td>
         <td data-label="Covers">Showcase night 2</td>
         <td data-label="Due">Final written reflection, due exam week</td>
-        <td data-label="Materials"><span class="week-links"><span class="hint">Added the week of</span></span></td>
+        <td data-label="Materials"><span class="hint">Brief added that week</span></td>
       </tr>
     </tbody>
   </table>
   <p class="hint">Dates and the studio-cycle structure are fixed (registrar-verified). Lessons and slides are added the week they are taught. Canvas is the official home for due dates and submissions.</p>
 </main>
+<footer class="site-footer">
+  <p>Learn, Vibe, Build<br>ATLS 4519 · CU Boulder · Fall 2026</p>
+  <p><a href="../setup/">Getting started</a> · <a href="../syllabus.html">Syllabus</a><br>
+  <a href="../llms.txt">Course map for AI</a> · <a href="https://github.com/unforcedagi/learn-vibe-build-deck">Source</a></p>
+</footer>
 </body>
 </html>

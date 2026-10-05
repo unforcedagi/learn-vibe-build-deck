@@ -15,23 +15,8 @@ import glob, html, os, re
 import markdown
 
 SITE = "https://cu.learnvibe.build"
-DECKS = {1: "slides/first-class/", 2: "slides/week-2/lite/", 3: "slides/week-3/"}
-NAV = [("schedule/", "Schedule"), ("lessons/", "Lessons"), ("readings/", "Readings"), ("syllabus.html", "Syllabus"),
-       ("setup/", "Setup"), ("studio/", "Studio"), ("journal/", "Journal"), ("account/", "Account")]
-
-
-def nav(prefix, current):
-    links = "\n".join(
-        f'      <a href="{prefix}{href}"{" aria-current=\"page\"" if label == current else ""}>{label}</a>'
-        for href, label in NAV)
-    return f'''<header class="site-nav">
-  <div class="site-nav-inner">
-    <a class="brand" href="{prefix}">Learn, Vibe, Build</a>
-    <nav>
-{links}
-    </nav>
-  </div>
-</header>'''
+DECKS = {1: "slides/first-class/", 2: "slides/week-2/lite/", 3: "slides/week-3/", 6: "slides/week-6/week6-slides.pdf"}
+from site_templates import nav, footer
 
 
 def page(title, prefix, body, current="Lessons"):
@@ -43,11 +28,12 @@ def page(title, prefix, body, current="Lessons"):
 <title>{html.escape(title)} — Learn, Vibe, Build · ATLS 4519</title>
 <link rel="stylesheet" href="{prefix}assets/site.css">
 </head>
-<body>
+<body class="{'lessons-index' if title == 'Lessons' else 'lesson-page'}">
 {nav(prefix, current)}
-<main class="lesson-main">
+<main class="{'lessons-index' if title == 'Lessons' else 'lesson-main'}" id="main-content">
 {body}
 </main>
+{footer(prefix)}
 </body>
 </html>
 '''
@@ -72,7 +58,7 @@ def lesson_meta(src):
     title = re.search(r"^# (.+)$", text, re.M).group(1).strip()
     line = re.search(r"^\*\*In one line:\*\* (.+)$", text, re.M)
     if not line:
-        line = re.search(r"^\*\*Through-line for today:\*\* (.+)$", text, re.M)
+        line = re.search(r"^\*\*(?:Through-line for today|The through-line):\*\* (.+)$", text, re.M)
     summary = re.sub(r"[*_]", "", line.group(1)).strip() if line else ""
     week = int(re.search(r"week-(\d+)\.md$", src).group(1))
     return week, title, summary, text
@@ -85,24 +71,50 @@ def main():
         os.makedirs(out, exist_ok=True)
         open(f"{out}/lesson.md", "w").write(text)
         body_md = re.sub(r"^# .+\n", "", text, count=1)
-        rendered = markdown.markdown(body_md, extensions=["tables", "fenced_code", "toc", "sane_lists"])
+        md = markdown.Markdown(extensions=["tables", "fenced_code", "toc", "sane_lists"])
+        rendered = md.convert(body_md)
+        toc = getattr(md, 'toc', '')
+        # The source's hand-written contents remains in lesson.md; the reader
+        # has an automatically generated contents panel instead.
+        rendered = re.sub(r'<h2 id="contents">Contents</h2>\s*<(?:ul|ol)>.*?</(?:ul|ol)>', '<span id="contents"></span>', rendered, count=1, flags=re.S)
+        toc = re.sub(r'<li><a href="#contents">Contents</a></li>\s*', '', toc)
         # Autolink bare URLs outside code and existing links.
         parts = re.split(r"(<pre.*?</pre>|<code>.*?</code>|<a [^>]*>.*?</a>)", rendered, flags=re.S)
         rendered = "".join(p if i % 2 else re.sub(r"(https?://[^\s<)]+[^\s<).,;:])", r'<a href="\1">\1</a>', p)
                            for i, p in enumerate(parts))
         deck = DECKS.get(week)
         deck_link = f' <a class="btn ghost" href="../../{deck}">Open the slides</a>' if deck else ""
-        body = f'''  <p class="crumb"><a href="../">Lessons</a> · Week {week}</p>
-  <h1>{html.escape(title)}</h1>
+        display_title = re.sub(r'^Week \d+\s*[:—–]\s*', '', title)
+        body = f'''<header class="lesson-header">
+  <p class="crumb"><a href="../">Lessons</a> / Week {week}</p>
+  <p class="kicker">The studio field guide / {week:02d}</p>
+  <h1>{html.escape(display_title)}</h1>
   <div class="copybar">
     <button class="btn" type="button" data-copy="lesson.md">Copy lesson as markdown</button>
     <a class="btn ghost" href="lesson.md">View raw .md</a>{deck_link}
   </div>
-  <p class="hint">Paste the copied lesson into any AI (Claude, ChatGPT, Gemini, a local model) and ask it to teach you more.
-    Or point your AI at <code>{SITE}/lessons/week-{week}/lesson.md</code>.</p>
+  <p class="hint">Read it here. Or bring it into your AI: copy the markdown and ask for an explanation,
+    a quiz, or a way to apply it to your own project.</p>
+</header>
+<div class="lesson-layout">
+  <aside class="lesson-toc" aria-label="Lesson contents">
+    <p class="kicker">In this lesson</p>
+    {toc}
+  </aside>
+  <details class="mobile-toc">
+    <summary>In this lesson <span>Contents +</span></summary>
+    {toc}
+  </details>
   <article class="lesson">
 {rendered}
+    <div class="lesson-end">
+      <p class="kicker">Keep going</p>
+      <p>Turn the lesson into a conversation with your AI.</p>
+      <button class="btn" type="button" data-copy="lesson.md">Copy lesson as markdown</button>
+      <p class="hint"><a href="../">All lessons</a> · <a href="../../schedule/">The semester schedule</a></p>
+    </div>
   </article>
+</div>
 {COPY_JS}'''
         open(f"{out}/index.html", "w").write(page(title, "../../", body))
 
@@ -110,13 +122,16 @@ def main():
     cards = "\n".join(
         f'''    <a class="card" href="week-{w}/">
       <p class="kicker">Week {w}</p>
-      <h2>{html.escape(t.split("—", 1)[-1].strip())}</h2>
+      <h2>{html.escape(re.sub(r'^Week [0-9]+ *[:—–] *', '', t))}</h2>
       <p>{html.escape(s)}</p>
     </a>''' for w, t, s, _ in reversed(lessons))
-    body = f'''  <h1>Lessons</h1>
+    body = f'''  <p class="kicker">The studio field guide / read, copy, explore</p>
+  <h1>Lessons for<br>the making.</h1>
   <p class="lead">Every lesson, as a page you can read and as a markdown file you can hand to your AI.
     Copy a lesson, paste it into Claude, ChatGPT or any other assistant, and ask it to explain, quiz you,
     or apply it to your project.</p>
+  <div class="cards">{cards}</div>
+  <h2>Bring the course into your AI.</h2>
   <div class="copybar">
     <button class="btn" type="button" data-copy="index.md">Copy the course map</button>
     <a class="btn ghost" href="index.md">index.md</a>
@@ -135,9 +150,7 @@ def main():
       <em>“Use the Learn, Vibe, Build connector to quiz me on Week 6.”</em></p>
     <p class="hint">No connector support? Copy a lesson instead. It's the same text.</p>
   </div>
-  <div class="cards">
-{cards}
-  </div>
+  <p class="hint">Weeks 4–5 were studio nights, not missing lessons. See the <a href="../schedule/">full semester schedule</a> for the path through the term.</p>
 {COPY_JS}'''
     open("lessons/index.html", "w").write(page("Lessons", "../", body))
 

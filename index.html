@@ -3,99 +3,106 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Learn, Vibe, Build: an AI studio course at CU Boulder. This week's lesson, reading, studio cycle, and a path through the term.">
 <title>Learn, Vibe, Build — ATLS 4519 · CU Boulder · Fall 2026</title>
 <link rel="stylesheet" href="assets/site.css">
-<style>
-  main { max-width: 720px; }
-  h1 { font-size: 2.2rem; margin: 0 0 0.25rem; }
-  .kicker { color: var(--muted); font-size: 0.95rem; margin: 0 0 0.35rem; }
-  .meta { color: var(--muted); margin: 0 0 2rem; }
-  .meta strong { color: var(--ink); font-weight: 600; }
-  .rhythm {
-    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-    padding: 1.1rem 1.3rem; margin-bottom: 2rem;
-  }
-  .rhythm h2 { margin: 0 0 0.4rem; font-size: 1.05rem; }
-  .rhythm p { margin: 0.3rem 0; font-size: 0.97rem; }
-  footer { color: var(--muted); font-size: 0.9rem; border-top: 1px solid var(--border); padding-top: 1rem; }
-  footer a { color: var(--muted); }
-  .now-card { border-left: 4px solid var(--accent); margin-bottom: 1rem; }
-</style>
 </head>
-<body>
+<body class="home-page">
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="site-nav">
   <div class="site-nav-inner">
-    <a class="brand" href="./">Learn, Vibe, Build</a>
-    <nav>
-      <a href="schedule/">Schedule</a>
-      <a href="lessons/">Lessons</a>
-      <a href="readings/">Readings</a>
-      <a href="syllabus.html">Syllabus</a>
-      <a href="setup/">Setup</a>
-      <a href="studio/">Studio</a>
-      <a href="journal/">Journal</a>
-      <a href="account/">Account</a>
-    </nav>
+    <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">L</span>Learn, Vibe, Build</a>
+    <nav class="desktop-nav" aria-label="Course"><a href="./schedule/">Schedule</a>
+<a href="./lessons/">Lessons</a>
+<a href="./readings/">Readings</a>
+<a href="./syllabus.html">Syllabus</a>
+<a href="./setup/">Setup</a>
+<a href="./studio/">Studio</a>
+<a href="./journal/">Journal</a>
+<a href="./account/">Account</a></nav>
+    <details class="mobile-nav">
+      <summary>Menu <span aria-hidden="true">&nbsp;+</span></summary>
+      <nav aria-label="Course menu"><a href="./schedule/">Schedule</a>
+<a href="./lessons/">Lessons</a>
+<a href="./readings/">Readings</a>
+<a href="./syllabus.html">Syllabus</a>
+<a href="./setup/">Setup</a>
+<a href="./studio/">Studio</a>
+<a href="./journal/">Journal</a>
+<a href="./account/">Account</a></nav>
+    </details>
   </div>
 </header>
-<main>
-  <p class="kicker">ATLS 4519 · Advanced Special Topics · Fall 2026 · CU Boulder</p>
-  <h1>Learn, Vibe, Build</h1>
-  <p class="meta">
-    <strong>Mondays 5:05–7:35 PM</strong> · Roser ATLAS Center, room 104<br>
-    Aaron Neyer · <a href="mailto:aaron.neyer@colorado.edu">aaron.neyer@colorado.edu</a>
-  </p>
-
-  <p class="lead">A studio course about becoming a builder with AI. You make something every week, write about what you did in your own words, and share it with the room. The tools will keep changing. The point of this class is learning how to keep up with them.</p>
-
-  <a class="card now-card" href="lessons/week-6/">
-    <p class="kicker">This week · Week 6 · Oct 5</p>
-    <h2>Context, fluency, and connectors</h2>
-    <p>The 4D AI Fluency framework, context and index files, APIs and MCP. Read it, or copy it into your AI and ask it to teach you more.</p>
-  </a>
-
-  <div class="cards">
-    <a class="card" href="lessons/">
-      <h2>Lessons</h2>
-      <p>Every week's lesson as a page and as markdown you can paste into your AI. Start here to catch up or go deeper.</p>
-    </a>
-    <a class="card" href="schedule/">
-      <h2>Schedule</h2>
-      <p>Every week: what it covers, what's due, and links to that week's slides and lesson.</p>
-    </a>
-    <a class="card" href="syllabus.html">
-      <h2>Syllabus</h2>
-      <p>Course description, weekly rhythm, grading, policies, and the full semester schedule.</p>
-    </a>
-    <a class="card" href="setup/">
-      <h2>Setup</h2>
-      <p>Get your accounts, pick one tool, prove it works. The setup checklist.</p>
-    </a>
-    <a class="card" href="account/">
-      <h2>Your Account</h2>
-      <p>Sign in with the email on your Canvas account. Your work lives here — private by default, shared when you say so.</p>
-    </a>
-    <a class="card" href="studio/">
-      <h2>The Studio</h2>
-      <p>The class wall, the idea board, and the semester's record. Built live in class, week 1.</p>
-    </a>
-    <a class="card" href="journal/">
-      <h2>Class journal</h2>
-      <p>One entry per Monday night. What we did, what got made, what came up.</p>
-    </a>
-  </div>
-
-  <div class="rhythm">
-    <h2>The weekly rhythm</h2>
-    <p>1. Make something. Any medium. Small and unfinished is fine.</p>
-    <p>2. Write at least one paragraph, yourself, about what you did and what you learned.</p>
-    <p>3. Share it. Demos alternate: about half the room shares each week, and the other half gives real feedback.</p>
-    <p>Weekly work is due <strong>Sundays at 11:59 PM</strong> in Canvas. Canvas is the official home for submissions, grades, and announcements.</p>
-  </div>
-
-  <footer>
-    <a href="llms.txt">llms.txt</a> (course map for AI tools) · <a href="https://github.com/unforcedagi/learn-vibe-build-deck">Source for this site</a>
-  </footer>
+<main class="home-main" id="main-content">
+  <p class="kicker">CU Boulder / ATLS 4519 / Fall 2026</p>
+  <section class="home-intro" aria-label="About the course">
+    <h1>Learn, vibe,<br><em>build.</em></h1>
+    <div class="intro-note">
+      <p>A studio for becoming a builder with AI. Make something every week. Follow your curiosity. Learn by doing.</p>
+      <div class="meeting-meta">Mondays, 5:05–7:35 PM · ATLAS 104<br>Aaron Neyer · <a href="mailto:aaron.neyer@colorado.edu">Get in touch</a></div>
+    </div>
+  </section>
+  <section class="week-brief" aria-labelledby="this-week-title">
+    <div class="brief-lesson">
+      <p class="kicker">This week / 06 / October 5</p>
+      <h2 id="this-week-title">Context that sticks,<br>getting online,<br>and connectors</h2>
+      <p>Give your AI context that lasts. Write AGENTS.md, get your project online, and connect your assistant to this course.</p>
+      <a class="btn" href="lessons/week-6/">Read this week's lesson <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="brief-tasks">
+      <div class="brief-task">
+        <p class="kicker">01 / Read</p>
+        <h3>How to Get Better at AI by Asking AI</h3>
+        <p>Arielle Shipper · Every</p>
+        <a href="readings/">Reading notes &amp; class access <span aria-hidden="true">&nbsp;↗</span></a>
+      </div>
+      <div class="brief-task">
+        <p class="kicker">02 / Make &amp; reflect</p>
+        <h3>Week 6 Studio Cycle</h3>
+        <p>Make something. Submit your build and at least one paragraph of your own writing.</p>
+        <div class="due">Due Sunday, October 11 · 11:59 PM MT</div>
+        <a href="account/">Submit in your account <span aria-hidden="true">&nbsp;↗</span></a>
+        <span aria-hidden="true"> · </span><a href="https://canvas.colorado.edu/courses/145074/assignments/2858628">or Canvas</a>
+      </div>
+    </div>
+  </section>
+  <section class="connect-strip" aria-labelledby="connect-title">
+    <div>
+      <p class="kicker">03 / Connect your AI</p>
+      <h3 id="connect-title">Bring the course into your conversation.</h3>
+      <p>Add this read-only MCP connector to your AI, or give it the course map. No account needed; no student work is exposed.</p>
+    </div>
+    <div>
+      <code class="connector-code">https://api.learnvibe.build/mcp</code>
+      <div class="connect-links"><a href="llms.txt">Course map / llms.txt</a> · <a href="lessons/">How to connect</a><br>Tools: get_course_map · list_lessons · get_lesson</div>
+    </div>
+  </section>
+  <section aria-labelledby="path-title">
+    <p class="kicker">The semester, so far</p>
+    <div class="section-heading"><h2 id="path-title">A path through the studio.</h2><a href="schedule/">Full schedule <span aria-hidden="true">&nbsp;↗</span></a></div>
+    <div class="term-preview">
+      <a class="term-week" href="lessons/week-1/"><span class="number">01</span><strong>Begin where you are</strong><small>Aug 24 · Orientation</small></a>
+      <a class="term-week" href="lessons/week-2/"><span class="number">02</span><strong>Build together</strong><small>Aug 31 · Build night</small></a>
+      <a class="term-week" href="lessons/week-3/"><span class="number">03</span><strong>Explore the tools</strong><small>Sep 14 · Demos</small></a>
+      <a class="term-week" href="schedule/#week-4"><span class="number">04</span><strong>Make. Reflect. Repeat.</strong><small>Sep 21 · Studio</small></a>
+      <a class="term-week" href="schedule/#week-5"><span class="number">05</span><strong>Learn with others</strong><small>Sep 28 · Group work</small></a>
+      <a class="term-week active" href="lessons/week-6/"><span class="number">06</span><strong>Give your AI context</strong><small>Oct 5 · This week</small></a>
+    </div>
+  </section>
+  <section class="studio-invite" aria-labelledby="studio-title">
+    <div><p class="kicker">Made in this room</p><h2 id="studio-title">Small experiments.<br>Real discoveries.</h2></div>
+    <div><p>The studio wall is our shared work in progress. See what classmates are building, find something that surprises you, and share your own experiments when you're ready.</p><a class="btn ghost" href="studio/">Step into the studio <span aria-hidden="true">↗</span></a><p class="hint">Class-only. Sign in to see builds that students chose to share.</p></div>
+  </section>
+  <section class="rhythm" aria-labelledby="rhythm-title">
+    <h2 id="rhythm-title">The practice is the point.</h2>
+    <ol><li><strong>Make something.</strong>Any medium. Small and unfinished is fine. Choose work that makes you curious.</li><li><strong>Write it yourself.</strong>At least one paragraph about your process, what you learned, and what's next.</li><li><strong>Share &amp; listen.</strong>Demo groups alternate. Give real feedback, and learn from the room.</li></ol>
+    <p>Weekly work is due Sundays at 11:59 PM. Canvas is the official home for submissions, grades, and announcements.</p>
+  </section>
 </main>
+<footer class="site-footer">
+  <p>Learn, Vibe, Build<br>ATLS 4519 · CU Boulder · Fall 2026</p>
+  <p><a href="./setup/">Getting started</a> · <a href="./syllabus.html">Syllabus</a><br>
+  <a href="./llms.txt">Course map for AI</a> · <a href="https://github.com/unforcedagi/learn-vibe-build-deck">Source</a></p>
+</footer>
 </body>
 </html>

@@ -6,45 +6,34 @@
 <meta name="robots" content="noindex">
 <title>Instructor — Learn, Vibe, Build · ATLS 4519</title>
 <link rel="stylesheet" href="../assets/site.css">
-<style>
-  main { max-width: 900px; }
-
-  /* Demo queue — only this page runs it, so the styles stay local. */
-  .demo-timer { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
-  .demo-timer .clock {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 2.6rem; font-weight: 700; letter-spacing: -0.02em;
-    line-height: 1; min-width: 5.2ch;
-  }
-  .demo-timer .clock.low { color: #a42424; }
-  ol.demo-queue, ul.demo-queue { margin: 0 0 0.8rem; padding-left: 1.9rem; }
-  ul.demo-queue { list-style: disc; }
-  .demo-queue li { margin-bottom: 0.35rem; font-size: 0.95rem; }
-  .demo-queue li.done { color: var(--muted); }
-  .demo-queue li.done .who { text-decoration: line-through; }
-  .demo-queue .who { font-weight: 600; }
-  .demo-queue label { cursor: pointer; margin-right: 0.5rem; }
-  .demo-queue .nolink { color: var(--muted); font-style: italic; }
-  .demo-queue .when { color: var(--muted); font-size: 0.85rem; }
-</style>
 </head>
-<body>
+<body class="instructor-page">
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header class="site-nav">
   <div class="site-nav-inner">
-    <a class="brand" href="../">Learn, Vibe, Build</a>
-    <nav>
-      <a href="../schedule/">Schedule</a>
-      <a href="../lessons/">Lessons</a>
-      <a href="../readings/">Readings</a>
-      <a href="../syllabus.html">Syllabus</a>
-      <a href="../setup/">Setup</a>
-      <a href="../studio/">Studio</a>
-      <a href="../journal/">Journal</a>
-      <a href="../account/">Account</a>
-    </nav>
+    <a class="brand" href="../"><span class="brand-mark" aria-hidden="true">L</span>Learn, Vibe, Build</a>
+    <nav class="desktop-nav" aria-label="Course"><a href="../schedule/">Schedule</a>
+<a href="../lessons/">Lessons</a>
+<a href="../readings/">Readings</a>
+<a href="../syllabus.html">Syllabus</a>
+<a href="../setup/">Setup</a>
+<a href="../studio/">Studio</a>
+<a href="../journal/">Journal</a>
+<a href="../account/">Account</a></nav>
+    <details class="mobile-nav">
+      <summary>Menu <span aria-hidden="true">&nbsp;+</span></summary>
+      <nav aria-label="Course menu"><a href="../schedule/">Schedule</a>
+<a href="../lessons/">Lessons</a>
+<a href="../readings/">Readings</a>
+<a href="../syllabus.html">Syllabus</a>
+<a href="../setup/">Setup</a>
+<a href="../studio/">Studio</a>
+<a href="../journal/">Journal</a>
+<a href="../account/">Account</a></nav>
+    </details>
   </div>
 </header>
-<main>
+<main class="instructor-main" id="main-content">
   <!-- State 0: figuring out who you are -->
   <section id="loading">
     <h1>Instructor</h1>
@@ -138,5 +127,10 @@
      never load a mismatched copy of the other. Bump it whenever app.js and
      index.html change together. -->
 <script type="module" src="./app.js?v=4"></script>
+<footer class="site-footer">
+  <p>Learn, Vibe, Build<br>ATLS 4519 · CU Boulder · Fall 2026</p>
+  <p><a href="../setup/">Getting started</a> · <a href="../syllabus.html">Syllabus</a><br>
+  <a href="../llms.txt">Course map for AI</a> · <a href="https://github.com/unforcedagi/learn-vibe-build-deck">Source</a></p>
+</footer>
 </body>
 </html>
