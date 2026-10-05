@@ -40,8 +40,8 @@
     or apply it to your project.</p>
   <div class="cards">    <a class="card" href="week-6/">
       <p class="kicker">Week 6</p>
-      <h2>Context That Sticks, Getting Online, and Connectors</h2>
-      <p>Write your project context down once in AGENTS.md so every AI session starts out knowing it, get your project online with a link anyone can open, and connect your AI to the course.</p>
+      <h2>Context That Sticks, and Getting Online</h2>
+      <p>Your AI only knows what it can see. Give it your project&#x27;s context in a markdown file so it sticks, and put your project online with a link anyone can open.</p>
     </a>
     <a class="card" href="week-3/">
       <p class="kicker">Week 3</p>
@@ -66,17 +66,6 @@
   </div>
   <p class="hint">Using an AI that can read web pages? Give it <code>https://cu.learnvibe.build/llms.txt</code>.
     It's a short map of the whole course with links to every lesson's markdown. That's the index-file idea from Week 6.</p>
-  <div class="card connect">
-    <p class="kicker">Connect your AI · MCP</p>
-    <h2>Let your AI read the course directly</h2>
-    <p>If your AI app supports custom MCP connectors, add this server URL:</p>
-    <pre><code>https://api.learnvibe.build/mcp</code></pre>
-    <p>It's read-only and public: it can list the lessons and open any one of them, nothing else.
-      No sign-in, and it never sees your account or your work. Where to add it varies by app
-      (in Claude it's under Settings → Connectors → Add custom connector). Then ask:
-      <em>“Use the Learn, Vibe, Build connector to quiz me on Week 6.”</em></p>
-    <p class="hint">No connector support? Copy a lesson instead. It's the same text.</p>
-  </div>
   <p class="hint">Weeks 4–5 were studio nights, not missing lessons. See the <a href="../schedule/">full semester schedule</a> for the path through the term.</p>
 <script>
 document.querySelectorAll('[data-copy]').forEach(function (b) {
