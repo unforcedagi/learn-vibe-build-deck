@@ -92,6 +92,33 @@ function openWeek(now = Date.now()) {
 // view's week tabs decide which week is on screen.)
 
 
+// ---------------------------------------------------------------------------
+// Weekly readings — a running list for the term. Served only to signed-in
+// students via /me. Gift links for paywalled readings are NOT in this file (the
+// repo is public): they live in the READING_LINKS Worker secret, a JSON object
+// keyed by week, e.g. {"6": "<gift link>"}. Set it with
+//   npx wrangler secret put READING_LINKS
+// The public /readings/ page shows title, author and the paywalled URL only.
+// ---------------------------------------------------------------------------
+
+const READINGS = [
+  {
+    week: 6,
+    title: 'How to Get Better at AI by Asking AI',
+    author: 'Arielle Shipper',
+    source: 'Every',
+    date: '2026-10-02',
+    public_url: 'https://every.to/p/codex-graded-my-ai-habits-then-it-became-my-coach',
+    why: 'Use your own AI as a coach: ask it to place you on the eight levels of AI adoption, replay a finished project one level up, then have it teach you the next step.',
+  },
+];
+
+function readingsFor(env) {
+  let links = {};
+  try { links = JSON.parse(env.READING_LINKS || '{}'); } catch { links = {}; }
+  return READINGS.map((r) => ({ ...r, url: links[String(r.week)] || r.public_url }));
+}
+
 const MIN_WRITING_CHARS = 120; // roughly a short paragraph
 
 // ---------------------------------------------------------------------------
@@ -395,6 +422,7 @@ async function handleMe(request, env) {
     is_instructor: !!me.is_instructor,
     weeks: WEEKS,
     open_week: openWeek(),
+    readings: readingsFor(env),
     submissions: subs.results.map((s) => ({
       ...s, share_build: !!s.share_build, share_writing: !!s.share_writing,
     })),
