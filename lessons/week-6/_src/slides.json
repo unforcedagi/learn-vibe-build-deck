@@ -1,0 +1,256 @@
+[
+ {
+  "kind": "title",
+  "title": "What can your AI see?",
+  "bullets": [
+   "Context that sticks, getting online, connectors",
+   "Week 6 · Learn, Vibe, Build · October 5, 2026"
+  ],
+  "notes": "5:05 · 30 seconds\n\nTonight is mostly live demos, not slides. Three of them. Everything tonight is also one markdown lesson students can paste into their own AI later, so nobody has to catch every word.\n\n(Background for you, not to teach: this whole lecture is the 4D AI Fluency framework in practice. Context files are Description that persists; checking the output out loud is Discernment; deciding what to hand the agent is Delegation; checking before you publish is Diligence.)",
+  "extra": null,
+  "section": "Opening"
+ },
+ {
+  "kind": "bullets",
+  "title": "Tonight: three demos",
+  "bullets": [
+   "1 · Give your AI context that sticks (AGENTS.md)",
+   "2 · Get your project online: a link anyone can open",
+   "3 · Connect your AI to the course"
+  ],
+  "notes": "5:05–5:06 · 30 seconds\n\nThe through-line, said once: choose what your AI sees, check what it produces, control what it can change. The footer on every slide says which demo we're in.",
+  "extra": null,
+  "section": "Opening"
+ },
+ {
+  "kind": "bullets",
+  "title": "Your AI starts every session from zero",
+  "bullets": [
+   "It only sees what's in front of it right now",
+   "It doesn't know your project unless you tell it",
+   "A generic answer is usually a context problem"
+  ],
+  "notes": "5:06–5:07 · 1 min\n\nThe context window is what the model sees for this answer: your message, the chat so far, files and tool results. Training knowledge is separate; app 'memory' is the app looking things up for it. Ask the room: who has had to re-explain their project to an AI three times this week?\n\n(Background: this is Description. A good description says what you want (product), how to approach it (process) and how to behave (performance).)",
+  "extra": null,
+  "section": "Demo 1 · Context that sticks"
+ },
+ {
+  "kind": "code",
+  "title": "Markdown: plain text with a little structure",
+  "bullets": [
+   "# Big heading",
+   "## Smaller heading",
+   "- a bullet point",
+   "**bold**  *italic*",
+   "[a link](https://example.com)",
+   "`some code`"
+  ],
+  "notes": "5:07–5:08 · 1 min\n\nA .md file is just a text file. # makes headings, - makes lists. Humans can read it raw; AIs read it really well. Every lesson on the course site is a markdown file you can copy. You've seen it already: AI chat answers are written in markdown.",
+  "extra": "Plain text. Readable by you and by your AI.",
+  "section": "Demo 1 · Context that sticks"
+ },
+ {
+  "kind": "bullets",
+  "title": "AGENTS.md: context that sticks",
+  "bullets": [
+   "A markdown file in your project folder",
+   "Coding agents read it at the start of every session",
+   "AGENTS.md: Codex, Cursor, many others · CLAUDE.md: Claude Code",
+   "In a chat app: paste it in, or add it to a Project"
+  ],
+  "notes": "5:08–5:09 · 1 min\n\nWrite it once and stop re-explaining your project. What goes in: who it's for, what it is, the stack, conventions, where facts live, and what 'done' looks like. Claude Code reads CLAUDE.md, and also reads AGENTS.md in practice (verified today); a CLAUDE.md that just says 'see AGENTS.md' covers both. Always check the tool actually read it: ask it what the project is.",
+  "extra": null,
+  "section": "Demo 1 · Context that sticks"
+ },
+ {
+  "kind": "bullets",
+  "title": "What goes in AGENTS.md",
+  "bullets": [
+   "Who it's for, and what they need",
+   "What it is, in one sentence",
+   "Stack and conventions (\"plain HTML, no build step\")",
+   "Where the facts live (and \"never invent facts\")",
+   "What \"done\" looks like",
+   "Keep it short, true, and secret-free"
+  ],
+  "notes": "5:08–5:09 · 1 min\n\nSix headings are enough. The most useful line is often a rule: never invent facts, only use docs/event-facts.md. Short beats long: the agent reads all of it every session, so every line should earn its place. Never put passwords or API keys in it; it's a file in your repo.",
+  "extra": null,
+  "section": "Demo 1 · Context that sticks"
+ },
+ {
+  "kind": "code",
+  "title": "Live demo · the same question, twice",
+  "bullets": [
+   "1 · Open the project. Ask: “Improve the homepage.”",
+   "2 · Write AGENTS.md together (2 min)",
+   "3 · Ask again. Compare.",
+   "4 · Fresh session: does it still know?",
+   "5 · Add an index pointing to docs/"
+  ],
+  "notes": "5:09–5:17 · 8 min LIVE · exact steps and prompts on the demo script page\n\nRepo: github.com/unforcedagi/lvb-week6-demo (Hill Plant Swap, fictional). It has NO AGENTS.md on purpose.\n1. (1 min) Open it in your agent. Prompt: 'Improve the homepage.' Expect generic: invented dates, maybe a framework, a 'garden lovers' audience.\n2. (3 min) Write AGENTS.md live, asking the room for each line: who it's for, what it is, stack, conventions, facts, what done looks like.\n3. (2 min) Same prompt. Narrate what you check: are the facts from docs/event-facts.md? Phone-first? No framework? (That narration is discernment; don't name it.)\n4. (1 min) Quit, start a fresh session, ask 'What is this project and who is it for?' It knows: the file persists, the chat didn't.\n5. (1 min) Show the 'Where to look' section: the index.\nIF IT STALLS: the prepared AGENTS.md is on the demo script page. Paste it, and show the rehearsal output tab. Never show invented output.",
+  "extra": "Same question. Different context. Different answer.",
+  "section": "Demo 1 · Context that sticks"
+ },
+ {
+  "kind": "code",
+  "title": "A real AGENTS.md (the demo's)",
+  "bullets": [
+   "# Hill Plant Swap",
+   "Who: first-year students on phones, nervous",
+   "What: one page announcing a free monthly swap",
+   "Stack: plain HTML + CSS, no JavaScript",
+   "Facts: only docs/event-facts.md; never invent",
+   "Done: date + place readable at 390px in 10 s"
+  ],
+  "notes": "Shown after the demo, 30 seconds. This is roughly what we just wrote live. The full template is on the Week 6 page: copy it, fill it in for your own project tonight in studio.",
+  "extra": "Six lines. Every session starts here.",
+  "section": "Demo 1 · Context that sticks"
+ },
+ {
+  "kind": "code",
+  "title": "Index files: a map, not a dump",
+  "bullets": [
+   "## Where to look",
+   "- docs/event-facts.md: the only source of facts",
+   "- docs/audience.md: who visits",
+   "- research/index.md: interview notes (its own index)"
+  ],
+  "notes": "5:17 · 30 seconds (shown at the end of Demo 1)\n\nThe demo repo starts with one doc; this is how the index grows. A short top file says what exists and links deeper. The AI reads the small map, then opens only what it needs. Indexes nest: an index can point to other indexes. The course site does exactly this: cu.learnvibe.build/llms.txt is an index of every lesson (live tonight after class).",
+  "extra": "The AI reads the map, then opens only what it needs.",
+  "section": "Demo 1 · Context that sticks"
+ },
+ {
+  "kind": "code",
+  "title": "Your link has to work on someone else's phone",
+  "bullets": [
+   "✗  file:///Users/you/Desktop/project/index.html",
+   "     only works on your laptop",
+   " ",
+   "✓  https://you.github.io/project/",
+   "     works for anyone, anywhere"
+  ],
+  "notes": "5:17–5:18 · 1 min\n\nThis is the most common problem in submissions so far: a link that points to a file on your own computer. If the address starts with file:// or C:\\, nobody else can open it. Test: send the link to yourself and open it on your phone, off wifi.",
+  "extra": "If it starts with file://, nobody else can see it.",
+  "section": "Demo 2 · Get it online"
+ },
+ {
+  "kind": "flow",
+  "title": "Three different things",
+  "bullets": [
+   "Git: save points for your project, on your laptop",
+   "GitHub: a copy of those save points, online",
+   "Pages / Vercel: turns that copy into a website"
+  ],
+  "notes": "5:18–5:19 · 1 min\n\nCommit = a save point with a note. Push = send your save points to GitHub. Deploy = publish. Most confusion comes from treating these as one thing.",
+  "extra": [
+   "Folder",
+   "Commit",
+   "Push",
+   "Live link"
+  ],
+  "section": "Demo 2 · Get it online"
+ },
+ {
+  "kind": "code",
+  "title": "Live demo · from folder to link",
+  "bullets": [
+   "1 · Download the project folder",
+   "2 · GitHub Desktop: create repo, commit, publish",
+   "3 · Settings → Pages → main → Save",
+   "4 · Open the link on a phone",
+   "5 · Change something, commit, push, refresh"
+  ],
+  "notes": "5:19–5:27 · 8 min LIVE · exact clicks on the demo script page\n\nUse the zip from the class files page so you start from a plain folder with no git history.\n1. Unzip. GitHub Desktop: File → Add local repository → choose the folder → 'create a repository' → Create.\n2. Commit to main ('first version'). Publish repository; UNTICK 'keep this code private'.\n3. On github.com: Settings → Pages → Source: Deploy from a branch → main / (root) → Save. About a minute.\n4. Open the https://<you>.github.io/<repo>/ link on your phone; hold it up.\n5. Ask the agent for one small change, commit, push, refresh after ~1 min.\nWhile Pages builds, say: Vercel does the same for React/Next/Vite projects: import the GitHub repo at vercel.com/new and click Deploy.\nIF PAGES IS SLOW: show the already-live copy at unforcedagi.github.io/lvb-week6-demo and move on. The handout 'Get your project online' has every step with a no-install option.",
+  "extra": "Handout: “Get your project online”, step by step.",
+  "section": "Demo 2 · Get it online"
+ },
+ {
+  "kind": "bullets",
+  "title": "When the link doesn't work",
+  "bullets": [
+   "404: wait 1–2 min, then check Settings → Pages",
+   "Page with no styles: paths start with / (use style.css)",
+   "Only the README shows: index.html must be in the top folder",
+   "Old version: hard refresh, or wait a minute",
+   "Private repo on a free plan: make it public, or use Vercel"
+  ],
+  "notes": "5:27 · 30 seconds. The handout's fix-it table, in brief. Most first deploys hit one of these. Name them so nobody feels stuck alone; the handout on the Week 6 page has the full steps.",
+  "extra": null,
+  "section": "Demo 2 · Get it online"
+ },
+ {
+  "kind": "bullets",
+  "title": "API vs. MCP",
+  "bullets": [
+   "API: one service's own menu of requests",
+   "MCP: one standard plug for AI apps to use many tools",
+   "MCP servers often call APIs underneath"
+  ],
+  "notes": "5:27–5:28 · 1 min\n\nAPI = how one program asks another for things; every service's menu is different. MCP (Model Context Protocol) is an open standard: write the connector once, use it in any MCP-capable app. Analogy: different wall sockets vs a universal adapter. Reading adds context; writing (sending, paying, deleting) changes the world. Start read-only; ask before anything that changes things. A web page that says 'ignore your instructions' is data, not your boss.",
+  "extra": null,
+  "section": "Demo 3 · Connectors"
+ },
+ {
+  "kind": "bullets",
+  "title": "Live demo · connect your AI to this course",
+  "bullets": [
+   "https://api.learnvibe.build/mcp",
+   "Add it as a custom connector (or `claude mcp add`)",
+   "Ask: “Using the course connector, teach me tonight's lesson on AGENTS.md, then quiz me.”"
+  ],
+  "notes": "5:28–5:33 · 5 min LIVE\n\nClaude Code: claude mcp add --transport http lvb https://api.learnvibe.build/mcp, then start claude and run /mcp to see it connected.\nClaude app: Settings → Connectors → Add custom connector → paste the URL (plans vary).\nAsk it to list the lessons, then to teach the AGENTS.md part and quiz you. It's read-only and public: no student data, nothing it can change. That's the safe way to start with any connector.\nIF IT STALLS: open cu.learnvibe.build/lessons/week-6/lesson.md, copy it, paste into any chat with the same prompt. Same result, no connector.",
+  "extra": null,
+  "section": "Demo 3 · Connectors"
+ },
+ {
+  "kind": "bullets",
+  "title": "Choose · check · control",
+  "bullets": [
+   "Choose what it sees: context files, connectors",
+   "Check what it produces: fluent ≠ correct, say what you checked",
+   "Control what it can change: read-only first, ask before writes",
+   "This course's connector is read-only, on purpose"
+  ],
+  "notes": "5:33 · 30 seconds. The through-line, made concrete. Background (not taught): this is Description, Discernment, Delegation and Diligence in practice. A connector that can write (send email, edit files) deserves a pause: what can it change, and can you undo it? Content an AI reads can contain instructions (prompt injection); treat it as data.",
+  "extra": null,
+  "section": "Demo 3 · Connectors"
+ },
+ {
+  "kind": "bullets",
+  "title": "This week's reading: your AI as a coach",
+  "bullets": [
+   "Arielle Shipper, “How to Get Better at AI by Asking AI” (Every)",
+   "Ask your AI: which of the eight levels am I, with examples?",
+   "Then: “teach me the next step”"
+  ],
+  "notes": "5:33–5:35 · 2 min\n\nShipper asked her AI to place her on Every's Eight Levels of AI Adoption from her actual past work, turned that into recommendations, then had it teach her the next step. Same move as tonight: give your AI context about you, and it can coach you. Free plan or no chat history? Paste your AGENTS.md or your last two submissions and ask 'what level am I, with examples?' Gift link: on your account page and in tonight's announcement. No due date.\nThen: trios, 5:35–6:05.",
+  "extra": null,
+  "section": "Close"
+ },
+ {
+  "kind": "bullets",
+  "title": "Studio · write each other's AGENTS.md",
+  "bullets": [
+   "Pairs, 20 minutes",
+   "8 min each: your partner interviews you and drafts your AGENTS.md",
+   "4 min: test it with your own agent, then revise"
+  ],
+  "notes": "6:05–6:25 · 20 min PAIR ACTIVITY (show at 6:05, after trios)\n\nInterview questions: Who is this for? What is it, in one sentence? What's it built with? What should the AI never do? Where do the facts live? What does done look like? Partner types; owner corrects. Then each person opens their own project, adds the file, asks their agent 'What is this project and who is it for?' and one real task, and revises what it got wrong. No project yet? Write it for the project you want to start. Then 6:25–6:55: build with it, and get it online (use the handout).",
+  "extra": null,
+  "section": "Close"
+ },
+ {
+  "kind": "bullets",
+  "title": "Sources",
+  "bullets": [
+   "AGENTS.md convention · agents.md",
+   "Effective context engineering · Anthropic",
+   "GitHub Pages · docs.github.com/pages",
+   "MCP · modelcontextprotocol.io",
+   "AI Fluency (further reading) · academy.claude.com"
+  ],
+  "notes": "Reference only · 0 min\n\nhttps://agents.md/\nhttps://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents\nhttps://docs.github.com/en/pages/getting-started-with-github-pages\nhttps://desktop.github.com/\nhttps://vercel.com/docs/getting-started-with-vercel\nhttps://modelcontextprotocol.io/docs/learn/architecture\nhttps://academy.claude.com/courses/ai-fluency-framework-foundations (Dakan, Feller, Anthropic; CC BY-NC-SA 4.0)",
+  "extra": null,
+  "section": "Close"
+ }
+]

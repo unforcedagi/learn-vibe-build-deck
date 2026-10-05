@@ -2050,3 +2050,22 @@ table.dash th {
 }
 .meeting-meta a { padding: 6px 0; }
 .lesson-toc li a { color: var(--ink); font-size: 14px; text-wrap: pretty; }
+
+/* Week kit: "Everything for Week N" */
+.week-kit { margin: 8px 0 48px; padding: 28px; background: var(--card); border: 1px solid var(--border); border-top: 4px solid var(--accent); border-radius: 10px; }
+.week-kit h2 { font-family: var(--display); font-size: clamp(28px, 4vw, 40px); margin: 4px 0 20px; letter-spacing: -0.02em; }
+.kit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.kit-card { display: flex; flex-direction: column; gap: 6px; padding: 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--ink); text-decoration: none; min-height: 44px; }
+a.kit-card:hover { border-color: var(--accent); }
+.kit-card strong { font-family: var(--display); font-size: 19px; line-height: 1.2; }
+.kit-card > span:not(.kicker):not(.kit-actions) { color: var(--muted); font-size: 15px; line-height: 1.45; overflow-wrap: anywhere; }
+.kit-card .kicker { margin: 0; font-size: 11px; }
+.kit-card code { font-size: 13px; overflow-wrap: anywhere; }
+.kit-actions { display: flex; gap: 12px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+.kit-actions .btn { padding: 8px 14px; font-size: 14px; }
+.week-kit .hint { margin: 18px 0 0; }
+.lesson-layout.single { display: block; max-width: 46rem; }
+@media (max-width: 700px) { .week-kit { padding: 18px; margin-left: -4px; margin-right: -4px; } .kit-grid { grid-template-columns: 1fr; } }
+.week-kit { border-top: 1px solid var(--border); box-shadow: inset 0 4px 0 var(--accent); background: var(--card); }
+.kit-card { background: #fff; }
+a.kit-card strong::after { content: " →"; color: var(--accent); }

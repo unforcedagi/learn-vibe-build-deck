@@ -39,11 +39,29 @@
   <h1>Context That Sticks, Getting Online, and Connectors</h1>
   <div class="copybar">
     <button class="btn" type="button" data-copy="lesson.md">Copy lesson as markdown</button>
-    <a class="btn ghost" href="lesson.md">View raw .md</a> <a class="btn ghost" href="../../slides/week-6/week6-slides.pdf">Open the slides</a>
+    <a class="btn ghost" href="lesson.md">View raw .md</a> <a class="btn ghost" href="slides/">Open the slides</a>
   </div>
   <p class="hint">Read it here. Or bring it into your AI: copy the markdown and ask for an explanation,
     a quiz, or a way to apply it to your own project.</p>
 </header>
+<section class="week-kit" id="everything" aria-labelledby="kit-title">
+  <p class="kicker">Week 6 · slides, lesson, handout, template, reading, connector</p>
+  <h2 id="kit-title">Everything for Week 6</h2>
+  <div class="kit-grid">
+    <a class="kit-card" href="slides/"><span class="kicker">Slides</span><strong>Open the slides</strong><span>Arrow keys and full screen. PDF and PowerPoint downloads are below.</span></a>
+    <a class="kit-card" href="#lesson-start"><span class="kicker">Lesson</span><strong>Read the lesson</strong><span>Below on this page. Copy it as markdown for your AI.</span></a>
+    <a class="kit-card" href="get-online/"><span class="kicker">Handout</span><strong>Get your project online</strong><span>Repo, commit, push, deploy: a link anyone can open.</span></a>
+    <a class="kit-card" href="https://github.com/unforcedagi/lvb-week6-demo"><span class="kicker">Demo project</span><strong>Hill Plant Swap</strong><span>The repo from class, plus its live copy on GitHub Pages.</span></a>
+    <div class="kit-card"><span class="kicker">Template</span><strong>AGENTS.md template</strong><span>Fill it in for your own project.</span>
+      <span class="kit-actions"><button class="btn" type="button" data-copy="files/AGENTS-template.md">Copy template</button> <a href="files/AGENTS-template.md">View</a></span></div>
+    <a class="kit-card" href="#8-studio-write-each-others-agentsmd"><span class="kicker">Studio · pairs · 20 min</span><strong>Write each other's AGENTS.md</strong><span>Your partner interviews you and drafts it. Test it with your agent, revise.</span></a>
+    <a class="kit-card" href="../../readings/"><span class="kicker">Reading</span><strong>How to Get Better at AI by Asking AI</strong><span>Arielle Shipper, Every. Free link on your account page and Canvas.</span></a>
+    <div class="kit-card"><span class="kicker">Connect your AI</span><strong>Course connector (MCP)</strong><span><code>https://api.learnvibe.build/mcp</code></span>
+      <span class="kit-actions"><button class="btn" type="button" data-copy-text="https://api.learnvibe.build/mcp">Copy URL</button> <a href="#6-connectors-apis-mcp-and-this-courses-mcp">How to connect</a></span></div>
+  </div>
+  <p class="hint">Downloads: <a href="files/week6-slides.pdf">slides (PDF)</a> · <a href="files/week6-slides.pptx">slides (PowerPoint)</a> · <a href="lesson.md">lesson (.md)</a> · <a href="files/get-your-project-online.md">handout (.md)</a> · <a href="files/AGENTS-template.md">AGENTS.md template</a></p>
+</section>
+<span id="lesson-start"></span>
 <div class="lesson-layout">
   <aside class="lesson-toc" aria-label="Lesson contents">
     <p class="kicker">In this lesson</p>
@@ -393,6 +411,12 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
       setTimeout(function () { b.textContent = old; }, 1800);
     }).catch(function () { location.href = b.getAttribute('data-copy'); });
   });
+});
+</script>
+<script>
+document.querySelectorAll('[data-copy-text]').forEach(function (b) {
+  b.addEventListener('click', function () { navigator.clipboard.writeText(b.getAttribute('data-copy-text')).then(function () {
+    var o = b.textContent; b.textContent = 'Copied ✓'; setTimeout(function () { b.textContent = o; }, 1800); }); });
 });
 </script>
 </main>
