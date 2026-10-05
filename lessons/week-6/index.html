@@ -75,7 +75,7 @@
 <li><a href="#the-short-version-github-desktop">The short version (GitHub Desktop)</a></li>
 </ul>
 </li>
-<li><a href="#5-apis-connectors-mcp-and-permissions-concepts-only">5. APIs, connectors, MCP and permissions (concepts only)</a></li>
+<li><a href="#5-apis-and-mcp-how-ai-connects-to-other-tools">5. APIs and MCP: how AI connects to other tools</a></li>
 <li><a href="#6-optional-in-class-small-group-building">6. Optional in-class small-group building</a></li>
 <li><a href="#this-weeks-required-assignment-one-page-learning-journey-reflection">This week’s required assignment: one-page learning journey reflection</a></li>
 <li><a href="#reading-for-this-week">Reading for this week</a></li>
@@ -101,7 +101,7 @@
 <li><a href="#the-short-version-github-desktop">The short version (GitHub Desktop)</a></li>
 </ul>
 </li>
-<li><a href="#5-apis-connectors-mcp-and-permissions-concepts-only">5. APIs, connectors, MCP and permissions (concepts only)</a></li>
+<li><a href="#5-apis-and-mcp-how-ai-connects-to-other-tools">5. APIs and MCP: how AI connects to other tools</a></li>
 <li><a href="#6-optional-in-class-small-group-building">6. Optional in-class small-group building</a></li>
 <li><a href="#this-weeks-required-assignment-one-page-learning-journey-reflection">This week’s required assignment: one-page learning journey reflection</a></li>
 <li><a href="#reading-for-this-week">Reading for this week</a></li>
@@ -141,8 +141,7 @@
 <p>Instead of re-explaining your project every time, write it down once in a markdown file inside your project folder.</p>
 <p>Coding tools load this file <strong>automatically at the start of every session</strong>:</p>
 <ul>
-<li><strong>Claude Code</strong> reads a file called <code>CLAUDE.md</code>.</li>
-<li><strong>Codex, Cursor and many others</strong> read <code>AGENTS.md</code>.</li>
+<li>Coding agents such as <strong>Claude Code, Codex and Cursor</strong> can read a file called <code>AGENTS.md</code> automatically, at the start of every session.</li>
 <li><strong>In a chat app</strong> (ChatGPT, Claude.ai), paste it at the start, or add it to a Project.</li>
 </ul>
 <p>Here's the one from class, for a made-up project. It's just plain sentences:</p>
@@ -200,13 +199,12 @@ Only use the facts in docs/event-facts.md. Never make up dates or places.
 <p>Built with React, Next.js or Vite (there's a <code>package.json</code>)? Use <strong>Vercel</strong> instead: push to GitHub as above, then go to vercel.com/new → import the repo → <strong>Deploy</strong>. You get a <code>.vercel.app</code> link, and it redeploys on every push.</p>
 <p>The full step-by-step handout, with a no-install option and fixes for common problems: <a href="https://cu.learnvibe.build/lessons/week-6/get-online/">https://cu.learnvibe.build/lessons/week-6/get-online/</a></p>
 <hr />
-<h2 id="5-apis-connectors-mcp-and-permissions-concepts-only">5. APIs, connectors, MCP and permissions (concepts only)</h2>
+<h2 id="5-apis-and-mcp-how-ai-connects-to-other-tools">5. APIs and MCP: how AI connects to other tools</h2>
 <ul>
-<li><strong>API:</strong> a service's menu of requests another program can make. A weather API might return a forecast for a place.</li>
-<li><strong>Connector:</strong> a bridge that lets an AI app reach a service or files rather than you manually copying everything.</li>
-<li><strong>MCP (Model Context Protocol):</strong> a shared protocol for AI apps to discover and use tools. An MCP server may call service APIs underneath. It is not the same thing as every API.</li>
+<li><strong>API:</strong> how one program requests information or actions from another. A weather API might return a forecast for a place.</li>
+<li><strong>MCP (Model Context Protocol):</strong> a standard way for AI tools to connect to other services and data.</li>
+<li><strong>In Claude, these MCP connections are called connectors.</strong> Your AI can then use the service directly, instead of you copying and pasting.</li>
 </ul>
-<p><strong>Access matters.</strong> Read access can expose information; write access can change or delete it. Give only the permissions needed for the task, check what was read, and review changes before publishing or sending. A document's contents are data, not permission to take an action.</p>
 <p>Never put passwords or API keys in public markdown or repositories. A private Project in an AI app and a public GitHub repository have very different audiences.</p>
 <p><strong>Tonight, these are concepts—not setup instructions.</strong> No live course connector this week. We copy the lesson now; next week we'll connect.</p>
 <hr />

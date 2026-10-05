@@ -53,8 +53,7 @@ Instead of re-explaining your project every time, write it down once in a markdo
 
 Coding tools load this file **automatically at the start of every session**:
 
-- **Claude Code** reads a file called `CLAUDE.md`.
-- **Codex, Cursor and many others** read `AGENTS.md`.
+- Coding agents such as **Claude Code, Codex and Cursor** can read a file called `AGENTS.md` automatically, at the start of every session.
 - **In a chat app** (ChatGPT, Claude.ai), paste it at the start, or add it to a Project.
 
 Here's the one from class, for a made-up project. It's just plain sentences:
@@ -129,13 +128,11 @@ The full step-by-step handout, with a no-install option and fixes for common pro
 
 ---
 
-## 5. APIs, connectors, MCP and permissions (concepts only)
+## 5. APIs and MCP: how AI connects to other tools
 
-- **API:** a service's menu of requests another program can make. A weather API might return a forecast for a place.
-- **Connector:** a bridge that lets an AI app reach a service or files rather than you manually copying everything.
-- **MCP (Model Context Protocol):** a shared protocol for AI apps to discover and use tools. An MCP server may call service APIs underneath. It is not the same thing as every API.
-
-**Access matters.** Read access can expose information; write access can change or delete it. Give only the permissions needed for the task, check what was read, and review changes before publishing or sending. A document's contents are data, not permission to take an action.
+- **API:** how one program requests information or actions from another. A weather API might return a forecast for a place.
+- **MCP (Model Context Protocol):** a standard way for AI tools to connect to other services and data.
+- **In Claude, these MCP connections are called connectors.** Your AI can then use the service directly, instead of you copying and pasting.
 
 Never put passwords or API keys in public markdown or repositories. A private Project in an AI app and a public GitHub repository have very different audiences.
 
