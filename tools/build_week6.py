@@ -157,6 +157,7 @@ KIT = f'''<section class="week-kit" id="everything" aria-labelledby="kit-title">
   <p class="kicker">Week 6 · slides, lesson, handout, demo project, reading</p>
   <h2 id="kit-title">Everything for Week 6</h2>
   <div class="kit-grid">
+    <a class="kit-card" href="#this-weeks-required-assignment-one-page-learning-journey-reflection"><span class="kicker">Required this week</span><strong>ONE PAGE: your learning journey</strong><span>Learned, learning, want to learn/build, and emerging final-project ideas. Building/sharing is optional. Peer pods for at least three weeks.</span></a>
     <a class="kit-card" href="slides/"><span class="kicker">Slides</span><strong>Open the slides</strong><span>Arrow keys and full screen. PDF and PowerPoint downloads are below.</span></a>
     <a class="kit-card" href="#lesson-start"><span class="kicker">Lesson</span><strong>Read the lesson</strong><span>Below on this page. Copy it as markdown for your AI.</span></a>
     <a class="kit-card" href="get-online/"><span class="kicker">Handout</span><strong>Get your project online</strong><span>Repo, commit, push, deploy: a link anyone can open.</span></a>
@@ -221,5 +222,6 @@ if os.path.isdir(CLASS):
 <title>Instructor — Week 6</title><link rel="stylesheet" href="assets/site.css"></head>
 <body class="lesson-page"><main class="lesson-main" id="main-content">
 <header class="lesson-header"><p class="kicker">Instructor only · tailnet</p><h1>Week 6, tonight</h1></header>
-<section class="week-kit"><div class="kit-grid">{cards}</div></section></main></body></html>''')
+<section class="week-kit"><div class="kit-grid">
+    <a class="kit-card" href="#this-weeks-required-assignment-one-page-learning-journey-reflection"><span class="kicker">Required this week</span><strong>ONE PAGE: your learning journey</strong><span>Learned, learning, want to learn/build, and emerging final-project ideas. Building/sharing is optional. Peer pods for at least three weeks.</span></a>{cards}</div></section></main></body></html>''')
 print("week6 kit built:", len(slides), "slides")

@@ -367,6 +367,14 @@ function shareCheckbox(sub, field, label) {
 const MIN_WRITING_CHARS = 120; // mirrors the server-side floor
 
 function fillSubmitForm(existing) {
+  const reflectionWeek = state.openWeek === 6;
+  $('submit-link').required = !reflectionWeek;
+  $('submit-link-label').textContent = reflectionWeek ? 'Optional build link' : 'Your build';
+  if (reflectionWeek) {
+    $('submit-writing').placeholder = 'One page: what you have learned, are currently learning, want to learn, want to build, and emerging final-project ideas. A build is optional. Aaron will use reflections for consistent peer pods lasting at least three weeks.';
+    $('submit-link-hint').textContent = 'Optional this week. Submit your one-page reflection with or without a build link.';
+  }
+
   $('submit-link').value = existing?.link_url || '';
   $('submit-writing').value = existing?.body || '';
   $('share-build').checked = !!existing?.share_build;
@@ -387,7 +395,7 @@ function setupSubmitForm() {
     const linkUrl = $('submit-link').value.trim();
     const writing = $('submit-writing').value.trim();
     if (writing.length < MIN_WRITING_CHARS) {
-      showSubmitError(`A bit more, please — one paragraph minimum (${writing.length}/${MIN_WRITING_CHARS} characters).`);
+      showSubmitError(`A bit more, please — please add your reflection (${writing.length}/${MIN_WRITING_CHARS} characters).`);
       return;
     }
 
@@ -412,7 +420,7 @@ function setupSubmitForm() {
     if (!res.ok) {
       const errBody = await res.json().catch(() => ({}));
       if (errBody.error === 'bad_link') showSubmitError('That doesn’t look like a URL — include https://');
-      else if (errBody.error === 'writing_too_short') showSubmitError('A bit more, please — one paragraph minimum.');
+      else if (errBody.error === 'writing_too_short') showSubmitError('Please add your reflection before submitting.');
       else showSubmitError('Couldn’t save — try again, or tell Aaron.');
       return;
     }

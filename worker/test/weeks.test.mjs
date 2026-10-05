@@ -107,3 +107,21 @@ test('WEEKS has at least a week of runway past today', async () => {
   if (Date.now() > Date.parse('2026-12-20T00:00:00Z')) return; // semester over
   assert.ok(days >= 7, `WEEKS ends in ${days.toFixed(1)} days; add the next weeks to worker/src/index.js`);
 });
+
+
+test('Week 6 requires reflection but accepts no build; other weeks still need links', async () => {
+  const env = setup();
+  await at('2026-10-05T18:00:00Z', async () => {
+    const response = await worker.fetch(req('/submissions', { ...submission(6), link_url: '', share_build: true }), env);
+    assert.equal(response.status, 200);
+    const saved = await response.json();
+    assert.ok(saved.submission.body.length >= 120);
+    const oldWeek = await worker.fetch(req('/submissions', { ...submission(5), link_url: '' }), env);
+    assert.equal(oldWeek.status, 400);
+    const me = await (await worker.fetch(req('/me'), env)).json();
+    const week = me.weeks.find(w => w.week === 6);
+    assert.match(week.prompt, /ONE PAGE/);
+    assert.match(week.prompt, /OPTIONAL/);
+    assert.equal(week.due_at, '2026-10-12T05:59:00Z');
+  });
+});

@@ -290,9 +290,9 @@
  },
  {
   "kind": "bullets",
-  "title": "In small groups: build for your learning",
+  "title": "Optional in-class small-group building",
   "bullets": [
-   "Choose a topic you want to understand or practise, and your own approach.",
+   "Choose a topic and your own approach; building/sharing is optional.",
    "Make a quiz, interactive explainer, practice tool—or an idea of your own.",
    "Use your AI; try the first version yourselves; check it and revise."
   ],
@@ -311,5 +311,18 @@
   "notes": "Optional: ask your AI what it needs to know about your project; save the useful context in markdown. Students can find the lesson from the preceding slide. No due date added.",
   "extra": null,
   "section": "Group work"
+ },
+ {
+  "kind": "bullets",
+  "title": "This week: ONE PAGE about your learning",
+  "bullets": [
+   "What you’ve learned, are learning, and want to learn.",
+   "What you want to build; emerging final-project ideas.",
+   "Building/sharing is welcome but OPTIONAL—not required.",
+   "Your reflections will shape consistent peer pods for at least three weeks."
+  ],
+  "notes": "Authoritative Week 6 assignment replaces the required build. One page, not one paragraph. Existing due date remains October 11 at 11:59 PM MT. Pods share learning and support each other in class for AT LEAST the next three weeks; do not invent size, rubric, or final-project requirements. Canvas copy is a draft, not yet published.",
+  "extra": null,
+  "section": "Weekly assignment"
  }
 ]

@@ -58,9 +58,9 @@ const WEEKS = [
     prompt: 'A link to what you built, plus your writing on how it went.',
   },
   {
-    week: 6, title: 'Context: a description that does not go away', due_at: '2026-10-12T05:59:00Z',
+    week: 6, title: 'One-page learning journey reflection', due_at: '2026-10-12T05:59:00Z',
     canvas_url: `${CANVAS_COURSE}/2858628`,
-    prompt: 'A link to what you built, plus your writing on how it went.',
+    prompt: "Write ONE PAGE taking stock of your learning journey: what you have learned, what you are currently learning, what you want to learn, what you want to build, and emerging ideas for your final project. Building and sharing are welcome but OPTIONAL, not a required deliverable. Aaron will use these reflections to form consistent peer pods lasting AT LEAST the next three weeks, for sharing learning and supporting each other in class.",
   },
   {
     week: 7, title: 'Studio cycle', due_at: '2026-10-19T05:59:00Z',
@@ -458,11 +458,11 @@ async function handleSubmit(request, env) {
   const week = Number(body.week);
   const linkUrl = String(body.link_url || '').trim();
   const writing = String(body.body || '').trim();
-  const shareBuild = !!body.share_build;
+  const shareBuild = !!body.share_build && !!linkUrl;
   const shareWriting = !!body.share_writing;
 
   if (!WEEKS.some((w) => w.week === week) || week > openWeek()) return json(env, { error: 'week_closed' }, 400);
-  if (!isHttpUrl(linkUrl)) return json(env, { error: 'bad_link' }, 400);
+  if (!(week === 6 && !linkUrl) && !isHttpUrl(linkUrl)) return json(env, { error: 'bad_link' }, 400);
   if (writing.length < MIN_WRITING_CHARS) {
     return json(env, { error: 'writing_too_short', min_chars: MIN_WRITING_CHARS }, 400);
   }
