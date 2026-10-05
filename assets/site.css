@@ -2037,3 +2037,16 @@ table.dash th {
     display: block;
   }
 }
+
+/* Review pass (3:35 PM): "this week" must win the phone fold; TOC legible. */
+@media (max-width: 700px) {
+  .home-intro h1 { font-size: 40px; max-width: none; }
+  .home-intro { margin-bottom: 20px; gap: 12px; }
+  .home-intro > .intro-note { margin-top: 8px; }
+  .intro-note p { font-size: 15px; }
+  .meeting-meta { font-size: 14px; color: var(--ink); }
+  .kicker { margin-bottom: 8px; }
+  .week-brief h2 { text-wrap: balance; }
+}
+.meeting-meta a { padding: 6px 0; }
+.lesson-toc li a { color: var(--ink); font-size: 14px; text-wrap: pretty; }
