@@ -1,18 +1,19 @@
-# Week 6: Context That Sticks, and Getting Online
+# Week 6: Learn With Your AI
 
 *Learn, Vibe, Build · ATLS 4519 · CU Boulder · Monday, October 5, 2026 · Aaron Neyer*
 
 > **How to use this file:** it's plain markdown, written for you *and* your AI. Copy the whole thing into your AI and say: **"Teach me this, then quiz me."** Your AI can be wrong about this lesson too, so check it against the file.
 
-**In one line:** Your AI only knows what it can see. Give it your project's context in a markdown file so it sticks, and put your project online with a link anyone can open.
+**In one line:** Use your AI to learn about AI, give it helpful context, then build something that supports your learning journey.
 
 ## Contents
-1. Your AI starts every session from zero
+1. Use AI to learn about AI
 2. Markdown in two minutes
-3. Context that sticks: a markdown file your AI reads every time
+3. Context that sticks
 4. Get your project online
 5. Next week: connecting your AI to your tools
-6. Reading for this week
+6. Small-group work: build something that supports your learning
+7. Reading for this week
 
 ---
 
