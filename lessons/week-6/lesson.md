@@ -4,6 +4,8 @@
 
 > **How to use this file:** it's plain markdown, written for you *and* your AI. Copy the whole thing into your AI and ask it to teach you any part more deeply (prompts in section 7). Your AI can be wrong about this lesson too, so check it against the file.
 
+**In one line:** Write your project context down once in AGENTS.md so every AI session starts out knowing it, get your project online with a link anyone can open, and connect your AI to the course.
+
 **The through-line:** choose what your AI sees, check what it produces, control what it can change.
 
 ## Contents
@@ -83,13 +85,16 @@ That's nearly all of it. Open any text editor (VS Code, TextEdit in plain-text m
 A one-page website for a free, monthly plant swap (fictional). Plain HTML + CSS.
 
 ## Who it's for
-First- and second-year students on the Hill, on their phones, deciding in ~10 seconds.
-Most have never been to a swap and worry it's awkward or that they have nothing good to bring.
+First- and second-year students on the Hill, often in their first apartment: a windowsill, not a garden.
+They find us from a flyer QR code, on their phone, while walking, and decide in about ten seconds.
+Most have never been to a swap. They worry it's awkward, that they have nothing good to bring,
+or that they need to know about plants. Not for collectors or landscapers.
 
 ## Stack and conventions
-- Plain HTML and CSS only. No frameworks, no JavaScript, no build step.
+- Plain HTML and CSS only. No frameworks, no JavaScript, no build step,
+  so any volunteer can edit it in a text editor.
 - One page; it must fit one phone scroll. Mobile first.
-- Friendly, plain voice. Never promise rare plants.
+- Friendly, plain voice. Never promise rare plants: we can't control what people bring.
 
 ## Facts
 Never invent facts (dates, places, rules). Use only `docs/event-facts.md`.
@@ -97,13 +102,12 @@ Never invent facts (dates, places, rules). Use only `docs/event-facts.md`.
 ## What "done" looks like
 - Reads well on a phone at 390px wide.
 - Every fact matches docs/event-facts.md.
-- One clear next step for the visitor (show up on the date).
+- One clear next step for the visitor: show up on the date.
 - Tell me what you changed and anything you had to guess.
 
 ## Where to look (index)
 - `docs/event-facts.md`: date, place, rules, contact. The only source of facts.
-- `docs/audience.md`: who visits and what they worry about.
-- `docs/decisions.md`: choices already made; don't undo them without asking.
+- `docs/` will grow (flyer text, volunteer notes); add a line here for each new file.
 ```
 
 The demo project is public, so you can try it yourself: **https://github.com/unforcedagi/lvb-week6-demo**. It has no AGENTS.md on purpose. Ask your agent to "improve the homepage", add the file above, then ask again.
@@ -120,7 +124,8 @@ When a project grows, don't paste everything into one giant file. Write a short 
 ## Where to look
 - docs/event-facts.md: the only source of facts
 - docs/audience.md: who visits and what they worry about
-- docs/decisions.md: choices already made
+- docs/decisions.md: choices already made; don't undo them without asking
+- research/index.md: interview notes (its own index of deeper files)
 ```
 
 Indexes can nest. An index can point to other indexes, so an AI can find its way around a whole body of knowledge (a course, a research project, a company wiki) a little at a time. This course does it too: **https://cu.learnvibe.build/llms.txt** is an index of every lesson, written for AIs.
