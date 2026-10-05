@@ -16,13 +16,17 @@
 
 ---
 
-## 1. Your AI starts every session from zero
+## 1. Use AI to learn about AI
 
-An AI only sees what's in front of it right now: your message, the chat so far, and anything you paste or attach. It doesn't know your project unless you tell it.
+Your AI can explain a concept, ask you questions, and help you practise. Tell it what you are trying to understand, ask it to teach you at your level, and check its explanation against the source.
 
-So when you get a generic answer, it's usually a **context problem**, not a "bad AI" problem. The fix is to give it what it's missing.
+**Tonight's sequence:** first we work through the slides. Then Aaron has one live conversation with Claude using this lesson. Then you build in small groups.
 
-The easiest way to try this tonight: **copy this lesson into your AI and ask it to teach you.** You just gave it context.
+**Where to find everything:** open https://cu.learnvibe.build/, choose **Everything for Week 6**, then click **Copy lesson as markdown**. Paste it into your AI and ask:
+
+> Teach me this and quiz me.
+
+You can also ask for a different explanation, an example, or help making something that supports your learning. The AI can be wrong: compare what it says with this lesson and test what you build.
 
 ---
 
@@ -112,26 +116,15 @@ Next week we'll connect.
 
 ---
 
-## 6. Reading for this week
+## 6. Small-group work: build something that supports your learning
 
-**Arielle Shipper, "How to Get Better at AI by Asking AI"** (Every, October 2, 2026). Free link: on your account page at https://cu.learnvibe.build/account/ and in the course announcement on Canvas.
+Choose your own topic and approach. Build something that helps you understand or practise it: a quiz, interactive explainer, practice tool, or an idea of your own.
 
-**Why this reading.** It's tonight's idea done for real: give your AI context about *you*, and it can coach you. Shipper asked her AI to place her on Every's "Eight Levels of AI Adoption" (a ladder from one-off chats up to running teams of agents) using their actual past work together, turned that into recommendations from projects she'd finished, and asked it to teach her the next step.
+Start with a question you care about. Give your AI the lesson, your question, or both. Ask it to help you make a small first version, try that version yourselves, and revise it. Be ready to show what you made and what it helped you learn. Check whether its explanations and answers are actually right—not just whether it runs.
 
-**Read it, then try one of these.** Copy this lesson (or the article) into your AI first.
+There is no rigid template or required kind of tool. If you feel stuck, paste this lesson and ask your AI to help you choose a learning idea.
 
-1. **Place me on the ladder**
-   > Read the article on the eight levels of AI adoption (paste it in if you can't open the link). Based on how I've worked with you so far, what level am I? Give specific examples from our work, and tell me what you're unsure about.
-
-2. **Replay a finished project one level up**
-   > Here's a project I've already finished: [describe it or paste your reflection]. How could it have run one level higher? What did I do by hand that I could have described or handed off, and what should I have kept doing myself?
-
-3. **Teach me the next step**
-   > Teach me the one habit that would move me up a level, using my own project as the example. One small step at a time; check that I've actually done each step before moving on.
-
-**On a free plan, or no long chat history?** Your AI can't look back across sessions, so give it the evidence directly. Paste in your project's context file (from tonight) or your **last two weekly submissions**, then ask: *"Based on this, what level am I on the eight levels of AI adoption, with examples?"*
-
-The AI's read on you is a draft, not a grade. Ask what it's basing it on, and push back where it's wrong.
+Optional nudge: **ask your AI what it needs to know about your project; save that context as a markdown file.**
 
 ---
 
