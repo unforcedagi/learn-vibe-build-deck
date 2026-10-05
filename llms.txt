@@ -15,3 +15,7 @@
 - [Schedule](https://cu.learnvibe.build/schedule/): every week, what it covers, slides and lessons
 - [Setup](https://cu.learnvibe.build/setup/): accounts, one tool, one proof
 - [Tools](https://cu.learnvibe.build/studio/tools.html): the AI tools the class uses, with costs
+
+## Connect
+
+- MCP server (read-only, public, no auth): https://api.learnvibe.build/mcp. Tools: get_course_map, list_lessons, get_lesson(week).

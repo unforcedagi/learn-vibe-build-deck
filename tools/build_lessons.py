@@ -124,6 +124,17 @@ def main():
   </div>
   <p class="hint">Using an AI that can read web pages? Give it <code>{SITE}/llms.txt</code>.
     It's a short map of the whole course with links to every lesson's markdown. That's the index-file idea from Week 6.</p>
+  <div class="card connect">
+    <p class="kicker">Connect your AI · MCP</p>
+    <h2>Let your AI read the course directly</h2>
+    <p>If your AI app supports custom MCP connectors, add this server URL:</p>
+    <pre><code>https://api.learnvibe.build/mcp</code></pre>
+    <p>It's read-only and public: it can list the lessons and open any one of them, nothing else.
+      No sign-in, and it never sees your account or your work. Where to add it varies by app
+      (in Claude it's under Settings → Connectors → Add custom connector). Then ask:
+      <em>“Use the Learn, Vibe, Build connector to quiz me on Week 6.”</em></p>
+    <p class="hint">No connector support? Copy a lesson instead. It's the same text.</p>
+  </div>
   <div class="cards">
 {cards}
   </div>
@@ -149,7 +160,10 @@ def main():
              f"- [Syllabus]({SITE}/SYLLABUS_DRAFT.md): course description, rhythm, grading, policies",
              f"- [Schedule]({SITE}/schedule/): every week, what it covers, slides and lessons",
              f"- [Setup]({SITE}/setup/): accounts, one tool, one proof",
-             f"- [Tools]({SITE}/studio/tools.html): the AI tools the class uses, with costs", ""]
+             f"- [Tools]({SITE}/studio/tools.html): the AI tools the class uses, with costs", "",
+             "## Connect",
+             "",
+             "- MCP server (read-only, public, no auth): https://api.learnvibe.build/mcp. Tools: get_course_map, list_lessons, get_lesson(week).", ""]
     open("llms.txt", "w").write("\n".join(llms))
     print(f"built {len(lessons)} lessons")
 
