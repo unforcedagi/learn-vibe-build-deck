@@ -106,7 +106,7 @@ The full step-by-step handout, with a no-install option and fixes for common pro
 Tonight you hand your AI context by pasting it or saving it in a file. Next week we go one step further.
 
 - An **API** is how one program asks another for something, like a weather app asking a weather service for today's forecast.
-- A **connector** (often built with **MCP**, the Model Context Protocol) lets your AI reach your tools and files directly, instead of you copying and pasting.
+- A **connector** lets your AI reach your tools and files directly, instead of you copying and pasting.
 
 Next week we'll connect.
 
