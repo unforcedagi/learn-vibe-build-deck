@@ -155,6 +155,28 @@ Optional nudge: **ask your AI what it needs to know about your project; save tha
 
 ---
 
+## This week’s required assignment: one-page learning journey reflection
+
+Write **ONE PAGE** taking stock of your learning journey so far:
+
+- What have you learned?
+- What are you currently learning?
+- What do you want to learn?
+- What do you want to build?
+- What ideas are emerging for your final project?
+
+**Building and sharing are welcome but OPTIONAL. No build is required this week.** The optional in-class learning build is different from this weekly assignment.
+
+Aaron will use these reflections to form **consistent peer pods lasting AT LEAST the next three weeks**, for sharing learning and supporting each other in class. No pod size or additional final-project requirements are being assigned here.
+
+The existing deadline remains **Sunday, October 11, 11:59 PM MT**. Submit through your account. Canvas has not yet been updated; the new instructions here are the authoritative Week 6 requirement.
+
+
+
+## Reading for this week
+
+Arielle Shipper, **How to Get Better at AI by Asking AI** (Every). Ask your AI to assess your actual work, suggest a next learning step, and teach it. No long history? Paste your context or last two submissions. The free class link is in your signed-in account.
+
 ## Further reading
 
 - AGENTS.md: https://agents.md/
