@@ -12,15 +12,32 @@
  },
  {
   "kind": "bullets",
-  "title": "What your recent builds taught us",
+  "title": "What you’ve been building",
   "bullets": [
-   "The AI can finish a prompt and still miss the design you intended.",
-   "A page can look finished while its buttons do not work.",
-   "A local link or a repo alone is not a published website."
+   "A startup proof of concept, built in about eight hours.",
+   "A Three.js pop-up storybook, live on Vercel.",
+   "A planet-formation simulator grounded in a course textbook.",
+   "A Canvas browser extension, planned by letting the AI ask 20+ questions first.",
+   "A household assistant, with 3D-printed parts on order.",
+   "A music visualizer where one AI writes prompts for another."
   ],
-  "notes": "Grounded in actual Week 4/5 submissions: visual intent failed to translate; one build had non-clickable cards; localhost and deployment-permission confusion persisted. Public slides deliberately omit names and private quotes.",
+  "notes": "Week 5 work, anonymised. Celebrate range: different starting points, all real builds. Invite a couple of people to say a sentence about theirs if the room is warm.",
   "extra": null,
   "section": "Why this matters"
+ },
+ {
+  "kind": "bullets",
+  "title": "What you’ve been running into",
+  "bullets": [
+   "Getting the AI to build what you actually pictured.",
+   "Links that work for you but not for anyone else.",
+   "Running out of free credits mid-build.",
+   "Very different starting points—and that is fine.",
+   "Tonight: the foundations behind each of these."
+  ],
+  "notes": "Pulled from reflections. Name these as normal, shared experiences, not failures. Each maps to a section of tonight: context, saying what you mean, getting online.",
+  "extra": null,
+  "section": "Where we are"
  },
  {
   "kind": "bullets",
@@ -98,39 +115,15 @@
  },
  {
   "kind": "bullets",
-  "title": "Describe the design, not just the features",
+  "title": "When the result isn’t what you meant",
   "bullets": [
-   "“Make it better” leaves the visual choices to the model.",
-   "Name the audience, feeling, hierarchy and interactions you want.",
-   "Example: “Calm portfolio. Work first, muted colours, clickable project cards.”"
+   "Say what you expected and what you actually see: “Clicking the card should open the project; nothing happens.”",
+   "Show it: a screenshot or a site you like says more than “make it better”.",
+   "Ask for one change at a time, then look again."
   ],
-  "notes": "Week 4/5 reflections describe trouble communicating aesthetics; a recent rebuild improved when the student described the feeling instead of only listing features.",
+  "notes": "One idea: close the gap between what you pictured and what you got by being concrete. Covers design, feedback and bugs in one move.",
   "extra": null,
   "section": "Communicate intent"
- },
- {
-  "kind": "bullets",
-  "title": "Make your feedback observable",
-  "bullets": [
-   "Give a reference or screenshot; say what to keep and what to change.",
-   "Instead of “It’s broken”: “Clicking this card should open the project; nothing happens.”",
-   "Ask for one small change, then compare the result with your intention."
-  ],
-  "notes": "Recent Week 5 work caught non-clickable cards through use. Specific observed behavior gives the agent something testable.",
-  "extra": null,
-  "section": "Communicate intent"
- },
- {
-  "kind": "bullets",
-  "title": "Debugging: find the mismatch",
-  "bullets": [
-   "A bug is a difference between expected and observed behavior.",
-   "Reproduce it: what exact actions cause it? Capture the error or screenshot.",
-   "Ask the AI for a cause and a small fix; rerun the same check afterward."
-  ],
-  "notes": "Do not blindly rewrite the whole app. Before a risky fix, save a working version. Recent students used AI for testing/debugging but still needed to notice what failed.",
-  "extra": null,
-  "section": "Check the work"
  },
  {
   "kind": "bullets",
@@ -143,18 +136,6 @@
   "notes": "A running build is not proof it is correct or useful. This transfers directly to the small-group learning builds.",
   "extra": null,
   "section": "Check the work"
- },
- {
-  "kind": "bullets",
-  "title": "When free credits run out",
-  "bullets": [
-   "Save files and a short note: what works, what failed, what to try next.",
-   "Use that note to continue in a fresh session or another tool.",
-   "Reduce the request: one change or one explanation at a time."
-  ],
-  "notes": "Recent Week 5 submissions described switching tools and running out of credits. Persistent context is a practical continuity aid; do not imply unlimited free usage.",
-  "extra": null,
-  "section": "Working within limits"
  },
  {
   "kind": "bullets",
