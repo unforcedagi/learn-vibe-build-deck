@@ -63,13 +63,18 @@
 <ul>
 <li><a href="#1-use-ai-to-learn-about-ai">1. Use AI to learn about AI</a></li>
 <li><a href="#2-markdown-in-two-minutes">2. Markdown in two minutes</a></li>
-<li><a href="#3-context-that-sticks-a-markdown-file-your-ai-reads-every-time">3. Context that sticks: a markdown file your AI reads every time</a></li>
+<li><a href="#3-context-that-sticks-a-markdown-file-your-ai-reads-every-time">3. Context that sticks: a markdown file your AI reads every time</a><ul>
+<li><a href="#communicate-the-design-you-mean">Communicate the design you mean</a></li>
+<li><a href="#debugging-means-finding-a-mismatch">Debugging means finding a mismatch</a></li>
+<li><a href="#working-within-free-plan-limits">Working within free-plan limits</a></li>
+</ul>
+</li>
 <li><a href="#4-get-your-project-online">4. Get your project online</a><ul>
 <li><a href="#three-different-things">Three different things</a></li>
 <li><a href="#the-short-version-github-desktop">The short version (GitHub Desktop)</a></li>
 </ul>
 </li>
-<li><a href="#5-next-week-connecting-your-ai-to-your-tools">5. Next week: connecting your AI to your tools</a></li>
+<li><a href="#5-apis-connectors-mcp-and-permissions-concepts-only">5. APIs, connectors, MCP and permissions (concepts only)</a></li>
 <li><a href="#6-small-group-work-build-something-that-supports-your-learning">6. Small-group work: build something that supports your learning</a></li>
 <li><a href="#further-reading">Further reading</a></li>
 </ul>
@@ -82,13 +87,18 @@
 <ul>
 <li><a href="#1-use-ai-to-learn-about-ai">1. Use AI to learn about AI</a></li>
 <li><a href="#2-markdown-in-two-minutes">2. Markdown in two minutes</a></li>
-<li><a href="#3-context-that-sticks-a-markdown-file-your-ai-reads-every-time">3. Context that sticks: a markdown file your AI reads every time</a></li>
+<li><a href="#3-context-that-sticks-a-markdown-file-your-ai-reads-every-time">3. Context that sticks: a markdown file your AI reads every time</a><ul>
+<li><a href="#communicate-the-design-you-mean">Communicate the design you mean</a></li>
+<li><a href="#debugging-means-finding-a-mismatch">Debugging means finding a mismatch</a></li>
+<li><a href="#working-within-free-plan-limits">Working within free-plan limits</a></li>
+</ul>
+</li>
 <li><a href="#4-get-your-project-online">4. Get your project online</a><ul>
 <li><a href="#three-different-things">Three different things</a></li>
 <li><a href="#the-short-version-github-desktop">The short version (GitHub Desktop)</a></li>
 </ul>
 </li>
-<li><a href="#5-next-week-connecting-your-ai-to-your-tools">5. Next week: connecting your AI to your tools</a></li>
+<li><a href="#5-apis-connectors-mcp-and-permissions-concepts-only">5. APIs, connectors, MCP and permissions (concepts only)</a></li>
 <li><a href="#6-small-group-work-build-something-that-supports-your-learning">6. Small-group work: build something that supports your learning</a></li>
 <li><a href="#further-reading">Further reading</a></li>
 </ul>
@@ -140,6 +150,24 @@ Only use the facts in docs/event-facts.md. Never make up dates or places.
 <p>That's it. No special format. Write what you'd tell a new teammate.</p>
 <p><strong>Try it:</strong> ask your AI, <em>"What do you need to know about my project to help me well? Ask me one question at a time."</em> Then save the answers as a markdown file in your project.</p>
 <hr />
+<h3 id="communicate-the-design-you-mean">Communicate the design you mean</h3>
+<p>Recent Week 4/5 work showed that an AI can technically satisfy a prompt while missing the intended experience. Describe the <strong>audience, feeling, hierarchy and interactions</strong>, not just a list of features.</p>
+<ul>
+<li>Vague: “Make my portfolio better.”</li>
+<li>Concrete: “A calm portfolio for someone skimming my work on a phone. Put projects before biography, use muted colours, and make each project card open its detail page.”</li>
+<li>Give a reference or screenshot and explain what you want to keep or change. Ask for one change, try it, and compare it with your intention.</li>
+</ul>
+<h3 id="debugging-means-finding-a-mismatch">Debugging means finding a mismatch</h3>
+<p>A bug is the difference between <strong>expected</strong> and <strong>observed</strong> behavior. Recent builds looked finished until the student tried clicking the cards and discovered they did nothing.</p>
+<ol>
+<li>Reproduce the problem. “When I click this card, I expect the project to open, but nothing happens.”</li>
+<li>Capture the steps and any error message or screenshot.</li>
+<li>Ask the AI to explain the likely cause and propose a small fix—not rewrite everything.</li>
+<li>Apply the fix, repeat the same check, then test nearby behavior.</li>
+</ol>
+<p>Save a working version before risky changes. Check the <strong>experience</strong>, not just whether the code runs: phone layout, links, empty input, unexpected answers, and a new user's path. A learning tool also needs correct explanations and quiz answers; check them against a trustworthy source.</p>
+<h3 id="working-within-free-plan-limits">Working within free-plan limits</h3>
+<p>Recent submissions also described running out of credits and moving between tools. Keep a small handoff note: what the project is, what works, what failed, and the next thing to try. Save the actual files. Bring the note into a fresh session or another tool. Smaller requests—one explanation or one change—are easier to check and continue.</p>
 <h2 id="4-get-your-project-online">4. Get your project online</h2>
 <p>A link only counts if <strong>someone else can open it on their phone.</strong></p>
 <ul>
@@ -167,13 +195,15 @@ Only use the facts in docs/event-facts.md. Never make up dates or places.
 <p>Built with React, Next.js or Vite (there's a <code>package.json</code>)? Use <strong>Vercel</strong> instead: push to GitHub as above, then go to vercel.com/new → import the repo → <strong>Deploy</strong>. You get a <code>.vercel.app</code> link, and it redeploys on every push.</p>
 <p>The full step-by-step handout, with a no-install option and fixes for common problems: <a href="https://cu.learnvibe.build/lessons/week-6/get-online/">https://cu.learnvibe.build/lessons/week-6/get-online/</a></p>
 <hr />
-<h2 id="5-next-week-connecting-your-ai-to-your-tools">5. Next week: connecting your AI to your tools</h2>
-<p>Tonight you hand your AI context by pasting it or saving it in a file. Next week we go one step further.</p>
+<h2 id="5-apis-connectors-mcp-and-permissions-concepts-only">5. APIs, connectors, MCP and permissions (concepts only)</h2>
 <ul>
-<li>An <strong>API</strong> is how one program asks another for something, like a weather app asking a weather service for today's forecast.</li>
-<li>A <strong>connector</strong> lets your AI reach your tools and files directly, instead of you copying and pasting.</li>
+<li><strong>API:</strong> a service's menu of requests another program can make. A weather API might return a forecast for a place.</li>
+<li><strong>Connector:</strong> a bridge that lets an AI app reach a service or files rather than you manually copying everything.</li>
+<li><strong>MCP (Model Context Protocol):</strong> a shared protocol for AI apps to discover and use tools. An MCP server may call service APIs underneath. It is not the same thing as every API.</li>
 </ul>
-<p>Next week we'll connect.</p>
+<p><strong>Access matters.</strong> Read access can expose information; write access can change or delete it. Give only the permissions needed for the task, check what was read, and review changes before publishing or sending. A document's contents are data, not permission to take an action.</p>
+<p>Never put passwords or API keys in public markdown or repositories. A private Project in an AI app and a public GitHub repository have very different audiences.</p>
+<p><strong>Tonight, these are concepts—not setup instructions.</strong> No live course connector this week. We copy the lesson now; next week we'll connect.</p>
 <hr />
 <h2 id="6-small-group-work-build-something-that-supports-your-learning">6. Small-group work: build something that supports your learning</h2>
 <p>Choose your own topic and approach. Build something that helps you understand or practise it: a quiz, interactive explainer, practice tool, or an idea of your own.</p>
