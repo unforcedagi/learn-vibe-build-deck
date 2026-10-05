@@ -82,10 +82,10 @@
     <!-- The open week: the live submission form. Hidden on past weeks. -->
     <form id="submit-form" class="card hidden" style="flex-direction:column; align-items:stretch; gap:1rem;">
       <div>
-        <label for="submit-link" style="display:block; font-weight:600; margin-bottom:0.3rem;">Your build</label>
+        <label id="submit-link-label" for="submit-link" style="display:block; font-weight:600; margin-bottom:0.3rem;">Your build</label>
         <input id="submit-link" type="url" required placeholder="https://&hellip; a link to what you built"
                style="width:100%; font:inherit; padding:0.55rem 0.8rem; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--ink);">
-        <p class="hint" style="margin:0.4rem 0 0;">A URL if it lives anywhere on the
+        <p id="submit-link-hint" class="hint" style="margin:0.4rem 0 0;">A URL if it lives anywhere on the
           web. No upload yet on the site &mdash; if you can&rsquo;t link it, submit a
           photo or video on Canvas instead.</p>
       </div>
@@ -133,7 +133,7 @@
 <!-- The ?v= ties this HTML to the matching app.js: a cached copy of one can
      never load a mismatched copy of the other (that mix blanked the page on
      2026-08-31). Bump it whenever app.js and index.html change together. -->
-<script type="module" src="./app.js?v=6"></script>
+<script type="module" src="./app.js?v=7"></script>
 <footer class="site-footer">
   <p>Learn, Vibe, Build<br>ATLS 4519 · CU Boulder · Fall 2026</p>
   <p><a href="../setup/">Getting started</a> · <a href="../syllabus.html">Syllabus</a><br>

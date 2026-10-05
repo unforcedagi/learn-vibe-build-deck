@@ -143,7 +143,7 @@ Never put passwords or API keys in public markdown or repositories. A private Pr
 
 ---
 
-## 6. Small-group work: build something that supports your learning
+## 6. Optional in-class small-group building
 
 Choose your own topic and approach. Build something that helps you understand or practise it: a quiz, interactive explainer, practice tool, or an idea of your own.
 
