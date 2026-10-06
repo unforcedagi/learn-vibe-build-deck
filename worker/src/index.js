@@ -407,9 +407,38 @@ async function instructorRoster(env) {
   return [...roster.values()];
 }
 
-async function handleMe(request, env) {
+// Instructor "view as student": read-only. `?as=<student_id>` is honored
+// only for an instructor session; anyone else passing it gets 403 (never
+// their own data silently). No session is minted for the student, and the
+// router refuses every write that carries `as` (see the fetch handler).
+async function viewAsTarget(request, env, me) {
+  const asParam = new URL(request.url).searchParams.get('as');
+  if (asParam == null) return { target: null };
+  if (!me.is_instructor) return { error: json(env, { error: 'forbidden' }, 403) };
+  if (!/^\d+$/.test(asParam)) return { error: json(env, { error: 'bad_request' }, 400) };
+  const target = await env.DB.prepare(
+    'SELECT id, canvas_id, name, email, is_instructor FROM students WHERE id = ? AND is_instructor = 0'
+  ).bind(asParam).first();
+  if (!target) return { error: json(env, { error: 'not_found' }, 404) };
+  return { target };
+}
+
+async function handleInstructorStudents(request, env) {
   const me = await currentStudent(request, env);
   if (!me) return json(env, { error: 'unauthorized' }, 401);
+  if (!me.is_instructor) return json(env, { error: 'forbidden' }, 403);
+  const rows = await env.DB.prepare(
+    'SELECT id, name FROM students WHERE is_instructor = 0 ORDER BY name'
+  ).all();
+  return json(env, { students: rows.results });
+}
+
+async function handleMe(request, env) {
+  const viewer = await currentStudent(request, env);
+  if (!viewer) return json(env, { error: 'unauthorized' }, 401);
+  const { target, error } = await viewAsTarget(request, env, viewer);
+  if (error) return error;
+  const me = target || viewer;
 
   const subs = await env.DB.prepare(
     `SELECT id, week, body, submitted_at, link_url, share_build, share_writing
@@ -428,7 +457,11 @@ async function handleMe(request, env) {
     })),
   };
 
-  if (me.is_instructor) {
+  if (target) {
+    out.viewing_as = { id: target.id, first_name: (target.name || '').trim().split(/\s+/)[0] };
+    out.read_only = true;
+    out.viewer_is_instructor = true;
+  } else if (me.is_instructor) {
     out.roster = await instructorRoster(env);
   }
 
@@ -833,7 +866,13 @@ export default {
       });
     }
 
+    // View-as is read-only: any write carrying `as` is refused outright.
+    if (url.searchParams.has('as') && request.method !== 'GET') {
+      return json(env, { error: 'read_only' }, 403);
+    }
+
     try {
+      if (path === '/instructor/students' && request.method === 'GET') return handleInstructorStudents(request, env);
       if (path === '/auth/request' && request.method === 'POST') return handleAuthRequest(request, env);
       if (path === '/auth/callback' && request.method === 'GET') return handleAuthCallbackPage(request, env);
       if (path === '/auth/callback' && request.method === 'POST') return handleAuthCallbackConsume(request, env);

@@ -2115,3 +2115,9 @@ a.kit-card strong::after { content: " →"; color: var(--accent); }
 .journey-share { font-size: 12px; }
 .journey-links { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 14px; margin: 8px 0 0; }
 .journey-links a { min-height: 40px; display: inline-flex; align-items: center; }
+
+/* Instructor view-as (read-only; enforced by the Worker). */
+.viewas-banner { background: var(--accent); color: white; border-radius: 4px; padding: 12px 16px; margin: 0 0 20px; font-size: 15px; }
+.viewas-banner a { color: white; text-decoration: underline; }
+.viewas-picker { display: grid; gap: 6px; margin: 0 0 24px; padding: 14px 16px; border: 1px dashed var(--border); border-radius: 4px; }
+.viewas-picker select { background: var(--bg); color: var(--ink); padding: 12px 14px; border: 1px solid var(--border); border-radius: 4px; min-height: 46px; font: inherit; font-size: 16px; width: 100%; }
