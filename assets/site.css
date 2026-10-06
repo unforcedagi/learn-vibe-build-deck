@@ -2069,3 +2069,29 @@ a.kit-card:hover { border-color: var(--accent); }
 .week-kit { border-top: 1px solid var(--border); box-shadow: inset 0 4px 0 var(--accent); background: var(--card); }
 .kit-card { background: #fff; }
 a.kit-card strong::after { content: " →"; color: var(--accent); }
+
+/* Class board: posts come only from the authenticated /board API. */
+.board-main { max-width: 760px; margin: 0 auto; }
+.board-composer { border: 1px solid var(--border); background: var(--card); border-radius: 4px; padding: 0 20px; margin-bottom: 8px; }
+.board-composer > summary { font-family: var(--display); font-size: 24px; min-height: 56px; display: flex; align-items: center; cursor: pointer; }
+.board-form { flex-direction: column; flex-wrap: nowrap; gap: 6px; padding-bottom: 20px; }
+.board-form input, .board-form textarea, .board-form select { width: 100%; font: inherit; font-size: 16px; }
+.board-form select { background: var(--bg); color: var(--ink); padding: 12px 14px; border: 1px solid var(--border); border-radius: 4px; min-height: 46px; }
+.board-form .field-label { margin-top: 10px; }
+.board-form .optional { text-transform: none; letter-spacing: 0; }
+.board-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 14px; }
+.board-form-actions .hint { margin: 0; }
+.board-list { display: grid; gap: 16px; margin: 8px 0 48px; }
+.board-post { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: 4px; padding: 20px 22px; min-width: 0; overflow-wrap: anywhere; }
+.board-post.pinned { border-left-color: var(--accent); background: var(--soft); }
+.board-post h3 { font-size: 24px; margin: 6px 0 8px; }
+.board-post .board-body { color: var(--ink); font-size: 15px; margin: 0 0 10px; white-space: pre-line; }
+.board-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); margin: 0; }
+.board-kind { text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); font-weight: 600; }
+.board-post.pinned .board-meta span:nth-child(2) { color: var(--accent); font-weight: 600; }
+.board-link { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; }
+.board-actions { display: flex; gap: 10px; margin-top: 6px; }
+.btn.small { min-height: 40px; padding: 6px 14px; font-size: 13px; }
+.board-signin { border: 1px solid var(--border); background: var(--soft); border-radius: 4px; padding: 32px 24px; }
+.board-signin h2 { font-size: 28px; margin: 0 0 10px; }
+.board-signin p { color: var(--muted); }
