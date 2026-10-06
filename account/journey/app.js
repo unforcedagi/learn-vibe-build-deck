@@ -18,15 +18,58 @@ function el(tag, cls, text) {
   return n;
 }
 
+// Instructor view-as: ?as=<student_id>. The Worker enforces it (403 for
+// non-instructors, every write refused); this page only renders read-only.
+const AS = new URLSearchParams(location.search).get('as');
+let READ_ONLY = false;
+
 async function load() {
   let me = null;
+  let status = 0;
   try {
-    const res = await fetch(API_BASE + '/me', { credentials: 'include' });
+    const res = await fetch(API_BASE + '/me' + (AS ? `?as=${encodeURIComponent(AS)}` : ''), { credentials: 'include' });
+    status = res.status;
     if (res.ok) me = await res.json();
   } catch { /* fall through to signed out */ }
   $('journey-status').remove();
+  if (!me && AS && status !== 401) {
+    $('journey').replaceChildren(el('p', 'error', status === 403
+      ? 'Only the instructor can view another student\'s journey.'
+      : 'That student could not be found.'));
+    return;
+  }
   if (!me) return signedOut();
+  READ_ONLY = !!me.read_only;
+  if (me.viewing_as) banner(me.viewing_as);
+  if (me.is_instructor || me.viewer_is_instructor) picker(me.viewing_as && me.viewing_as.id);
   render(me);
+}
+
+function banner(v) {
+  const b = el('div', 'viewas-banner');
+  b.setAttribute('role', 'status');
+  b.append(el('strong', null, `Viewing as ${v.first_name} — read-only. `));
+  const back = el('a', null, 'Back to your view');
+  back.href = './';
+  b.append(back);
+  document.querySelector('.journey-main').prepend(b);
+}
+
+async function picker(currentId) {
+  const res = await fetch(API_BASE + '/instructor/students', { credentials: 'include' }).catch(() => null);
+  if (!res || !res.ok) return;
+  const { students } = await res.json();
+  const wrap = el('div', 'viewas-picker');
+  const label = el('label', 'field-label', 'Instructor: view a student\'s journey (read-only)');
+  label.htmlFor = 'viewas-select';
+  const sel = el('select');
+  sel.id = 'viewas-select';
+  sel.append(new Option('Choose a student…', ''));
+  for (const s of students) sel.append(new Option(s.name, String(s.id), false, String(s.id) === String(currentId)));
+  sel.onchange = () => { location.search = sel.value ? `?as=${sel.value}` : ''; };
+  wrap.append(label, sel);
+  const main = document.querySelector('.journey-main');
+  main.insertBefore(wrap, main.querySelector('#journey'));
 }
 
 function signedOut() {
@@ -53,7 +96,7 @@ function render(me) {
   root.replaceChildren();
 
   const top = el('section', 'journey-top');
-  top.append(el('p', 'kicker', `${first}'s journey · only you can see this page`));
+  top.append(el('p', 'kicker', READ_ONLY ? `${first}'s journey · instructor view, read-only` : `${first}'s journey · only you can see this page`));
   top.append(el('h2', null, `You've submitted ${done} of ${weeks.length} weeks so far.`));
   const note = el('div', 'journey-reflect');
   note.append(el('p', null, `This week (Week ${REFLECTION_WEEK}) you're writing one page taking stock of your journey. Read back through your weeks below, then write about:`));
@@ -77,9 +120,13 @@ function render(me) {
       msg.textContent = 'Select the text below and copy it.';
     }
   };
-  const submit = el('a', 'btn ghost', `Submit Week ${REFLECTION_WEEK}`);
-  submit.href = `../#week-${REFLECTION_WEEK}`;
-  row.append(copy, submit, msg);
+  row.append(copy);
+  if (!READ_ONLY) {
+    const submit = el('a', 'btn ghost', `Submit Week ${REFLECTION_WEEK}`);
+    submit.href = `../#week-${REFLECTION_WEEK}`;
+    row.append(submit);
+  }
+  row.append(msg);
   note.append(row);
   top.append(note);
   root.append(top);
@@ -125,9 +172,12 @@ function weekCard(w, s) {
   const links = el('p', 'journey-links');
   const lesson = el('a', null, LESSON_PAGES.has(w.week) ? `Week ${w.week} lesson` : `Week ${w.week} on the schedule`);
   lesson.href = lessonUrl(w.week);
-  const edit = el('a', null, s ? 'View or edit in your account' : 'Submit in your account');
-  edit.href = `../#week-${w.week}`;
-  links.append(lesson, edit);
+  links.append(lesson);
+  if (!READ_ONLY) {
+    const edit = el('a', null, s ? 'View or edit in your account' : 'Submit in your account');
+    edit.href = `../#week-${w.week}`;
+    links.append(edit);
+  }
   li.append(links);
   return li;
 }
