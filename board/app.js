@@ -2,6 +2,7 @@
 // every post comes from /board with the session cookie, so signed-out
 // visitors (and search engines) see only the sign-in prompt.
 import { API_BASE } from '../account/config.js';
+import { linkSegments } from './linkify.js';
 
 const $ = (id) => document.getElementById(id);
 const list = $('board-list');
@@ -11,7 +12,7 @@ const composer = $('board-composer');
 const filters = $('board-filter');
 
 const KIND_LABEL = { build: 'Build', resource: 'Resource', question: 'Question', learning: 'Learning' };
-const state = { posts: [], kind: null, editing: null };
+const state = { posts: [], kind: null, editing: null, open: new Set() };
 
 const api = (path, opts = {}) => fetch(API_BASE + path, {
   credentials: 'include',
@@ -78,7 +79,7 @@ function card(p) {
   art.append(meta);
   art.append(el('h3', null, p.title));
   if (p.body) {
-    for (const para of p.body.split(/\n{2,}/)) art.append(el('p', 'board-body', para));
+    for (const para of p.body.split(/\n{2,}/)) art.append(richText('p', 'board-body', para));
   }
   if (p.link_url) {
     const a = el('a', 'board-link', shortLink(p.link_url));
@@ -87,6 +88,7 @@ function card(p) {
     a.rel = 'noopener noreferrer';
     art.append(a);
   }
+  art.append(commentsBlock(p));
   if (p.mine) {
     const row = el('div', 'board-actions');
     const edit = el('button', 'btn ghost small', 'Edit');
@@ -193,6 +195,103 @@ function shortLink(url) {
   } catch {
     return url;
   }
+}
+
+// Plain text with autolinked http(s) URLs. Text goes in via textContent;
+// links are <a> elements with a validated href. No HTML is ever parsed.
+function richText(tag, cls, text) {
+  const n = el(tag, cls);
+  for (const seg of linkSegments(text)) {
+    if (seg.href) {
+      const a = el('a', null, seg.text);
+      a.href = seg.href;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer nofollow';
+      n.append(a);
+    } else {
+      n.append(document.createTextNode(seg.text));
+    }
+  }
+  return n;
+}
+
+function commentsBlock(p) {
+  const comments = p.comments || [];
+  const d = el('details', 'board-comments');
+  d.open = state.open.has(p.id);
+  d.addEventListener('toggle', () => { if (d.open) state.open.add(p.id); else state.open.delete(p.id); });
+  const n = comments.length;
+  d.append(el('summary', null, n ? `${n} comment${n === 1 ? '' : 's'}` : 'Comment'));
+  const list = el('ul', 'board-comment-list');
+  for (const c of comments) list.append(commentItem(p, c));
+  d.append(list);
+
+  const f = document.createElement('form');
+  f.className = 'board-comment-form';
+  const ta = el('textarea');
+  ta.name = 'body';
+  ta.rows = 2;
+  ta.maxLength = 1000;
+  ta.required = true;
+  ta.placeholder = 'Add a comment for the class';
+  ta.setAttribute('aria-label', `Comment on ${p.title}`);
+  const btn = el('button', 'btn small', 'Comment');
+  btn.type = 'submit';
+  const msg = el('span', 'hint');
+  msg.setAttribute('role', 'status');
+  f.append(ta, btn, msg);
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.disabled = true;
+    const res = await api(`/board/${p.id}/comments`, { method: 'POST', body: JSON.stringify({ body: ta.value }) });
+    btn.disabled = false;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { msg.textContent = data.error === 'comment_too_long' ? 'Keep it under 1000 characters.' : 'Could not post the comment.'; return; }
+    p.comments = [...(p.comments || []), data.comment];
+    state.open.add(p.id);
+    render();
+  });
+  d.append(f);
+  return d;
+}
+
+function commentItem(p, c) {
+  const li = el('li', 'board-comment' + (c.from_instructor ? ' from-instructor' : ''));
+  const meta = el('p', 'board-meta');
+  meta.append(el('span', c.from_instructor ? 'board-kind' : null, c.from_instructor ? 'From Aaron' : c.author));
+  meta.append(el('span', null, whenTime(c.created_at) + (c.updated_at !== c.created_at ? ' · edited' : '')));
+  li.append(meta);
+  li.append(richText('p', 'board-comment-body', c.body));
+  if (c.mine || c.can_delete) {
+    const row = el('div', 'board-actions');
+    if (c.mine) {
+      const edit = el('button', 'quiet', 'Edit');
+      edit.type = 'button';
+      edit.onclick = async () => {
+        const next = prompt('Edit your comment', c.body);
+        if (next == null || !next.trim()) return;
+        const res = await api(`/board/comments/${c.id}`, { method: 'PATCH', body: JSON.stringify({ body: next }) });
+        if (res.ok) { const d = await res.json(); p.comments = p.comments.map((x) => (x.id === c.id ? d.comment : x)); render(); }
+      };
+      row.append(edit);
+    }
+    const del = el('button', 'quiet', c.mine ? 'Delete' : 'Remove');
+    del.type = 'button';
+    del.onclick = async () => {
+      if (!confirm('Delete this comment?')) return;
+      const res = await api(`/board/comments/${c.id}`, { method: 'DELETE' });
+      if (res.ok) { p.comments = p.comments.filter((x) => x.id !== c.id); render(); }
+    };
+    row.append(del);
+    li.append(row);
+  }
+  return li;
+}
+
+function whenTime(iso) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
 load();

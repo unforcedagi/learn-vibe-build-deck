@@ -792,8 +792,18 @@ async function handleBoardList(request, env) {
        JOIN students s ON s.id = p.student_id
       ORDER BY p.pinned DESC, p.created_at DESC LIMIT 300`
   ).all();
+  const crows = await env.DB.prepare(
+    `SELECT c.*, s.name, s.is_instructor FROM board_comments c
+       JOIN students s ON s.id = c.student_id
+      ORDER BY c.created_at ASC, c.id ASC`
+  ).all();
+  const byPost = new Map();
+  for (const c of crows.results) {
+    if (!byPost.has(c.post_id)) byPost.set(c.post_id, []);
+    byPost.get(c.post_id).push(commentRow(c, me));
+  }
   return json(env, {
-    posts: rows.results.map((r) => boardRow(r, me)),
+    posts: rows.results.map((r) => ({ ...boardRow(r, me), comments: byPost.get(r.id) || [] })),
     me: { first_name: firstName(me.name), is_instructor: !!me.is_instructor },
     kinds: BOARD_KINDS,
   });
@@ -836,8 +846,82 @@ async function handleBoardUpdate(request, env, id) {
 async function handleBoardDelete(request, env, id) {
   const me = await currentStudent(request, env);
   if (!me) return json(env, { error: 'unauthorized' }, 401);
-  const res = await env.DB.prepare('DELETE FROM board_posts WHERE id = ? AND student_id = ?')
-    .bind(id, me.id).run();
+  const own = await env.DB.prepare('SELECT id FROM board_posts WHERE id = ? AND student_id = ?')
+    .bind(id, me.id).first();
+  if (!own) return json(env, { error: 'not_found' }, 404);
+  await env.DB.prepare('DELETE FROM board_comments WHERE post_id = ?').bind(id).run();
+  await env.DB.prepare('DELETE FROM board_posts WHERE id = ? AND student_id = ?').bind(id, me.id).run();
+  return json(env, { ok: true, id: Number(id) });
+}
+
+// Comments: plain text only (the client renders with textContent and
+// autolinks http(s) URLs as real anchors; no HTML is ever interpreted).
+const COMMENT_MAX = 1000;
+
+function commentRow(c, me) {
+  return {
+    id: c.id,
+    post_id: c.post_id,
+    body: c.body,
+    author: firstName(c.name),
+    from_instructor: !!c.is_instructor,
+    created_at: c.created_at,
+    updated_at: c.updated_at,
+    mine: c.student_id === me.id,
+    can_delete: c.student_id === me.id || !!me.is_instructor,
+  };
+}
+
+function commentBody(body) {
+  const text = String((body && body.body) || '').trim();
+  if (!text) return { error: 'comment_required' };
+  if (text.length > COMMENT_MAX) return { error: 'comment_too_long' };
+  return { text };
+}
+
+async function commentGet(env, id, me) {
+  const c = await env.DB.prepare(
+    `SELECT c.*, s.name, s.is_instructor FROM board_comments c
+       JOIN students s ON s.id = c.student_id WHERE c.id = ?`
+  ).bind(id).first();
+  return c ? commentRow(c, me) : null;
+}
+
+async function handleCommentCreate(request, env, postId) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+  const f = commentBody(await readJson(request));
+  if (f.error) return json(env, { error: f.error }, 400);
+  const post = await env.DB.prepare('SELECT id FROM board_posts WHERE id = ?').bind(postId).first();
+  if (!post) return json(env, { error: 'not_found' }, 404);
+  const now = nowISO();
+  await env.DB.prepare(
+    'INSERT INTO board_comments (post_id, student_id, body, created_at, updated_at) VALUES (?, ?, ?, ?, ?)'
+  ).bind(postId, me.id, f.text, now, now).run();
+  const row = await env.DB.prepare(
+    'SELECT id FROM board_comments WHERE student_id = ? AND post_id = ? ORDER BY id DESC LIMIT 1'
+  ).bind(me.id, postId).first();
+  return json(env, { ok: true, comment: await commentGet(env, row.id, me) }, 201);
+}
+
+async function handleCommentUpdate(request, env, id) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+  const f = commentBody(await readJson(request));
+  if (f.error) return json(env, { error: f.error }, 400);
+  const res = await env.DB.prepare(
+    'UPDATE board_comments SET body = ?, updated_at = ? WHERE id = ? AND student_id = ?'
+  ).bind(f.text, nowISO(), id, me.id).run();
+  if (!res.meta || res.meta.changes !== 1) return json(env, { error: 'not_found' }, 404);
+  return json(env, { ok: true, comment: await commentGet(env, id, me) });
+}
+
+async function handleCommentDelete(request, env, id) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+  const res = me.is_instructor
+    ? await env.DB.prepare('DELETE FROM board_comments WHERE id = ?').bind(id).run()
+    : await env.DB.prepare('DELETE FROM board_comments WHERE id = ? AND student_id = ?').bind(id, me.id).run();
   if (!res.meta || res.meta.changes !== 1) return json(env, { error: 'not_found' }, 404);
   return json(env, { ok: true, id: Number(id) });
 }
@@ -891,6 +975,11 @@ export default {
       if (share && request.method === 'POST') return handleShare(request, env, share[1]);
       if (path === '/board' && request.method === 'GET') return handleBoardList(request, env);
       if (path === '/board' && request.method === 'POST') return handleBoardCreate(request, env);
+      const newComment = path.match(/^\/board\/(\d+)\/comments$/);
+      if (newComment && request.method === 'POST') return handleCommentCreate(request, env, newComment[1]);
+      const comment = path.match(/^\/board\/comments\/(\d+)$/);
+      if (comment && request.method === 'PATCH') return handleCommentUpdate(request, env, comment[1]);
+      if (comment && request.method === 'DELETE') return handleCommentDelete(request, env, comment[1]);
       const post = path.match(/^\/board\/(\d+)$/);
       if (post && request.method === 'PATCH') return handleBoardUpdate(request, env, Number(post[1]));
       if (post && request.method === 'DELETE') return handleBoardDelete(request, env, Number(post[1]));
