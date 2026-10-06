@@ -174,6 +174,14 @@ The existing deadline remains **Sunday, October 11, 11:59 PM MT**. Submit throug
 
 Arielle Shipper, **How to Get Better at AI by Asking AI** (Every). Ask your AI to assess your actual work, suggest a next learning step, and teach it. No long history? Paste your context or last two submissions. Free class link: https://every.to/p/codex-graded-my-ai-habits-then-it-became-my-coach?gift=Z2sKGROhf_Gfo9Cy3gFT-Rc6iwdt7qWH
 
+## Keep learning: free courses and where this leads
+
+- **OpenAI Academy** (free courses and events): https://academy.openai.com/
+- **Anthropic Academy** (free Claude courses): https://anthropic.skilljar.com/
+- **Claude Frontier Academy** (Anthropic): https://www.anthropic.com/news/claude-frontier-academy. Anthropic's Claude Frontier Academy (announced Oct 2, 2026) is a $100M program to train 10,000 "Frontier Deployed Engineers" by the end of 2027, starting with cohorts from Accenture, Deloitte, McKinsey and others: a multi-day in-person program, then a 12-week residency leading a real project. It is by employer nomination only, so you can't apply directly. The point for us: deployed-engineer roles, building AI systems inside real organisations, are a fast-growing career path, and the skills in this course (context, getting work online, checking what AI made) are the starting ones.
+
+Found something useful? Share it on the class board: https://cu.learnvibe.build/board/
+
 ## Further reading
 
 - AGENTS.md: https://agents.md/

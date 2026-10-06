@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="description" content="The Learn, Vibe, Build class board: builds, resources, questions and learning shared among signed-in classmates.">
+<title>Class board — Learn, Vibe, Build · ATLS 4519</title>
+<link rel="stylesheet" href="../assets/site.css?v=board1">
+</head>
+<body class="board-page">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a class="brand" href="../"><span class="brand-mark" aria-hidden="true">L</span>Learn, Vibe, Build</a>
+    <nav class="desktop-nav" aria-label="Course"><a href="../schedule/">Schedule</a>
+<a href="../lessons/">Lessons</a>
+<a href="../readings/">Readings</a>
+<a href="../syllabus.html">Syllabus</a>
+<a href="../setup/">Setup</a>
+<a href="../board/" aria-current="page">Class board</a>
+<a href="../studio/">Studio</a>
+<a href="../journal/">Journal</a>
+<a href="../account/">Account</a></nav>
+    <details class="mobile-nav">
+      <summary>Menu <span aria-hidden="true">&nbsp;+</span></summary>
+      <nav aria-label="Course menu"><a href="../schedule/">Schedule</a>
+<a href="../lessons/">Lessons</a>
+<a href="../readings/">Readings</a>
+<a href="../syllabus.html">Syllabus</a>
+<a href="../setup/">Setup</a>
+<a href="../board/" aria-current="page">Class board</a>
+<a href="../studio/">Studio</a>
+<a href="../journal/">Journal</a>
+<a href="../account/">Account</a></nav>
+    </details>
+  </div>
+</header>
+<section class="studio-hero board-hero" aria-labelledby="board-title">
+  <p class="kicker">Class board / signed-in classmates only</p>
+  <h1 id="board-title">Share with the class.</h1>
+  <p class="lead">Post what you built, a resource that helped, a question you're stuck on, or something you learned. Takes under a minute. Only classmates who are signed in can see it.</p>
+</section>
+<main class="studio-main board-main" id="main-content">
+  <details class="board-composer" id="board-composer" hidden open>
+    <summary>Post something</summary>
+    <form id="board-form" class="board-form">
+      <p class="hint" id="board-who"></p>
+      <label class="field-label" for="board-kind">Type</label>
+      <select id="board-kind" name="kind">
+        <option value="build">Build: something I made</option>
+        <option value="resource">Resource: something useful</option>
+        <option value="question">Question: I'm stuck or curious</option>
+        <option value="learning" selected>Learning: something I figured out</option>
+      </select>
+      <label class="field-label" for="board-title-in">Title</label>
+      <input id="board-title-in" name="title" type="text" maxlength="140" required placeholder="e.g. My markdown quiz app">
+      <label class="field-label" for="board-body">Short note <span class="optional">(optional)</span></label>
+      <textarea id="board-body" name="body" rows="4" maxlength="2000" placeholder="What is it, what did you learn, or what do you need?"></textarea>
+      <label class="field-label" for="board-link">Link <span class="optional">(optional, a public https:// URL)</span></label>
+      <input id="board-link" name="link_url" type="url" placeholder="https://">
+      <div class="board-form-actions">
+        <button class="btn" id="board-submit" type="submit">Post to the class</button>
+        <button class="btn ghost" id="board-cancel" type="button" hidden>Cancel edit</button>
+        <p class="hint" id="board-form-msg" role="status"></p>
+      </div>
+    </form>
+  </details>
+  <div class="chips" id="board-filter" role="group" aria-label="Filter posts by type" hidden>
+    <button class="chip active" type="button" aria-pressed="true">All</button>
+    <button class="chip" type="button" data-kind="build" aria-pressed="false">Builds</button>
+    <button class="chip" type="button" data-kind="resource" aria-pressed="false">Resources</button>
+    <button class="chip" type="button" data-kind="question" aria-pressed="false">Questions</button>
+    <button class="chip" type="button" data-kind="learning" aria-pressed="false">Learning</button>
+  </div>
+  <p class="hint" id="board-status" role="status">Checking your sign-in…</p>
+  <div class="board-list" id="board-list">
+    <noscript><div class="board-signin"><h2>Sign in to see and post to the class board.</h2><p>The board needs JavaScript and a class account.</p><a class="btn" href="../account/">Sign in</a></div></noscript>
+  </div>
+</main>
+<script type="module" src="./app.js?v=1"></script>
+<footer class="site-footer">
+  <p>Learn, Vibe, Build<br>ATLS 4519 · CU Boulder · Fall 2026</p>
+  <p><a href="../setup/">Getting started</a> · <a href="../syllabus.html">Syllabus</a><br>
+  <a href="../llms.txt">Course map for AI</a> · <a href="https://github.com/unforcedagi/learn-vibe-build-deck">Source</a></p>
+</footer>
+</body>
+</html>

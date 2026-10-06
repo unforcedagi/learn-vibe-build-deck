@@ -699,6 +699,117 @@ async function handleLogout(request, env) {
 }
 
 // ---------------------------------------------------------------------------
+// Class board — posts visible to signed-in classmates only (never public).
+// Authors edit/delete their own; instructor posts are pinned "From Aaron".
+// ---------------------------------------------------------------------------
+
+const BOARD_KINDS = ['build', 'resource', 'question', 'learning'];
+const BOARD_LIMITS = { title: 140, body: 2000, link: 2000 };
+
+function firstName(name) {
+  return String(name || '').trim().split(/\s+/)[0] || 'Classmate';
+}
+
+function boardRow(r, me) {
+  return {
+    id: r.id,
+    kind: r.kind,
+    title: r.title,
+    body: r.body,
+    link_url: r.link_url,
+    pinned: !!r.pinned,
+    from_instructor: !!r.is_instructor,
+    author: firstName(r.name),
+    created_at: r.created_at,
+    updated_at: r.updated_at,
+    mine: r.student_id === me.id,
+  };
+}
+
+function boardFields(body) {
+  const title = String(body.title || '').trim();
+  const note = String(body.body || '').trim();
+  const link = String(body.link_url || '').trim();
+  const kind = String(body.kind || 'learning');
+  if (!title) return { error: 'title_required' };
+  if (title.length > BOARD_LIMITS.title) return { error: 'title_too_long' };
+  if (note.length > BOARD_LIMITS.body) return { error: 'body_too_long' };
+  if (link && (link.length > BOARD_LIMITS.link || !isHttpUrl(link))) return { error: 'bad_link' };
+  if (!BOARD_KINDS.includes(kind)) return { error: 'bad_kind' };
+  return { title, body: note || null, link_url: link || null, kind };
+}
+
+async function readJson(request) {
+  try { return await request.json(); } catch { return null; }
+}
+
+async function boardGet(env, id, me) {
+  const r = await env.DB.prepare(
+    `SELECT p.*, s.name, s.is_instructor FROM board_posts p
+       JOIN students s ON s.id = p.student_id WHERE p.id = ?`
+  ).bind(id).first();
+  return r ? boardRow(r, me) : null;
+}
+
+async function handleBoardList(request, env) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+  const rows = await env.DB.prepare(
+    `SELECT p.*, s.name, s.is_instructor FROM board_posts p
+       JOIN students s ON s.id = p.student_id
+      ORDER BY p.pinned DESC, p.created_at DESC LIMIT 300`
+  ).all();
+  return json(env, {
+    posts: rows.results.map((r) => boardRow(r, me)),
+    me: { first_name: firstName(me.name), is_instructor: !!me.is_instructor },
+    kinds: BOARD_KINDS,
+  });
+}
+
+async function handleBoardCreate(request, env) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+  const body = await readJson(request);
+  if (!body) return json(env, { error: 'bad_request' }, 400);
+  const f = boardFields(body);
+  if (f.error) return json(env, { error: f.error }, 400);
+  const now = nowISO();
+  const pinned = me.is_instructor ? 1 : 0;
+  await env.DB.prepare(
+    `INSERT INTO board_posts (student_id, kind, title, body, link_url, pinned, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+  ).bind(me.id, f.kind, f.title, f.body, f.link_url, pinned, now, now).run();
+  const row = await env.DB.prepare(
+    'SELECT id FROM board_posts WHERE student_id = ? AND created_at = ? ORDER BY id DESC LIMIT 1'
+  ).bind(me.id, now).first();
+  return json(env, { ok: true, post: await boardGet(env, row.id, me) }, 201);
+}
+
+async function handleBoardUpdate(request, env, id) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+  const body = await readJson(request);
+  if (!body) return json(env, { error: 'bad_request' }, 400);
+  const f = boardFields(body);
+  if (f.error) return json(env, { error: f.error }, 400);
+  const res = await env.DB.prepare(
+    `UPDATE board_posts SET kind = ?, title = ?, body = ?, link_url = ?, updated_at = ?
+      WHERE id = ? AND student_id = ?`
+  ).bind(f.kind, f.title, f.body, f.link_url, nowISO(), id, me.id).run();
+  if (!res.meta || res.meta.changes !== 1) return json(env, { error: 'not_found' }, 404);
+  return json(env, { ok: true, post: await boardGet(env, id, me) });
+}
+
+async function handleBoardDelete(request, env, id) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+  const res = await env.DB.prepare('DELETE FROM board_posts WHERE id = ? AND student_id = ?')
+    .bind(id, me.id).run();
+  if (!res.meta || res.meta.changes !== 1) return json(env, { error: 'not_found' }, 404);
+  return json(env, { ok: true, id: Number(id) });
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
 
@@ -715,7 +826,7 @@ export default {
         status: 204,
         headers: {
           ...corsHeaders(env),
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
           'Access-Control-Max-Age': '86400',
         },
@@ -739,6 +850,11 @@ export default {
       if (vis && request.method === 'POST') return handleVisibility(request, env, vis[1]);
       const share = path.match(/^\/submissions\/(\d+)\/share$/);
       if (share && request.method === 'POST') return handleShare(request, env, share[1]);
+      if (path === '/board' && request.method === 'GET') return handleBoardList(request, env);
+      if (path === '/board' && request.method === 'POST') return handleBoardCreate(request, env);
+      const post = path.match(/^\/board\/(\d+)$/);
+      if (post && request.method === 'PATCH') return handleBoardUpdate(request, env, Number(post[1]));
+      if (post && request.method === 'DELETE') return handleBoardDelete(request, env, Number(post[1]));
       return json(env, { error: 'not_found' }, 404);
     } catch (err) {
       console.error('unhandled:', err.stack || err.message);
