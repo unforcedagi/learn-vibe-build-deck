@@ -2121,3 +2121,15 @@ a.kit-card strong::after { content: " →"; color: var(--accent); }
 .viewas-banner a { color: white; text-decoration: underline; }
 .viewas-picker { display: grid; gap: 6px; margin: 0 0 24px; padding: 14px 16px; border: 1px dashed var(--border); border-radius: 4px; }
 .viewas-picker select { background: var(--bg); color: var(--ink); padding: 12px 14px; border: 1px solid var(--border); border-radius: 4px; min-height: 46px; font: inherit; font-size: 16px; width: 100%; }
+
+/* Board comments: text via textContent, links validated in linkify.js. */
+.board-comments { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 4px; }
+.board-comments > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-size: 14px; color: var(--accent); font-weight: 600; }
+.board-comment-list { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 10px; }
+.board-comment { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; }
+.board-comment.from-instructor { border-left: 3px solid var(--accent); }
+.board-comment-body { margin: 4px 0 0; font-size: 15px; white-space: pre-line; overflow-wrap: anywhere; }
+.board-comment .board-actions button { min-height: 36px; font-size: 13px; }
+.board-comment-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
+.board-comment-form textarea { flex: 1 1 100%; width: 100%; font: inherit; font-size: 16px; }
+.board-comment-form .hint { margin: 0; }
