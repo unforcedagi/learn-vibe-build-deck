@@ -2095,3 +2095,23 @@ a.kit-card strong::after { content: " →"; color: var(--accent); }
 .board-signin { border: 1px solid var(--border); background: var(--soft); border-radius: 4px; padding: 32px 24px; }
 .board-signin h2 { font-size: 28px; margin: 0 0 10px; }
 .board-signin p { color: var(--muted); }
+
+/* My journey: one student's own weeks, from /me only. */
+.journey-top h2 { font-size: 30px; margin: 4px 0 16px; }
+.journey-reflect { border: 1px solid var(--border); background: var(--soft); border-radius: 4px; padding: 18px 20px; }
+.journey-reflect ul { margin: 6px 0 12px; padding-left: 20px; }
+.journey-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 12px; }
+.journey-actions .hint { margin: 0; }
+.journey-weeks { list-style: none; padding: 0; margin: 32px 0 48px; display: grid; gap: 18px; }
+.journey-week { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 4px; padding: 20px 22px; min-width: 0; overflow-wrap: anywhere; }
+.journey-week.submitted { border-left-color: var(--green); }
+.journey-week h3 { font-size: 26px; margin: 2px 0 6px; }
+.journey-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); margin: 0 0 8px; }
+.journey-status.is-in { color: var(--green); font-weight: 600; }
+.journey-status.is-open { color: var(--muted); font-style: italic; }
+.journey-prompt summary { cursor: pointer; font-size: 14px; min-height: 36px; display: flex; align-items: center; color: var(--muted); }
+.journey-prompt p { font-size: 14px; color: var(--muted); }
+.journey-body p { font-size: 15px; line-height: 1.65; white-space: pre-line; }
+.journey-share { font-size: 12px; }
+.journey-links { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 14px; margin: 8px 0 0; }
+.journey-links a { min-height: 40px; display: inline-flex; align-items: center; }

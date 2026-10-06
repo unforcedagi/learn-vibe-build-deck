@@ -3,7 +3,7 @@ import html
 
 NAV = [("schedule/", "Schedule"), ("lessons/", "Lessons"), ("readings/", "Readings"),
        ("syllabus.html", "Syllabus"), ("setup/", "Setup"), ("board/", "Class board"), ("studio/", "Studio"),
-       ("journal/", "Journal"), ("account/", "Account")]
+       ("journal/", "Journal"), ("account/journey/", "My journey"), ("account/", "Account")]
 
 
 def nav(prefix, current=""):
