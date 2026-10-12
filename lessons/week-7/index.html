@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 7: How Things Talk — Learn, Vibe, Build · ATLS 4519</title>
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body class="lesson-page">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">L</span>Learn, Vibe, Build</a>
+    <nav class="desktop-nav" aria-label="Course"><a href="../../schedule/">Schedule</a>
+<a href="../../lessons/" aria-current="page">Lessons</a>
+<a href="../../readings/">Readings</a>
+<a href="../../syllabus.html">Syllabus</a>
+<a href="../../setup/">Setup</a>
+<a href="../../board/">Class board</a>
+<a href="../../studio/">Studio</a>
+<a href="../../journal/">Journal</a>
+<a href="../../account/journey/">My journey</a>
+<a href="../../account/">Account</a></nav>
+    <details class="mobile-nav">
+      <summary>Menu <span aria-hidden="true">&nbsp;+</span></summary>
+      <nav aria-label="Course menu"><a href="../../schedule/">Schedule</a>
+<a href="../../lessons/" aria-current="page">Lessons</a>
+<a href="../../readings/">Readings</a>
+<a href="../../syllabus.html">Syllabus</a>
+<a href="../../setup/">Setup</a>
+<a href="../../board/">Class board</a>
+<a href="../../studio/">Studio</a>
+<a href="../../journal/">Journal</a>
+<a href="../../account/journey/">My journey</a>
+<a href="../../account/">Account</a></nav>
+    </details>
+  </div>
+</header>
+<main class="lesson-main" id="main-content">
+<header class="lesson-header">
+  <p class="crumb"><a href="../">Lessons</a> / Week 7</p>
+  <p class="kicker">The studio field guide / 07</p>
+  <h1>How Things Talk</h1>
+  <div class="copybar">
+    <button class="btn" type="button" data-copy="lesson.md">Copy lesson as markdown</button>
+    <a class="btn ghost" href="lesson.md">View raw .md</a> <a class="btn ghost" href="../../lessons/week-7/slides/">Open the slides</a>
+  </div>
+  <p class="hint">Read it here. Or bring it into your AI: copy the markdown and ask for an explanation,
+    a quiz, or a way to apply it to your own project.</p>
+</header>
+<div class="lesson-layout">
+  <aside class="lesson-toc" aria-label="Lesson contents">
+    <p class="kicker">In this lesson</p>
+    <div class="toc">
+<ul>
+<li><a href="#1-arrive-notice-what-is-already-here">1. Arrive: notice what is already here</a></li>
+<li><a href="#2-how-the-internet-talks">2. How the internet talks</a></li>
+<li><a href="#3-apis-a-menu-another-program-offers">3. APIs: a menu another program offers</a></li>
+<li><a href="#4-oauth-a-permission-slip-not-your-password">4. OAuth: a permission slip, not your password</a></li>
+<li><a href="#5-mcp-a-standard-plug-so-your-ai-can-use-tools">5. MCP: a standard plug so your AI can use tools</a></li>
+<li><a href="#6-which-api-would-make-your-project-real">6. Which API would make your project real?</a></li>
+<li><a href="#7-design-from-a-classmate">7. Design, from a classmate</a></li>
+<li><a href="#8-pods">8. Pods</a></li>
+<li><a href="#9-this-weeks-work">9. This week's work</a></li>
+</ul>
+</div>
+
+  </aside>
+  <details class="mobile-toc">
+    <summary>In this lesson <span>Contents +</span></summary>
+    <div class="toc">
+<ul>
+<li><a href="#1-arrive-notice-what-is-already-here">1. Arrive: notice what is already here</a></li>
+<li><a href="#2-how-the-internet-talks">2. How the internet talks</a></li>
+<li><a href="#3-apis-a-menu-another-program-offers">3. APIs: a menu another program offers</a></li>
+<li><a href="#4-oauth-a-permission-slip-not-your-password">4. OAuth: a permission slip, not your password</a></li>
+<li><a href="#5-mcp-a-standard-plug-so-your-ai-can-use-tools">5. MCP: a standard plug so your AI can use tools</a></li>
+<li><a href="#6-which-api-would-make-your-project-real">6. Which API would make your project real?</a></li>
+<li><a href="#7-design-from-a-classmate">7. Design, from a classmate</a></li>
+<li><a href="#8-pods">8. Pods</a></li>
+<li><a href="#9-this-weeks-work">9. This week's work</a></li>
+</ul>
+</div>
+
+  </details>
+  <article class="lesson">
+<p><em>Learn, Vibe, Build · ATLS 4519 · CU Boulder · Monday, October 12, 2026 · Aaron Neyer</em></p>
+<blockquote>
+<p><strong>How to use this file:</strong> it's plain markdown, written for you <em>and</em> your AI. Copy the whole thing into your AI and say: <strong>"Teach me this, then quiz me."</strong> Your AI can be wrong about this lesson too, so check it against the file.</p>
+</blockquote>
+<p><strong>In one line:</strong> Learn how programs talk to each other (networks, APIs, OAuth and MCP), so your builds can reach real data and your AI can use real tools.</p>
+<span id="contents"></span>
+<hr />
+<h2 id="1-arrive-notice-what-is-already-here">1. Arrive: notice what is already here</h2>
+<p>Before any screens: sit for a minute and notice what is around you. Sounds in the room, the light, your breath without changing it. The mind is already open; there is nothing to add.</p>
+<p>Why this belongs in an AI class:</p>
+<ul>
+<li><strong>Clear mind, clear ask.</strong> The quality of your thinking becomes the quality of your prompt. When you can say plainly what you want, the AI can build it.</li>
+<li><strong>Balance.</strong> These tools can quietly take your whole attention. A simple practice, even one minute of noticing, is how you come back to yourself.</li>
+</ul>
+<hr />
+<h2 id="2-how-the-internet-talks">2. How the internet talks</h2>
+<p>The internet is programs asking each other for things.</p>
+<p><strong>Your app (the client)</strong> → sends a <strong>request</strong> → to a <strong>server</strong> → which sends back a <strong>response</strong>.</p>
+<ul>
+<li><strong>URL</strong>: the address of the thing you're asking for.</li>
+<li><strong>HTTP</strong>: the conversation (the rules for asking and answering).</li>
+<li><strong>JSON</strong>: the format data usually comes back in. It looks like <code>{"temperature": 72}</code>.</li>
+</ul>
+<p>Every page you load makes dozens of these requests. To see them: open your browser's developer tools, go to the <strong>Network</strong> tab, and reload the page.</p>
+<p><strong>Why your link doesn't work for anyone else:</strong> <code>localhost</code> and <code>file:///</code> links point at <em>your</em> computer. Only you can reach them. To share a build, put it online (GitHub Pages, Vercel, Netlify). See the Week 6 handout: <a href="https://cu.learnvibe.build/lessons/week-6/get-online/">https://cu.learnvibe.build/lessons/week-6/get-online/</a></p>
+<hr />
+<h2 id="3-apis-a-menu-another-program-offers">3. APIs: a menu another program offers</h2>
+<p>An <strong>API</strong> (application programming interface) is a menu another program offers. Your code orders from it.</p>
+<ul>
+<li><strong>Endpoint</strong>: the address of one thing on the menu, e.g. "current weather for these coordinates".</li>
+<li><strong>Method</strong>: <code>GET</code> to read something, <code>POST</code> to send or create something.</li>
+<li><strong>Key</strong>: a secret that proves who is asking. Usage (and sometimes cost) is counted against it.</li>
+<li><strong>Limits</strong>: how often you can ask, and what it costs.</li>
+</ul>
+<p><strong>Try one now, no key needed:</strong> live Boulder weather from Open-Meteo:
+<a href="https://api.open-meteo.com/v1/forecast?latitude=40.01&amp;longitude=-105.27&amp;current=temperature_2m&amp;temperature_unit=fahrenheit">https://api.open-meteo.com/v1/forecast?latitude=40.01&amp;longitude=-105.27&amp;current=temperature_2m&amp;temperature_unit=fahrenheit</a></p>
+<p>Then ask your AI: <em>"Add the current Boulder temperature to this page using the Open-Meteo API."</em></p>
+<p><strong>The key rule:</strong> API keys never go in front-end code or a public GitHub repo. Anyone can read them there and spend your credits. Keep keys on a server, in an environment file (<code>.env</code>) that is not committed, or in your hosting platform's secret settings. If you've already pushed a key, delete it on the provider's site and make a new one.</p>
+<hr />
+<h2 id="4-oauth-a-permission-slip-not-your-password">4. OAuth: a permission slip, not your password</h2>
+<p>When you click <strong>"Sign in with Google"</strong> or <strong>"Connect your Spotify"</strong>, that's usually OAuth.</p>
+<ul>
+<li>The app never sees your password. It gets a <strong>token</strong>: a permission slip.</li>
+<li><strong>Scopes</strong> say exactly what that slip allows: "read your calendar", not "send email as you".</li>
+<li>This is how apps reach <em>your</em> stuff: listening history, fitness or sleep data, calendars, files.</li>
+<li>You can revoke the slip any time in your account settings.</li>
+</ul>
+<p>If your project needs a user's own data from another service, look for "OAuth" in that service's developer docs, and ask your AI to walk you through the setup step by step.</p>
+<hr />
+<h2 id="5-mcp-a-standard-plug-so-your-ai-can-use-tools">5. MCP: a standard plug so your AI can use tools</h2>
+<p><strong>MCP</strong> (Model Context Protocol) is a standard way for an AI to use tools and data.</p>
+<p><strong>Your AI</strong> → MCP → <strong>a tool or server</strong> → API → <strong>the world</strong></p>
+<ul>
+<li>An <strong>API</strong> lets your <em>app</em> talk to a service. <strong>MCP</strong> lets your <em>AI</em> talk to a service.</li>
+<li>It's one standard, so any tool that speaks MCP works with any AI that speaks it.</li>
+<li>Where you'll find it: Claude connectors, Claude Code, Codex (now included with ChatGPT Edu), Antigravity, Cursor.</li>
+<li>It's the clean way to get your AI and your tools working together, instead of copy-pasting between chats.</li>
+<li><strong>Watch your usage.</strong> Tools that run on their own can burn through limits fast. Start small and check.</li>
+</ul>
+<hr />
+<h2 id="6-which-api-would-make-your-project-real">6. Which API would make your project real?</h2>
+<p>Some places to start:</p>
+<ul>
+<li>Maps, travel time, opening hours</li>
+<li>Weather</li>
+<li>Music (Spotify, Last.fm)</li>
+<li>Health and fitness (Oura, Fitbit)</li>
+<li>Calendars</li>
+<li>Market data</li>
+<li>An AI model itself, called from your app (Claude, OpenAI, Gemini)</li>
+</ul>
+<p>Ask your AI: <em>"Here's my project. Which free or cheap APIs could make it more real, and what would I need (keys, OAuth, limits) for each?"</em></p>
+<hr />
+<h2 id="7-design-from-a-classmate">7. Design, from a classmate</h2>
+<p>A 10–15 minute lesson on design from a classmate.</p>
+<hr />
+<h2 id="8-pods">8. Pods</h2>
+<p>For the next three weeks you'll work in a small peer pod. The second half of class is pod time: work together, share directly, help each other move things forward. Aaron will rotate through the pods.</p>
+<p><strong>First pod session:</strong> start with a round. Each person shares:</p>
+<ol>
+<li>Where you are.</li>
+<li>Where you're stuck.</li>
+<li>What you want to learn or build.</li>
+</ol>
+<p>Then work together. At the end of class, each pod gives a short shareback (no full demos).</p>
+<p>In the final three weeks of the semester, pods will be re-formed around final projects.</p>
+<hr />
+<h2 id="9-this-weeks-work">9. This week's work</h2>
+<p><strong>Due Sunday, October 18, 11:59 PM.</strong> Same 10 points as usual. Submit through your account or on Canvas; either counts.</p>
+<p>Build something in a direction that supports your learning. A good default: <strong>connect one real API or MCP</strong> to something you're building, or play with one in a direction you care about.</p>
+<p>Then reflect, in your own words:</p>
+<ul>
+<li>What it unlocked.</li>
+<li>Where you got stuck.</li>
+<li>What your pod helped with (or what you helped someone else with).</li>
+</ul>
+    <div class="lesson-end">
+      <p class="kicker">Keep going</p>
+      <p>Turn the lesson into a conversation with your AI.</p>
+      <button class="btn" type="button" data-copy="lesson.md">Copy lesson as markdown</button>
+      <p class="hint"><a href="../">All lessons</a> · <a href="../../schedule/">The semester schedule</a></p>
+    </div>
+  </article>
+</div>
+<script>
+document.querySelectorAll('[data-copy]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    fetch(b.getAttribute('data-copy')).then(function (r) { return r.text(); }).then(function (t) {
+      return navigator.clipboard.writeText(t);
+    }).then(function () {
+      var old = b.textContent; b.textContent = 'Copied ✓';
+      setTimeout(function () { b.textContent = old; }, 1800);
+    }).catch(function () { location.href = b.getAttribute('data-copy'); });
+  });
+});
+</script>
+</main>
+<footer class="site-footer">
+  <p>Learn, Vibe, Build<br>ATLS 4519 · CU Boulder · Fall 2026</p>
+  <p><a href="../../setup/">Getting started</a> · <a href="../../syllabus.html">Syllabus</a><br>
+  <a href="../../llms.txt">Course map for AI</a> · <a href="https://github.com/unforcedagi/learn-vibe-build-deck">Source</a></p>
+</footer>
+</body>
+</html>

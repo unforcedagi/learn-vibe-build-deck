@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 7 slides — Learn, Vibe, Build</title>
+<link rel="stylesheet" href="../../../assets/site.css">
+<style>
+html,body{margin:0;height:100%;background:#1f211d;overflow:hidden}
+.deck{position:fixed;inset:0;display:grid;place-items:center}
+.slide{display:none;box-sizing:border-box;width:min(100vw,177.78vh);aspect-ratio:16/9;background:var(--bg);color:var(--ink);
+  container-type:inline-size;padding:5.5cqw 7cqw 6cqw;position:relative;border-left:1.2cqw solid var(--accent);font-family:var(--body)}
+.slide.on{display:flex;flex-direction:column}
+.slide h1{font-family:var(--display);font-weight:600;font-size:7.4cqw;line-height:1.02;letter-spacing:-.03em;margin:auto 0 1.5cqw}
+.slide h2{font-family:var(--display);font-weight:600;font-size:3.9cqw;line-height:1.1;letter-spacing:-.02em;margin:0 0 3cqw;text-wrap:balance}
+.slide .k{color:var(--accent);text-transform:uppercase;letter-spacing:.14em;font-size:1.3cqw;font-weight:600;margin:0}
+.slide .sub{font-size:2.6cqw;color:var(--muted);margin:0 0 1cqw} .slide .date{font-size:1.6cqw;color:var(--accent);margin:0 0 auto}
+.slide ul{margin:0;padding:0;list-style:none;font-size:2.35cqw;line-height:1.35}
+.slide li{padding:.9cqw 0 .9cqw 2.6cqw;position:relative;border-top:1px solid var(--border)}
+.slide li:before{content:"";position:absolute;left:0;top:1.85cqw;width:1cqw;height:1cqw;border-radius:50%;background:var(--accent)}
+.slide a{color:var(--accent)}
+.two{display:grid;grid-template-columns:1.55fr 1fr;gap:3.5cqw;align-items:center}
+.slide pre{margin:0;background:var(--soft);border:1px solid var(--border);border-radius:1cqw;padding:2.4cqw;font-size:1.75cqw;line-height:1.5;white-space:pre-wrap}
+.cap{font-family:var(--display);font-size:2.5cqw;line-height:1.2;color:var(--accent);margin:0}
+.flow{display:flex;align-items:center;gap:1cqw;margin:0 0 3cqw;flex-wrap:wrap}
+.step{background:var(--ink);color:var(--bg);padding:1.2cqw 2cqw;border-radius:.8cqw;font-weight:600;font-size:1.9cqw} .step.first{background:var(--accent)}
+.arr{color:var(--muted);font-size:2.2cqw}
+.slide footer{position:absolute;left:7cqw;right:4cqw;bottom:2.2cqw;display:flex;justify-content:space-between;font-size:1.15cqw;color:var(--muted)}
+.ctl{position:fixed;top:12px;right:14px;display:flex;gap:6px;z-index:5;font:600 13px/1 var(--body);opacity:.35;transition:opacity .2s} .ctl:hover,.ctl:focus-within{opacity:1} @media (hover:none){.ctl{opacity:.9;top:auto;bottom:14px}}
+.ctl a,.ctl button{background:rgba(255,253,247,.92);border:1px solid #888;border-radius:6px;padding:8px 11px;color:#272a25;text-decoration:none;cursor:pointer;font:inherit;display:inline-flex;align-items:center}
+.notesbar{position:fixed;left:0;right:0;bottom:0;max-height:38vh;overflow:auto;background:#fffdf7;border-top:3px solid var(--accent);padding:12px 16px 50px;font:15px/1.5 var(--body);white-space:pre-wrap;display:none}
+body.shownotes .notesbar{display:block}
+@media (max-width:700px) and (orientation:portrait){.deck{place-items:center} .ctl{bottom:16px}}
+</style></head>
+<body>
+<div class="deck"><section class="slide title"><p class="k">Learn, Vibe, Build · Week 7</p><h1>How things talk</h1><p class="sub">Networks, APIs, OAuth and MCP: how your builds reach the rest of the world.</p><p class="date">Week 7 · October 12, 2026</p><footer><span>Week 7 · Opening</span><span>1 / 9</span></footer></section><section class="slide"><h2>Before anything: notice what is already here</h2><ul><li>Sounds in the room. Light. Your breath, without changing it.</li><li>The mind is already open. Nothing to do, nothing to add.</li><li>Clear mind → clear ask. The quality of your thinking is the quality of your prompt.</li><li>These tools can quietly take your whole attention. A simple practice is how you come back.</li></ul><footer><span>Week 7 · Arrive</span><span>2 / 9</span></footer></section><section class="slide"><h2>The internet is programs asking each other for things</h2><div class="flow"><span class="step first">Your app (client)</span><span class="arr">→ request →</span><span class="step">Server</span><span class="arr">→ response →</span><span class="step">Your app</span></div><ul><li><b>URL</b>: the address. <b>HTTP</b>: the conversation. <b>JSON</b>: the format data comes back in.</li><li>Every page you load is dozens of these requests.</li><li>Localhost = a server only your computer can reach. That is why those links don't open for anyone else.</li></ul><footer><span>Week 7 · Networks</span><span>3 / 9</span></footer></section><section class="slide"><h2>An API is a menu another program offers</h2><ul><li><b>Endpoint</b>: the address of one thing on the menu.</li><li><b>Method</b>: GET to read, POST to send or create.</li><li><b>Key</b>: proves who is asking. Usage and cost are counted against it.</li><li><b>Limits</b>: how often you can ask, and what it costs.</li><li><b>Rule</b>: keys never go in front-end code or a public GitHub repo. Keep them on a server or in an env file.</li></ul><p class="cap">Try it: <a href="https://api.open-meteo.com/v1/forecast?latitude=40.01&amp;longitude=-105.27&amp;current=temperature_2m&amp;temperature_unit=fahrenheit">live Boulder weather (no key needed)</a></p><footer><span>Week 7 · APIs</span><span>4 / 9</span></footer></section><section class="slide"><h2>OAuth: a permission slip, not your password</h2><ul><li>"Sign in with Google" = the app gets a token, never your password.</li><li><b>Scopes</b> say exactly what it may do: read your calendar, not send email.</li><li>This is how apps reach your stuff: Spotify history, Oura or Fitbit data, Google Calendar.</li><li>You can revoke it any time in your account settings.</li></ul><footer><span>Week 7 · OAuth</span><span>5 / 9</span></footer></section><section class="slide"><h2>MCP: a standard plug so your AI can use tools</h2><div class="flow"><span class="step first">Your AI</span><span class="arr">→ MCP →</span><span class="step">Tool / server</span><span class="arr">→ API →</span><span class="step">The world</span></div><ul><li>API: your <i>app</i> talks to a service. MCP: your <i>AI</i> talks to a service.</li><li>One standard, so any tool works with any AI that speaks it.</li><li>Where: Claude connectors, Claude Code, Codex (now in ChatGPT Edu), Antigravity, Cursor.</li><li>This is the clean way to get agents and tools working together, instead of copy-pasting between chats.</li><li>Watch usage: tools that run on their own can burn through limits fast.</li></ul><footer><span>Week 7 · MCP</span><span>6 / 9</span></footer></section><section class="slide"><h2>Which API would make your project real?</h2><ul><li>Maps, travel time, opening hours · weather · music (Spotify, Last.fm)</li><li>Health and fitness (Oura, Fitbit) · calendars · market data</li><li>An AI model itself, called from your app (Claude, OpenAI, Gemini)</li><li><b>This week</b>: connect one real API or MCP to something you are building, or play with one in a direction you care about. Reflect: what it unlocked, where you got stuck, what your pod helped with.</li></ul><footer><span>Week 7 · Your build</span><span>7 / 9</span></footer></section><section class="slide"><p class="k">Guest lesson</p><h1>Design, from a classmate</h1><p class="sub">10–15 minutes.</p><p class="date">Then a short break.</p><footer><span>Week 7 · Design</span><span>8 / 9</span></footer></section><section class="slide"><h2>Your pod for the next three weeks</h2><ul><li>Pods are announced in class (about five people each).</li><li>First: a round. Where you are, where you are stuck, what you want to learn or build.</li><li>Then work together. Help each other move one thing forward.</li><li>End of class: a short shareback per pod.</li></ul><footer><span>Week 7 · Pods</span><span>9 / 9</span></footer></section></div>
+<div class="ctl"><a href="../">Back to Week 7</a><button id="prev" aria-label="Previous slide">←</button><button id="next" aria-label="Next slide">→</button><button id="fs">Full screen</button></div>
+<script>
+var S=[].slice.call(document.querySelectorAll('.slide')),i=0;
+function go(n){i=Math.max(0,Math.min(S.length-1,n));S.forEach(function(s,j){s.classList.toggle('on',j===i)});history.replaceState(null,'','#'+(i+1));
+ var nb=document.getElementById('notes');if(nb&&window.NOTES)nb.textContent=NOTES[i];}
+go((parseInt(location.hash.slice(1))||1)-1);
+document.addEventListener('keydown',function(e){if(['ArrowRight','PageDown',' '].indexOf(e.key)>=0){e.preventDefault();go(i+1)}
+ else if(['ArrowLeft','PageUp'].indexOf(e.key)>=0){e.preventDefault();go(i-1)} else if(e.key==='f')fs(); else if(e.key==='n')document.body.classList.toggle('shownotes');
+ else if(e.key==='Home')go(0); else if(e.key==='End')go(S.length-1);});
+document.getElementById('next').onclick=function(){go(i+1)};document.getElementById('prev').onclick=function(){go(i-1)};
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(function(){})}
+document.getElementById('fs').onclick=fs; var nb=document.getElementById('nb'); if(nb)nb.onclick=function(){document.body.classList.toggle('shownotes')};
+var x0=null;document.addEventListener('touchstart',function(e){x0=e.touches[0].clientX});
+document.addEventListener('touchend',function(e){if(x0===null)return;var d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>40)go(i+(d<0?1:-1));x0=null});
+</script></body></html>
