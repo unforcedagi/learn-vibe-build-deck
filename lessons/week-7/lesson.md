@@ -115,7 +115,7 @@ A 10–15 minute lesson on design from a classmate.
 
 ## 8. Pods
 
-For the next three weeks you'll work in a small peer pod. The second half of class is pod time: work together, share directly, help each other move things forward. Aaron will rotate through the pods.
+For the next three weeks you'll work in a small peer pod. **Find your pod on the class board** (sign in): https://cu.learnvibe.build/board/ The second half of class is pod time: work together, share directly, help each other move things forward. Aaron will rotate through the pods.
 
 **First pod session:** start with a round. Each person shares:
 
