@@ -12,7 +12,9 @@ const composer = $('board-composer');
 const filters = $('board-filter');
 
 const KIND_LABEL = { build: 'Build', resource: 'Resource', question: 'Question', learning: 'Learning' };
-const state = { posts: [], kind: null, editing: null, open: new Set() };
+const state = { posts: [], kind: null, editing: null, open: new Set(), scope: 'class', podId: null, pods: null, me: null };
+const tabs = $('board-tabs');
+const podPanel = $('board-pod');
 
 const api = (path, opts = {}) => fetch(API_BASE + path, {
   credentials: 'include',
@@ -29,21 +31,113 @@ function el(tag, cls, text) {
 
 async function load() {
   let res;
-  try { res = await api('/board'); } catch { return signedOut(); }
+  const q = state.scope === 'pod' ? `?scope=pod${state.podId ? `&pod_id=${state.podId}` : ''}` : '';
+  try { res = await api('/board' + q); } catch { return signedOut(); }
   if (res.status === 401) return signedOut();
+  if (state.scope === 'pod' && (res.status === 404 || res.status === 400)) {
+    // Not in a pod (or instructor with none picked yet): show the panel, no posts.
+    state.posts = [];
+    await loadPods();
+    showChrome();
+    status.textContent = '';
+    render();
+    return;
+  }
   if (!res.ok) { status.textContent = 'The board could not load. Refresh to try again.'; return; }
   const data = await res.json();
   state.posts = data.posts || [];
-  $('board-who').textContent = `Posting as ${data.me.first_name}. Only signed-in classmates can see this board.`;
-  composer.hidden = false;
-  filters.hidden = false;
+  state.me = data.me;
+  if (data.pod) state.podId = data.pod.id;
+  if (!state.pods) await loadPods();
+  showChrome();
   status.textContent = '';
   render();
+}
+
+async function loadPods() {
+  try {
+    const r = await api('/me/pod');
+    if (r.ok) state.pods = await r.json();
+  } catch { /* the class board still works without pod info */ }
+  state.pods = state.pods || { current: null, past: [] };
+  if (state.me && state.me.is_instructor && state.scope === 'pod' && !state.podId && state.pods.pods && state.pods.pods.length) {
+    state.podId = state.pods.pods[0].id;
+    state.reload = true;
+  }
+}
+
+function showChrome() {
+  if (state.reload) { state.reload = false; load(); return; }
+  const inst = state.me && state.me.is_instructor;
+  const pods = state.pods || { current: null, past: [] };
+  const hasPod = !!pods.current || (inst && (pods.pods || []).length > 0);
+  $('board-who').textContent = `Posting as ${state.me.first_name}. ${state.scope === 'pod' ? 'Only your pod and Aaron can see the pod board.' : 'Only signed-in classmates can see this board.'}`;
+  composer.hidden = false;
+  filters.hidden = false;
+  tabs.hidden = !(hasPod || pods.past.length);
+  for (const b of tabs.querySelectorAll('button')) {
+    const on = b.dataset.scope === state.scope;
+    b.setAttribute('aria-pressed', String(on));
+    b.classList.toggle('active', on);
+  }
+  tabs.querySelector('[data-scope="pod"]').textContent = inst ? 'Pods' : 'My pod';
+  const shareOpt = $('board-share-pod');
+  shareOpt.textContent = inst ? 'A pod (pick below)' : (pods.current ? `My pod (${pods.current.name})` : 'My pod');
+  shareOpt.disabled = !hasPod;
+  if (state.scope === 'pod' && hasPod && !state.editing) form.share.value = 'pod';
+  syncSubmitLabel();
+  renderPodPanel(pods, inst);
+}
+
+function renderPodPanel(pods, inst) {
+  podPanel.hidden = state.scope !== 'pod';
+  if (podPanel.hidden) return;
+  const pick = $('board-pod-pick');
+  const past = $('board-pod-past');
+  const title = $('board-pod-title');
+  const members = $('board-pod-members');
+  pick.hidden = $('board-pod-pick-label').hidden = !inst;
+  past.replaceChildren();
+  past.hidden = !pods.past.length;
+  if (pods.past.length) {
+    past.append(document.createTextNode('Earlier pods: '));
+    for (const p of pods.past) {
+      const b = el('button', 'quiet', `${p.name} (${p.set_name})`);
+      b.type = 'button';
+      b.onclick = () => { state.podId = p.id; load(); };
+      past.append(b);
+    }
+  }
+  if (inst) {
+    pick.replaceChildren(...(pods.pods || []).map((p) => {
+      const o = el('option', null, `${p.name} · ${p.members.join(', ')}`);
+      o.value = p.id;
+      return o;
+    }));
+    const known = (pods.pods || []).some((p) => p.id === state.podId);
+    if (known) pick.value = String(state.podId);
+    const cur = (pods.pods || []).find((p) => p.id === state.podId);
+    title.textContent = cur ? `${cur.name} · ${cur.set_name}` : 'Pod history';
+    members.textContent = cur ? cur.members.join(', ') : '';
+    return;
+  }
+  const cur = pods.current;
+  const viewing = cur && cur.id === state.podId ? cur : null;
+  if (viewing) {
+    title.textContent = `${viewing.name} · ${viewing.set_name}`;
+    members.textContent = `In this pod: ${viewing.members.join(', ')}`;
+  } else {
+    const old = pods.past.find((p) => p.id === state.podId);
+    title.textContent = old ? `${old.name} · ${old.set_name} (earlier pod)` : 'No pod right now';
+    members.textContent = old ? 'Read-only history of an earlier pod.' : 'You are not in a pod at the moment. Earlier pods are below.';
+  }
 }
 
 function signedOut() {
   composer.hidden = true;
   filters.hidden = true;
+  tabs.hidden = true;
+  podPanel.hidden = true;
   list.replaceChildren();
   const box = el('div', 'board-signin');
   box.append(el('h2', null, 'Sign in to see and post to the class board.'));
@@ -64,7 +158,7 @@ function render() {
   const posts = state.posts.filter((p) => !state.kind || p.kind === state.kind || p.pinned);
   list.replaceChildren();
   if (!posts.length) {
-    list.append(el('p', 'hint', 'Nothing here yet. Be the first to post.'));
+    list.append(el('p', 'hint', state.scope === 'pod' ? 'Nothing in this pod board yet.' : 'Nothing here yet. Be the first to post.'));
     return;
   }
   for (const p of posts) list.append(card(p));
@@ -109,6 +203,8 @@ function startEdit(p) {
   form.title.value = p.title;
   form.body.value = p.body || '';
   form.link_url.value = p.link_url || '';
+  form.share.value = p.pod_id ? 'pod' : 'class';
+  form.share.disabled = true;
   $('board-submit').textContent = 'Save changes';
   $('board-cancel').hidden = false;
   composer.open = true;
@@ -116,10 +212,16 @@ function startEdit(p) {
   composer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function syncSubmitLabel() {
+  $('board-submit').textContent = state.editing ? 'Save changes' : (form.share.value === 'pod' ? 'Post to the pod' : 'Post to the class');
+}
+
 function resetForm() {
   state.editing = null;
   form.reset();
-  $('board-submit').textContent = 'Post to the class';
+  form.share.disabled = false;
+  form.share.value = state.scope;
+  syncSubmitLabel();
   $('board-cancel').hidden = true;
 }
 
@@ -149,6 +251,13 @@ form.addEventListener('submit', async (e) => {
     body: form.body.value,
     link_url: form.link_url.value,
   };
+  const toPod = !state.editing && form.share.value === 'pod';
+  if (toPod) {
+    payload.pod = true;
+    if (state.me && state.me.is_instructor) {
+      payload.pod_id = state.podId || (state.pods && state.pods.pods && state.pods.pods[0] && state.pods.pods[0].id);
+    }
+  }
   const btn = $('board-submit');
   btn.disabled = true;
   const res = state.editing
@@ -157,10 +266,18 @@ form.addEventListener('submit', async (e) => {
   btn.disabled = false;
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    $('board-form-msg').textContent = ERR[data.error] || 'Could not post. Try again.';
+    $('board-form-msg').textContent = ERR[data.error] || (data.error === 'no_pod' ? 'You are not in a pod right now.' : 'Could not post. Try again.');
     return;
   }
   $('board-form-msg').textContent = state.editing ? 'Saved.' : 'Posted.';
+  if (!state.editing && toPod !== (state.scope === 'pod')) {
+    // Posted to the other board: follow it there.
+    state.scope = toPod ? 'pod' : 'class';
+    if (toPod && data.post.pod_id) state.podId = data.post.pod_id;
+    resetForm();
+    await load();
+    return;
+  }
   if (state.editing) {
     state.posts = state.posts.map((x) => (x.id === data.post.id ? data.post : x));
   } else {
@@ -171,6 +288,23 @@ form.addEventListener('submit', async (e) => {
   resetForm();
   render();
 });
+
+tabs.addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b || b.dataset.scope === state.scope) return;
+  state.scope = b.dataset.scope;
+  if (state.scope === 'class') { state.podId = null; } else if (state.pods && state.pods.current) { state.podId = state.pods.current.id; }
+  state.posts = [];
+  resetForm();
+  load();
+});
+
+$('board-pod-pick').addEventListener('change', (e) => {
+  state.podId = Number(e.target.value);
+  load();
+});
+
+form.share.addEventListener('change', syncSubmitLabel);
 
 $('board-cancel').addEventListener('click', resetForm);
 

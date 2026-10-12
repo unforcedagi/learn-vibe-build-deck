@@ -756,7 +756,82 @@ function boardRow(r, me) {
     created_at: r.created_at,
     updated_at: r.updated_at,
     mine: r.student_id === me.id,
+    pod_id: r.pod_id ?? null,
+    pod_name: r.pod_name ?? null,
   };
+}
+
+// --- Pods ------------------------------------------------------------------
+// A post with pod_id NULL is whole-class. A post with a pod_id is visible (read,
+// comment, edit, delete) only to that pod's members and the instructor. Membership
+// rows are never removed when pod sets change, so past members keep reading history.
+
+const todayISO = () => nowISO().slice(0, 10);
+
+async function currentPodSet(env) {
+  const today = todayISO();
+  return env.DB.prepare(
+    `SELECT id, name, starts_on, ends_on FROM pod_sets
+      WHERE starts_on <= ? AND (ends_on IS NULL OR ends_on >= ?)
+      ORDER BY starts_on DESC, id DESC LIMIT 1`
+  ).bind(today, today).first();
+}
+
+async function currentPodFor(env, studentId) {
+  const set = await currentPodSet(env);
+  if (!set) return null;
+  return env.DB.prepare(
+    `SELECT p.id, p.name FROM pods p JOIN pod_members m ON m.pod_id = p.id
+      WHERE p.pod_set_id = ? AND m.student_id = ? ORDER BY p.id LIMIT 1`
+  ).bind(set.id, studentId).first();
+}
+
+async function canSeePod(env, me, podId) {
+  if (podId == null) return true;
+  if (me.is_instructor) return true;
+  const m = await env.DB.prepare('SELECT 1 AS ok FROM pod_members WHERE pod_id = ? AND student_id = ?')
+    .bind(podId, me.id).first();
+  return !!m;
+}
+
+async function podMembers(env, podId) {
+  const r = await env.DB.prepare(
+    `SELECT s.name FROM pod_members m JOIN students s ON s.id = m.student_id
+      WHERE m.pod_id = ? ORDER BY s.name`
+  ).bind(podId).all();
+  return r.results.map((x) => firstName(x.name));
+}
+
+async function handleMePod(request, env) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+  const today = todayISO();
+  const set = await currentPodSet(env);
+  const out = { current: null, past: [] };
+  if (me.is_instructor) {
+    out.pods = [];
+    if (set) {
+      const pods = await env.DB.prepare('SELECT id, name FROM pods WHERE pod_set_id = ? ORDER BY id').bind(set.id).all();
+      for (const p of pods.results) out.pods.push({ id: p.id, name: p.name, set_name: set.name, members: await podMembers(env, p.id) });
+    }
+    const past = await env.DB.prepare(
+      `SELECT p.id, p.name, ps.name AS set_name FROM pods p JOIN pod_sets ps ON ps.id = p.pod_set_id
+        WHERE ps.ends_on IS NOT NULL AND ps.ends_on < ? ORDER BY ps.starts_on DESC, p.id`
+    ).bind(today).all();
+    out.past = past.results;
+    return json(env, out);
+  }
+  const cur = await currentPodFor(env, me.id);
+  if (cur) out.current = { id: cur.id, name: cur.name, set_name: set.name, members: await podMembers(env, cur.id) };
+  const past = await env.DB.prepare(
+    `SELECT p.id, p.name, ps.name AS set_name FROM pods p
+       JOIN pod_sets ps ON ps.id = p.pod_set_id
+       JOIN pod_members m ON m.pod_id = p.id
+      WHERE m.student_id = ? AND ps.ends_on IS NOT NULL AND ps.ends_on < ?
+      ORDER BY ps.starts_on DESC, p.id`
+  ).bind(me.id, today).all();
+  out.past = past.results;
+  return json(env, out);
 }
 
 function boardFields(body) {
@@ -778,8 +853,9 @@ async function readJson(request) {
 
 async function boardGet(env, id, me) {
   const r = await env.DB.prepare(
-    `SELECT p.*, s.name, s.is_instructor FROM board_posts p
-       JOIN students s ON s.id = p.student_id WHERE p.id = ?`
+    `SELECT p.*, s.name, s.is_instructor, pd.name AS pod_name FROM board_posts p
+       JOIN students s ON s.id = p.student_id
+       LEFT JOIN pods pd ON pd.id = p.pod_id WHERE p.id = ?`
   ).bind(id).first();
   return r ? boardRow(r, me) : null;
 }
@@ -787,16 +863,43 @@ async function boardGet(env, id, me) {
 async function handleBoardList(request, env) {
   const me = await currentStudent(request, env);
   if (!me) return json(env, { error: 'unauthorized' }, 401);
+  const url = new URL(request.url);
+  const scope = url.searchParams.get('scope') || 'class';
+  if (scope !== 'class' && scope !== 'pod') return json(env, { error: 'bad_scope' }, 400);
+  let podId = null;
+  let pod = null;
+  if (scope === 'pod') {
+    const raw = url.searchParams.get('pod_id');
+    if (raw != null) {
+      if (!/^\d+$/.test(raw)) return json(env, { error: 'bad_pod' }, 400);
+      podId = Number(raw);
+      const row = await env.DB.prepare('SELECT id, name FROM pods WHERE id = ?').bind(podId).first();
+      if (!row || !(await canSeePod(env, me, podId))) return json(env, { error: 'forbidden' }, 403);
+      pod = row;
+    } else if (me.is_instructor) {
+      return json(env, { error: 'pod_required' }, 400);
+    } else {
+      pod = await currentPodFor(env, me.id);
+      if (!pod) return json(env, { error: 'no_pod' }, 404);
+      podId = pod.id;
+    }
+  }
+  const where = scope === 'pod' ? 'p.pod_id = ?' : 'p.pod_id IS NULL';
+  const args = scope === 'pod' ? [podId] : [];
   const rows = await env.DB.prepare(
-    `SELECT p.*, s.name, s.is_instructor FROM board_posts p
+    `SELECT p.*, s.name, s.is_instructor, pd.name AS pod_name FROM board_posts p
        JOIN students s ON s.id = p.student_id
+       LEFT JOIN pods pd ON pd.id = p.pod_id
+      WHERE ${where}
       ORDER BY p.pinned DESC, p.created_at DESC LIMIT 300`
-  ).all();
+  ).bind(...args).all();
   const crows = await env.DB.prepare(
     `SELECT c.*, s.name, s.is_instructor FROM board_comments c
        JOIN students s ON s.id = c.student_id
+       JOIN board_posts p ON p.id = c.post_id
+      WHERE ${where}
       ORDER BY c.created_at ASC, c.id ASC`
-  ).all();
+  ).bind(...args).all();
   const byPost = new Map();
   for (const c of crows.results) {
     if (!byPost.has(c.post_id)) byPost.set(c.post_id, []);
@@ -806,6 +909,8 @@ async function handleBoardList(request, env) {
     posts: rows.results.map((r) => ({ ...boardRow(r, me), comments: byPost.get(r.id) || [] })),
     me: { first_name: firstName(me.name), is_instructor: !!me.is_instructor },
     kinds: BOARD_KINDS,
+    scope,
+    pod: pod ? { id: pod.id, name: pod.name } : null,
   });
 }
 
@@ -816,12 +921,24 @@ async function handleBoardCreate(request, env) {
   if (!body) return json(env, { error: 'bad_request' }, 400);
   const f = boardFields(body);
   if (f.error) return json(env, { error: f.error }, 400);
+  let podId = null;
+  if (body.pod === true || body.pod_id != null) {
+    if (me.is_instructor && body.pod_id != null) {
+      const row = await env.DB.prepare('SELECT id FROM pods WHERE id = ?').bind(Number(body.pod_id)).first();
+      if (!row) return json(env, { error: 'bad_pod' }, 400);
+      podId = row.id;
+    } else if (body.pod === true) {
+      const cur = await currentPodFor(env, me.id);
+      if (!cur) return json(env, { error: 'no_pod' }, 400);
+      podId = cur.id;
+    }
+  }
   const now = nowISO();
   const pinned = me.is_instructor ? 1 : 0;
   await env.DB.prepare(
-    `INSERT INTO board_posts (student_id, kind, title, body, link_url, pinned, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-  ).bind(me.id, f.kind, f.title, f.body, f.link_url, pinned, now, now).run();
+    `INSERT INTO board_posts (student_id, kind, title, body, link_url, pinned, created_at, updated_at, pod_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).bind(me.id, f.kind, f.title, f.body, f.link_url, pinned, now, now, podId).run();
   const row = await env.DB.prepare(
     'SELECT id FROM board_posts WHERE student_id = ? AND created_at = ? ORDER BY id DESC LIMIT 1'
   ).bind(me.id, now).first();
@@ -835,6 +952,8 @@ async function handleBoardUpdate(request, env, id) {
   if (!body) return json(env, { error: 'bad_request' }, 400);
   const f = boardFields(body);
   if (f.error) return json(env, { error: f.error }, 400);
+  const existing = await env.DB.prepare('SELECT pod_id FROM board_posts WHERE id = ?').bind(id).first();
+  if (!existing || !(await canSeePod(env, me, existing.pod_id))) return json(env, { error: 'not_found' }, 404);
   const res = await env.DB.prepare(
     `UPDATE board_posts SET kind = ?, title = ?, body = ?, link_url = ?, updated_at = ?
       WHERE id = ? AND student_id = ?`
@@ -846,9 +965,9 @@ async function handleBoardUpdate(request, env, id) {
 async function handleBoardDelete(request, env, id) {
   const me = await currentStudent(request, env);
   if (!me) return json(env, { error: 'unauthorized' }, 401);
-  const own = await env.DB.prepare('SELECT id FROM board_posts WHERE id = ? AND student_id = ?')
+  const own = await env.DB.prepare('SELECT id, pod_id FROM board_posts WHERE id = ? AND student_id = ?')
     .bind(id, me.id).first();
-  if (!own) return json(env, { error: 'not_found' }, 404);
+  if (!own || !(await canSeePod(env, me, own.pod_id))) return json(env, { error: 'not_found' }, 404);
   await env.DB.prepare('DELETE FROM board_comments WHERE post_id = ?').bind(id).run();
   await env.DB.prepare('DELETE FROM board_posts WHERE id = ? AND student_id = ?').bind(id, me.id).run();
   return json(env, { ok: true, id: Number(id) });
@@ -892,8 +1011,8 @@ async function handleCommentCreate(request, env, postId) {
   if (!me) return json(env, { error: 'unauthorized' }, 401);
   const f = commentBody(await readJson(request));
   if (f.error) return json(env, { error: f.error }, 400);
-  const post = await env.DB.prepare('SELECT id FROM board_posts WHERE id = ?').bind(postId).first();
-  if (!post) return json(env, { error: 'not_found' }, 404);
+  const post = await env.DB.prepare('SELECT id, pod_id FROM board_posts WHERE id = ?').bind(postId).first();
+  if (!post || !(await canSeePod(env, me, post.pod_id))) return json(env, { error: 'not_found' }, 404);
   const now = nowISO();
   await env.DB.prepare(
     'INSERT INTO board_comments (post_id, student_id, body, created_at, updated_at) VALUES (?, ?, ?, ?, ?)'
@@ -904,11 +1023,20 @@ async function handleCommentCreate(request, env, postId) {
   return json(env, { ok: true, comment: await commentGet(env, row.id, me) }, 201);
 }
 
+// A comment is as visible as its post: pod comments need pod membership (or instructor).
+async function commentVisible(env, me, commentId) {
+  const r = await env.DB.prepare(
+    'SELECT p.pod_id FROM board_comments c JOIN board_posts p ON p.id = c.post_id WHERE c.id = ?'
+  ).bind(commentId).first();
+  return !!r && (await canSeePod(env, me, r.pod_id));
+}
+
 async function handleCommentUpdate(request, env, id) {
   const me = await currentStudent(request, env);
   if (!me) return json(env, { error: 'unauthorized' }, 401);
   const f = commentBody(await readJson(request));
   if (f.error) return json(env, { error: f.error }, 400);
+  if (!(await commentVisible(env, me, id))) return json(env, { error: 'not_found' }, 404);
   const res = await env.DB.prepare(
     'UPDATE board_comments SET body = ?, updated_at = ? WHERE id = ? AND student_id = ?'
   ).bind(f.text, nowISO(), id, me.id).run();
@@ -919,6 +1047,7 @@ async function handleCommentUpdate(request, env, id) {
 async function handleCommentDelete(request, env, id) {
   const me = await currentStudent(request, env);
   if (!me) return json(env, { error: 'unauthorized' }, 401);
+  if (!(await commentVisible(env, me, id))) return json(env, { error: 'not_found' }, 404);
   const res = me.is_instructor
     ? await env.DB.prepare('DELETE FROM board_comments WHERE id = ?').bind(id).run()
     : await env.DB.prepare('DELETE FROM board_comments WHERE id = ? AND student_id = ?').bind(id, me.id).run();
@@ -962,6 +1091,7 @@ export default {
       if (path === '/auth/callback' && request.method === 'POST') return handleAuthCallbackConsume(request, env);
       if (path === '/auth/logout' && request.method === 'POST') return handleLogout(request, env);
       if (path === '/me' && request.method === 'GET') return handleMe(request, env);
+      if (path === '/me/pod' && request.method === 'GET') return handleMePod(request, env);
       if (path === '/feed' && request.method === 'GET') return handleFeed(request, env);
       if (path === '/submissions' && request.method === 'POST') return handleSubmit(request, env);
       if (path === '/instructor/data' && request.method === 'GET') return handleInstructorData(request, env);

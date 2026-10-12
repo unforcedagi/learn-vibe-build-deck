@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <meta name="description" content="The Learn, Vibe, Build class board: builds, resources, questions and learning shared among signed-in classmates.">
 <title>Class board — Learn, Vibe, Build · ATLS 4519</title>
-<link rel="stylesheet" href="../assets/site.css?v=comments1">
+<link rel="stylesheet" href="../assets/site.css?v=pods1">
 </head>
 <body class="board-page">
 <a class="skip-link" href="#main-content">Skip to content</a>
@@ -48,6 +48,11 @@
     <summary>Post something</summary>
     <form id="board-form" class="board-form">
       <p class="hint" id="board-who"></p>
+      <label class="field-label" for="board-share">Share to</label>
+      <select id="board-share" name="share">
+        <option value="class" selected>Class (everyone signed in)</option>
+        <option value="pod" id="board-share-pod">My pod</option>
+      </select>
       <label class="field-label" for="board-kind">Type</label>
       <select id="board-kind" name="kind">
         <option value="build">Build: something I made</option>
@@ -68,6 +73,17 @@
       </div>
     </form>
   </details>
+  <div class="chips board-tabs" id="board-tabs" role="group" aria-label="Which board" hidden>
+    <button class="chip active" type="button" data-scope="class" aria-pressed="true">Class</button>
+    <button class="chip" type="button" data-scope="pod" aria-pressed="false">My pod</button>
+  </div>
+  <section class="board-pod" id="board-pod" aria-label="Pod" hidden>
+    <p class="board-pod-title" id="board-pod-title"></p>
+    <p class="hint" id="board-pod-members"></p>
+    <label class="field-label" for="board-pod-pick" id="board-pod-pick-label" hidden>Pod</label>
+    <select id="board-pod-pick" hidden></select>
+    <p class="hint" id="board-pod-past" hidden></p>
+  </section>
   <div class="chips" id="board-filter" role="group" aria-label="Filter posts by type" hidden>
     <button class="chip active" type="button" aria-pressed="true">All</button>
     <button class="chip" type="button" data-kind="build" aria-pressed="false">Builds</button>
@@ -80,7 +96,7 @@
     <noscript><div class="board-signin"><h2>Sign in to see and post to the class board.</h2><p>The board needs JavaScript and a class account.</p><a class="btn" href="../account/">Sign in</a></div></noscript>
   </div>
 </main>
-<script type="module" src="./app.js?v=2"></script>
+<script type="module" src="./app.js?v=3"></script>
 <footer class="site-footer">
   <p>Learn, Vibe, Build<br>ATLS 4519 · CU Boulder · Fall 2026</p>
   <p><a href="../setup/">Getting started</a> · <a href="../syllabus.html">Syllabus</a><br>
