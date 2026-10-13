@@ -2133,3 +2133,11 @@ a.kit-card strong::after { content: " →"; color: var(--accent); }
 .board-comment-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
 .board-comment-form textarea { flex: 1 1 100%; width: 100%; font: inherit; font-size: 16px; }
 .board-comment-form .hint { margin: 0; }
+.board-form-actions [hidden] { display: none; }
+.board-tabs { margin: 16px 0 8px; }
+.board-pod { border: 1px solid var(--border); background: var(--soft); border-radius: 4px; padding: 14px 18px; margin-bottom: 8px; }
+.board-pod-title { font-family: var(--display); font-size: 22px; margin: 0 0 4px; }
+.board-pod .hint { margin: 4px 0; }
+.board-pod select { width: 100%; max-width: 100%; font: inherit; font-size: 16px; background: var(--bg); color: var(--ink); padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; min-height: 44px; }
+.board-pod-past button { min-height: 36px; margin-right: 8px; }
+.board-where { text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }

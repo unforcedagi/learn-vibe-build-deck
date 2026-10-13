@@ -79,7 +79,8 @@ CREATE TABLE IF NOT EXISTS board_posts (
   link_url TEXT,
   pinned INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
+  updated_at TEXT NOT NULL,
+  pod_id INTEGER REFERENCES pods(id)  -- NULL = whole class (0007_pods.sql)
 );
 
 CREATE INDEX IF NOT EXISTS idx_board_posts_created ON board_posts(pinned, created_at);
@@ -97,3 +98,30 @@ CREATE TABLE IF NOT EXISTS board_comments (
 );
 
 CREATE INDEX IF NOT EXISTS idx_board_comments_post ON board_comments(post_id, created_at);
+
+-- Pod boards (0007; board_posts.pod_id is declared above): posts can be shared to a pod instead of the whole class.
+-- Additive. Pod *sets* change over time (e.g. Weeks 7-9 learning pods, then
+-- final-project pods); old pods and their posts stay readable as history.
+CREATE TABLE IF NOT EXISTS pod_sets (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  starts_on TEXT NOT NULL,          -- YYYY-MM-DD
+  ends_on TEXT,                     -- YYYY-MM-DD, inclusive; NULL = open-ended
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS pods (
+  id INTEGER PRIMARY KEY,
+  pod_set_id INTEGER NOT NULL REFERENCES pod_sets(id),
+  name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS pod_members (
+  pod_id INTEGER NOT NULL REFERENCES pods(id),
+  student_id INTEGER NOT NULL REFERENCES students(id),
+  PRIMARY KEY (pod_id, student_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_pod_members_student ON pod_members(student_id);
+
+CREATE INDEX IF NOT EXISTS idx_board_posts_pod ON board_posts(pod_id, created_at);
