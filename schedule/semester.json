@@ -1,0 +1,258 @@
+{
+  "_about": "The one source for the Fall 2026 calendar. tools/build_schedule.py renders the home page's This week block and term path, the schedule page, the lesson pages' slide links and the Worker's WEEKS from this file. Paths are from the site root. Text is plain (no HTML). due_at is UTC: 05:59Z is 11:59 PM MDT the evening before, 06:59Z is 11:59 PM MST.",
+  "term": {
+    "name": "Fall 2026",
+    "timezone": "America/Denver",
+    "first_day": "2026-08-24",
+    "last_day": "2026-12-04",
+    "canvas_course": "https://canvas.colorado.edu/courses/145074"
+  },
+  "meetings": [
+    {
+      "week": 1,
+      "date": "2026-08-24",
+      "kind": "lesson",
+      "title": "Begin where you are",
+      "tag": "Orientation",
+      "summary": "What this course is, the three C's (cognition, communication, creativity), the weekly rhythm, and the first shared practice.",
+      "covers": "Orientation: what this course is, the weekly rhythm, first build exercise",
+      "due": "Week 1 intention baseline",
+      "lesson": "lessons/week-1/",
+      "slides": "slides/first-class/",
+      "assignment": {
+        "title": "Intentions",
+        "due_at": "2026-08-31T05:59:00Z",
+        "canvas_id": 2858623,
+        "prompt": "What you want out of this class, in your own words."
+      }
+    },
+    {
+      "week": 2,
+      "date": "2026-08-31",
+      "kind": "studio",
+      "title": "Build together",
+      "tag": "Build night",
+      "summary": "Tool tour, then building together in class: pick one tool, set it up, prove it works.",
+      "covers": "Build night: tool tour, then build together in class",
+      "due": "Build + writing",
+      "lesson": "lessons/week-2/",
+      "slides": "slides/week-2/lite/",
+      "assignment": {
+        "title": "Build something",
+        "due_at": "2026-09-14T05:59:00Z",
+        "canvas_id": 2858624,
+        "prompt": "A link to something you made, plus a paragraph on how it went."
+      }
+    },
+    {
+      "date": "2026-09-07",
+      "kind": "no-class",
+      "covers": "Labor Day: no class"
+    },
+    {
+      "week": 3,
+      "date": "2026-09-14",
+      "kind": "demos",
+      "title": "Explore the tools",
+      "tag": "Demos",
+      "summary": "Everyone shows what they built; then the AI tool landscape and how to choose.",
+      "covers": "Everyone demos · tools landscape · small-group tool discussion",
+      "due": "Three tools, evidence + 3 paragraphs",
+      "lesson": "lessons/week-3/",
+      "slides": "slides/week-3/",
+      "assignment": {
+        "title": "Three different tools",
+        "due_at": "2026-09-21T05:59:00Z",
+        "canvas_id": 2858625,
+        "prompt": "Evidence of three tools (links, screenshots, or a screen recording) plus at least three paragraphs on your experience with each. This brief is a suggestion; if you'd rather show your learning about the tools another way, that's fine."
+      }
+    },
+    {
+      "week": 4,
+      "date": "2026-09-21",
+      "kind": "studio",
+      "title": "Make. Reflect. Repeat.",
+      "tag": "Studio",
+      "summary": "A studio night: make something, write about it, share it.",
+      "covers": "Studio cycle",
+      "due": "Week 4 studio cycle",
+      "materials_note": "Studio night · no lesson",
+      "assignment": {
+        "title": "Studio cycle",
+        "due_at": "2026-10-05T05:59:00Z",
+        "canvas_id": 2858626,
+        "prompt": "A link to what you built, plus your writing on how it went."
+      }
+    },
+    {
+      "week": 5,
+      "date": "2026-09-28",
+      "kind": "studio",
+      "title": "Learn with others",
+      "tag": "Group work",
+      "summary": "Group work: one shared project, or parallel exploration then pooled learning.",
+      "covers": "Group work: one shared project, or parallel exploration then pooled learning",
+      "due": "Week 5 studio cycle",
+      "materials_note": "Studio night · no lesson",
+      "assignment": {
+        "title": "Studio cycle",
+        "due_at": "2026-10-05T05:59:00Z",
+        "canvas_id": 2858627,
+        "prompt": "A link to what you built, plus your writing on how it went."
+      }
+    },
+    {
+      "week": 6,
+      "date": "2026-10-05",
+      "kind": "lesson",
+      "title": "Give your AI context",
+      "tag": "Lesson",
+      "summary": "Use your AI to learn about AI, give it helpful context, then build something that supports your learning journey.",
+      "covers": "Copy the lesson into your AI, short context files, getting your project online",
+      "due": "One-page learning journey reflection; build optional",
+      "lesson": "lessons/week-6/",
+      "slides": "lessons/week-6/files/week6-slides.pdf",
+      "assignment": {
+        "title": "One-page learning journey reflection",
+        "due_at": "2026-10-12T05:59:00Z",
+        "canvas_id": 2858628,
+        "prompt": "Write ONE PAGE taking stock of your learning journey: what you have learned, what you are currently learning, what you want to learn, what you want to build, and emerging ideas for your final project. Building and sharing are welcome but OPTIONAL, not a required deliverable. Aaron will use these reflections to form consistent peer pods lasting AT LEAST the next three weeks, for sharing learning and supporting each other in class."
+      }
+    },
+    {
+      "week": 7,
+      "date": "2026-10-12",
+      "kind": "lesson",
+      "title": "How things talk",
+      "tag": "Lesson",
+      "summary": "Learn how programs talk to each other (networks, APIs, OAuth and MCP), so your builds can reach real data and your AI can use real tools.",
+      "covers": "How things talk: networks, APIs, OAuth, MCP · design from a classmate · peer pods begin",
+      "due": "Connect one real API or MCP + reflection",
+      "lesson": "lessons/week-7/",
+      "slides": "lessons/week-7/slides/",
+      "assignment": {
+        "title": "Studio cycle",
+        "due_at": "2026-10-19T05:59:00Z",
+        "canvas_id": 2858629,
+        "prompt": "A link to what you built, plus your writing on how it went."
+      }
+    },
+    {
+      "week": 8,
+      "date": "2026-10-19",
+      "kind": "lesson",
+      "title": "The other side of the screen",
+      "tag": "Lesson",
+      "summary": "Three questions about AI: What is alive? What does it cost? Why do we build? Then pods start building something together.",
+      "headline": "The other side of the screen: what is alive, what does it cost, why do we build?",
+      "plan": "First half: lecture and discussion. Second half: pods start building something together, to pull together and demo on Oct 26.",
+      "work": "your piece of the pod build, plus a short reflection on collaborating",
+      "covers": "The other side of the screen: what is alive, what does it cost, why do we build · pods start a shared build",
+      "due": "Your piece of the pod build + reflection on collaborating",
+      "lesson": "lessons/week-8/",
+      "slides": "lessons/week-8/slides/",
+      "assignment": {
+        "title": "Studio cycle",
+        "due_at": "2026-10-26T05:59:00Z",
+        "canvas_id": 2858630,
+        "prompt": "A link to what you built, plus your writing on how it went."
+      },
+      "tasks": [
+        {
+          "label": "Plan",
+          "title": "Post your pod's plan",
+          "body": "On your pod board: a name, one sentence, who does what, and when you check in.",
+          "link": { "href": "board/", "text": "Open the class board" }
+        },
+        {
+          "label": "Build & reflect",
+          "title": "Your piece of the pod build",
+          "body": "Build your piece and collaborate lightly with your pod. Post a link or screenshots, plus a short reflection on how collaborating went. Bonus: meet with a podmate outside class.",
+          "submit": true
+        }
+      ]
+    },
+    {
+      "week": 9,
+      "date": "2026-10-26",
+      "kind": "guest",
+      "title": "My AI Life",
+      "tag": "Guest",
+      "summary": "Guest Justin Shacklette on “My AI Life”, then pod work and mini demos of each pod's shared build.",
+      "headline": "Guest: Justin Shacklette, “My AI Life”",
+      "covers": "Guest: Justin Shacklette, “My AI Life” · pod work · mini-collab demos",
+      "due": "Weekly build + writing",
+      "assignment": {
+        "title": "Studio cycle",
+        "due_at": "2026-11-02T06:59:00Z",
+        "canvas_id": 2858631,
+        "prompt": "A link to what you built, plus your writing on how it went."
+      }
+    },
+    {
+      "week": 10,
+      "date": "2026-11-02",
+      "kind": "studio",
+      "title": "Final project: pod work",
+      "tag": "Pod work",
+      "summary": "Final project work time with your pod.",
+      "covers": "Final project pod work",
+      "due": "Weekly build + writing",
+      "assignment": {
+        "title": "Studio cycle",
+        "due_at": "2026-11-09T06:59:00Z",
+        "canvas_id": 2858632,
+        "prompt": "A link to what you built, plus your writing on how it went."
+      }
+    },
+    {
+      "week": 11,
+      "date": "2026-11-09",
+      "kind": "studio",
+      "title": "Final project: proposals",
+      "tag": "Pod work",
+      "summary": "Final project proposals in class, then work time with your pod.",
+      "covers": "Final project pod work · proposals",
+      "due": "—",
+      "assignment": null
+    },
+    {
+      "week": 12,
+      "date": "2026-11-16",
+      "kind": "studio",
+      "title": "Final project: pod work",
+      "tag": "Pod work",
+      "summary": "Final project work time with your pod.",
+      "covers": "Final project pod work",
+      "due": "—",
+      "assignment": null
+    },
+    {
+      "date": "2026-11-23",
+      "kind": "no-class",
+      "covers": "Fall Break: no class"
+    },
+    {
+      "week": 13,
+      "date": "2026-11-30",
+      "kind": "demos",
+      "title": "Showcase night 1",
+      "tag": "Showcase",
+      "summary": "Showcase night 1: final project demos, then project studio.",
+      "covers": "Showcase night 1 + project studio",
+      "due": "—",
+      "assignment": null
+    },
+    {
+      "week": 14,
+      "date": "2026-12-04",
+      "kind": "demos",
+      "title": "Showcase night 2",
+      "tag": "Showcase",
+      "summary": "Showcase night 2: the last final project demos. Friday, on a Monday schedule.",
+      "covers": "Showcase night 2",
+      "due": "Final written reflection, due exam week",
+      "assignment": null
+    }
+  ]
+}

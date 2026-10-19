@@ -11,11 +11,12 @@ It also writes:
 Run from the repo root:
   uv run -q --no-project --with markdown python tools/build_lessons.py
 """
-import glob, html, os, re
+import glob, html, json, os, re
 import markdown
 
 SITE = "https://cu.learnvibe.build"
-DECKS = {1: "slides/first-class/", 2: "slides/week-2/lite/", 3: "slides/week-3/", 6: "slides/week-6/week6-slides.pdf", 7: "lessons/week-7/slides/", 8: "lessons/week-8/slides/"}
+# Each lesson's slide link comes from the semester calendar (schedule/semester.json).
+DECKS = {m["week"]: m["slides"] for m in json.load(open("schedule/semester.json"))["meetings"] if m.get("slides")}
 from site_templates import nav, footer
 
 

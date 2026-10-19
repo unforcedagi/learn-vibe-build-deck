@@ -1,4 +1,5 @@
 import { handleMcp } from './mcp.js';
+import { WEEKS } from './weeks.generated.js';
 // Learn, Vibe, Build — accounts API (Cloudflare Worker + D1).
 //
 // Auth model: passwordless magic links. We store only sha256 hashes of both
@@ -12,71 +13,17 @@ const SESSION_TTL_MS = 30 * 24 * 3600 * 1000; // 30 days
 const RATE_LIMIT_MAX = 3;                     // per email per 15 minutes
 
 // ---------------------------------------------------------------------------
-// Weeks — the single source of truth for the course calendar.
+// Weeks — the course calendar, generated from schedule/semester.json.
 //
 // Every client (instructor view, account page, studio wall) reads its week
-// numbers, titles, due dates and Canvas links from here, so a new week is one
-// edit in one file. `due_at` is the real deadline in UTC: 05:59Z is 11:59 PM
-// the evening before, Denver time.
+// numbers, titles, due dates and Canvas links from WEEKS. To add or change a
+// week, edit schedule/semester.json and run `python3 tools/build_schedule.py`.
+// `due_at` is the real deadline in UTC: 05:59Z is 11:59 PM MDT the evening
+// before, 06:59Z is 11:59 PM MST.
 // ---------------------------------------------------------------------------
 
-const CANVAS_COURSE = 'https://canvas.colorado.edu/courses/145074/assignments';
-
-const WEEKS = [
-  {
-    week: 1,
-    title: 'Intentions',
-    due_at: '2026-08-31T05:59:00Z',
-    canvas_url: `${CANVAS_COURSE}/2858623`,
-    prompt: 'What you want out of this class, in your own words.',
-  },
-  {
-    week: 2,
-    title: 'Build something',
-    due_at: '2026-09-14T05:59:00Z',
-    canvas_url: `${CANVAS_COURSE}/2858624`,
-    prompt: 'A link to something you made, plus a paragraph on how it went.',
-  },
-  {
-    week: 3,
-    title: 'Three different tools',
-    due_at: '2026-09-21T05:59:00Z',
-    canvas_url: `${CANVAS_COURSE}/2858625`,
-    prompt:
-      'Evidence of three tools (links, screenshots, or a screen recording) ' +
-      'plus at least three paragraphs on your experience with each. ' +
-      "This brief is a suggestion; if you'd rather show your learning about the tools another way, that's fine.",
-  },
-  {
-    week: 4, title: 'Studio cycle', due_at: '2026-10-05T05:59:00Z',
-    canvas_url: `${CANVAS_COURSE}/2858626`,
-    prompt: 'A link to what you built, plus your writing on how it went.',
-  },
-  {
-    week: 5, title: 'Studio cycle', due_at: '2026-10-05T05:59:00Z',
-    canvas_url: `${CANVAS_COURSE}/2858627`,
-    prompt: 'A link to what you built, plus your writing on how it went.',
-  },
-  {
-    week: 6, title: 'One-page learning journey reflection', due_at: '2026-10-12T05:59:00Z',
-    canvas_url: `${CANVAS_COURSE}/2858628`,
-    prompt: "Write ONE PAGE taking stock of your learning journey: what you have learned, what you are currently learning, what you want to learn, what you want to build, and emerging ideas for your final project. Building and sharing are welcome but OPTIONAL, not a required deliverable. Aaron will use these reflections to form consistent peer pods lasting AT LEAST the next three weeks, for sharing learning and supporting each other in class.",
-  },
-  {
-    week: 7, title: 'Studio cycle', due_at: '2026-10-19T05:59:00Z',
-    canvas_url: `${CANVAS_COURSE}/2858629`,
-    prompt: 'A link to what you built, plus your writing on how it went.',
-  },
-  {
-    week: 8, title: 'Studio cycle', due_at: '2026-10-26T05:59:00Z',
-    canvas_url: `${CANVAS_COURSE}/2858630`,
-    prompt: 'A link to what you built, plus your writing on how it went.',
-  },
-];
-
 // The week currently accepting new site-native submissions (build link +
-// writing, both share flags). Bump when a new week's assignment opens.
-// The open week is derived from the calendar: the first week whose due date
+// writing, both share flags). The open week is derived from the calendar: the first week whose due date
 // hasn't passed yet (so it never gets stuck again). Students may submit or
 // update ANY week up to and including the open one; late work is accepted,
 // same as Canvas.

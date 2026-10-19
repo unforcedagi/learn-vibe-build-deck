@@ -54,7 +54,8 @@ async function at(iso, fn) {
 
 test('open week follows the calendar instead of sticking', async () => {
   const env = setup();
-  const cases = [['2026-09-29T18:00:00Z', 4], ['2026-10-05T18:00:00Z', 6], ['2026-10-13T18:00:00Z', 7]];
+  const cases = [['2026-09-29T18:00:00Z', 4], ['2026-10-05T18:00:00Z', 6], ['2026-10-13T18:00:00Z', 7],
+    ['2026-10-27T18:00:00Z', 9], ['2026-11-02T06:58:00Z', 9], ['2026-11-02T07:00:00Z', 10]];
   for (const [when, expected] of cases) {
     const me = await at(when, async () => (await worker.fetch(req('/me'), env)).json());
     assert.equal(me.open_week, expected, `open week at ${when}`);
@@ -86,7 +87,7 @@ test('every published week is listed (WEEKS covers the calendar so far)', async 
   const env = setup();
   const me = await at('2026-10-05T18:00:00Z', async () => (await worker.fetch(req('/me'), env)).json());
   const weeks = me.weeks.map((w) => w.week);
-  for (let w = 1; w <= 8; w++) assert.ok(weeks.includes(w), `week ${w} missing from WEEKS`);
+  for (let w = 1; w <= 10; w++) assert.ok(weeks.includes(w), `week ${w} missing from WEEKS`);
 });
 
 test('signed-out requests are refused', async () => {
@@ -98,14 +99,19 @@ test('signed-out requests are refused', async () => {
 });
 
 // Real-clock check, run daily in CI: fails a week BEFORE the calendar runs out,
-// so someone adds the next weeks to WEEKS before students hit a closed form.
+// so someone adds the next weeks before students hit a closed form. Once the
+// term's last weekly assignment is in WEEKS (final-project weeks have none),
+// there is nothing left to add.
 test('WEEKS has at least a week of runway past today', async () => {
   const env = setup();
   const me = await (await worker.fetch(req('/me'), env)).json();
   const lastDue = Math.max(...me.weeks.map((w) => Date.parse(w.due_at)));
   const days = (lastDue - Date.now()) / 86400000;
   if (Date.now() > Date.parse('2026-12-20T00:00:00Z')) return; // semester over
-  assert.ok(days >= 7, `WEEKS ends in ${days.toFixed(1)} days; add the next weeks to worker/src/index.js`);
+  const semester = JSON.parse(readFileSync(new URL('../../schedule/semester.json', here), 'utf8'));
+  const lastAssigned = Math.max(...semester.meetings.filter((m) => m.assignment).map((m) => m.week));
+  if (me.weeks.some((w) => w.week === lastAssigned)) return; // every weekly assignment is listed
+  assert.ok(days >= 7, `WEEKS ends in ${days.toFixed(1)} days; add the next weeks to schedule/semester.json`);
 });
 
 
