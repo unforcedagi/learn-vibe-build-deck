@@ -29,17 +29,25 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          # Pushes made with the workflow token may not start a Pages build, and a
+          # failed request must not strand the site: every run asks for a build
+          # when the latest one isn't for main's newest commit.
+          ensure_pages() {
+            for try in 1 2 3; do
+              built=$(gh api "repos/$GITHUB_REPOSITORY/pages/builds/latest" --jq .commit || true)
+              if [ "$built" = "$(git rev-parse HEAD)" ]; then echo "Pages build is current."; return 0; fi
+              gh api -X POST "repos/$GITHUB_REPOSITORY/pages/builds" && return 0
+              sleep 10
+            done
+            echo "Could not request a Pages build." >&2; return 1
+          }
           # Render from the newest main; if another commit lands first, start over.
           for attempt in 1 2 3; do
             git fetch -q origin main && git reset -q --hard origin/main
             python3 tools/build_schedule.py
-            if git diff --quiet; then echo "Pages already match today's week."; exit 0; fi
+            if git diff --quiet; then echo "Pages already match today's week."; ensure_pages; exit $?; fi
             git commit -qam "Schedule: current week as of $(TZ=America/Denver date +%F) (tools/build_schedule.py)"
-            if git push origin HEAD:main; then
-              # Pushes made with the workflow token may not start a Pages build; ask for one.
-              gh api -X POST "repos/$GITHUB_REPOSITORY/pages/builds"
-              exit 0
-            fi
+            if git push origin HEAD:main; then ensure_pages; exit $?; fi
             sleep 5
           done
           echo "Could not push the schedule update after 3 tries." >&2; exit 1
