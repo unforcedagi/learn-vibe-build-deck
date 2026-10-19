@@ -103,6 +103,18 @@ A single text prompt is small. Long agent sessions, image and video generation a
 - Google's electricity use rose 37% in one year (2025).
 - **Colorado:** data centers have asked Xcel for 5.8 GW of power. Xcel's generating capacity in the state is 6.2 GW.
 
+### Your week of building, in watts
+
+| One day of… | Energy |
+|---|---|
+| Light chat: 20 text prompts | ~6 Wh |
+| An hour of streaming (including your TV) | 77 Wh |
+| Heavy coding-agent use (hours of Claude Code or Codex) | ~1.3–3 kWh |
+| An average US home's electricity | ~30 kWh |
+| A 20-mile car commute (gasoline) | ~30 kWh |
+
+A heavy agent day is about a dishwasher load: 200–1,000 times a chat day, but still a small slice of a home's day. Turning on reasoning can use 150–700 times the energy of the same model with it off. Individual users show up on a home bill; the global total is driven by training, business automation, video and always-on products.
+
 ### The traps the builders are in: four traps, not four villains
 
 Most people inside these companies mean well. The incentives shape how they build.
@@ -206,6 +218,6 @@ These are the sources behind the numbers and quotes above. Ask your AI to find a
 
 **What is alive?** Nagel (1974) · Maturana and Varela, *Autopoiesis and Cognition* (1980) · Prigogine (Nobel Prize, 1977) · Capra and Luisi, *The Systems View of Life* (2014) · Block (1995) · Dehaene, Lau and Kouider, *Science* (2017) · Edelman, *PNAS* (2003) · Lindsey (Anthropic, 2025)
 
-**What does it cost?** Google Cloud blog and arXiv 2508.15734 (Aug 2025) · Altman, "The Gentle Singularity" (Jun 2025) · de Vries, *Joule* (2023) · Epoch AI (Feb 2025) · IEA and Kamiya (2020) · MIT Technology Review (May 2025) · IEA, *Energy and AI* (Apr 2025) and *Key Questions on Energy and AI* (Apr 2026) · LBNL, *US Data Center Energy Usage Report* (Dec 2024) · Google Environmental Report 2026 · Colorado Sun and KUNC (Aug 2025) · TechCrunch (Apr 2025, Dec 2024) · Anthropic RSP v3 (Feb 2026) · The Register (Oct 2025) · IMF blog (Oct 2026) · International AI Safety Report 2026
+**What does it cost?** Google Cloud blog and arXiv 2508.15734 (Aug 2025) · Altman, "The Gentle Singularity" (Jun 2025) · de Vries, *Joule* (2023) · Epoch AI (Feb 2025) · IEA and Kamiya (2020) · MIT Technology Review (May 2025) · IEA, *Energy and AI* (Apr 2025) and *Key Questions on Energy and AI* (Apr 2026) · LBNL, *US Data Center Energy Usage Report* (Dec 2024) · Google Environmental Report 2026 · Couch (2026) via Simon Willison · Hausfather (2026) · Hugging Face AI Energy Score v2 (Dec 2025) · EIA · EPA · Colorado Sun and KUNC (Aug 2025) · TechCrunch (Apr 2025, Dec 2024) · Anthropic RSP v3 (Feb 2026) · The Register (Oct 2025) · IMF blog (Oct 2026) · International AI Safety Report 2026
 
 **Why do we build?** darioamodei.com: "Machines of Loving Grace" (Oct 2024), "The Adolescence of Technology" (Jan 2026), "We Must Pace the Frontier" (Sep 2026) · Pope Leo XIV, *Magnifica Humanitas* (2026) · Crawford in *The Guardian* (2021) · a16z (2023) · Lewis, Arista, Pechawis and Kite, "Making Kin with the Machines," *Journal of Design and Science* (2018) · Bastani et al., *PNAS* (2025)
