@@ -1,0 +1,37 @@
+name: schedule
+# Moves the site to the new week with no human edit. Runs a little after
+# midnight Denver time every day (06:05 UTC is 00:05 MDT, 07:05 UTC is
+# 00:05 MST), renders the pages from schedule/semester.json, and commits if
+# anything changed. On Mondays that is the new current week. GitHub Pages then
+# redeploys. It also runs on pushes to main, so a semester.json edit merged
+# without running the generator still reaches the site.
+on:
+  schedule:
+    - cron: '5 6,7 * * *'
+  push:
+    branches: [main]
+    paths: ['schedule/semester.json', 'tools/build_schedule.py', 'index.html', 'schedule/index.html']
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: schedule
+  cancel-in-progress: false
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/build_schedule.py
+      - name: Commit and redeploy if the week changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet; then echo "Pages already match today's week."; exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -am "Schedule: current week as of $(TZ=America/Denver date +%F) (tools/build_schedule.py)"
+          git push
+          # Pushes made with the workflow token may not start a Pages build; ask for one.
+          gh api -X POST "repos/$GITHUB_REPOSITORY/pages/builds"
