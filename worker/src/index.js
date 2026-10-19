@@ -1057,6 +1057,33 @@ async function handleCommentDelete(request, env, id) {
 
 // ---------------------------------------------------------------------------
 // Router
+// Class media (R2): signed-in classmates only. Files with student names (the class film) live here,
+// never in the public static site. Supports Range so video can seek on phones.
+async function handleMedia(request, env, key) {
+  const me = await currentStudent(request, env);
+  if (!me) return new Response('Sign in at https://cu.learnvibe.build/account/ to watch this.', { status: 401, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
+  if (!env.MEDIA) return new Response('not configured', { status: 503 });
+  const range = request.headers.get('Range');
+  let r2range;
+  const m = range && range.match(/^bytes=(\d*)-(\d*)$/);
+  if (m) {
+    if (m[1] === '') r2range = { suffix: Number(m[2]) };
+    else r2range = m[2] === '' ? { offset: Number(m[1]) } : { offset: Number(m[1]), length: Number(m[2]) - Number(m[1]) + 1 };
+  }
+  const obj = await env.MEDIA.get(key, r2range ? { range: r2range } : undefined);
+  if (!obj) return new Response('not found', { status: 404 });
+  const headers = new Headers({ 'Content-Type': obj.httpMetadata?.contentType || 'application/octet-stream', 'Accept-Ranges': 'bytes', 'Cache-Control': 'private, max-age=3600' });
+  if (r2range && obj.range) {
+    const start = obj.range.offset ?? (obj.size - obj.range.suffix);
+    const len = obj.range.length ?? (obj.size - start);
+    headers.set('Content-Range', `bytes ${start}-${start + len - 1}/${obj.size}`);
+    headers.set('Content-Length', String(len));
+    return new Response(obj.body, { status: 206, headers });
+  }
+  headers.set('Content-Length', String(obj.size));
+  return new Response(obj.body, { status: 200, headers });
+}
+
 // ---------------------------------------------------------------------------
 
 export default {
@@ -1085,6 +1112,8 @@ export default {
     }
 
     try {
+      const media = path.match(/^\/media\/([a-z0-9][a-z0-9._-]*)$/);
+      if (media && (request.method === 'GET' || request.method === 'HEAD')) return handleMedia(request, env, media[1]);
       if (path === '/instructor/students' && request.method === 'GET') return handleInstructorStudents(request, env);
       if (path === '/auth/request' && request.method === 'POST') return handleAuthRequest(request, env);
       if (path === '/auth/callback' && request.method === 'GET') return handleAuthCallbackPage(request, env);

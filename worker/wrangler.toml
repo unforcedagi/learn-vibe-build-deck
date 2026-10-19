@@ -24,3 +24,8 @@ database_id = "80abf459-bac5-437c-820b-b9c38fac2c0b"
 # while the message claimed to be Learn Vibe Build.
 [[send_email]]
 name = "EMAIL"
+
+# Class-only media (the class film). Served by /media/<key> to signed-in students only.
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "lvb-class-media"
