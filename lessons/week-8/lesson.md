@@ -7,6 +7,7 @@
 **In one line:** Seven weeks of *how* to build with AI. Tonight we ask three bigger questions: What is alive? What does it cost? Why do we build? Then pods start building something together.
 
 ## Contents
+- Links from class
 1. Three questions
 2. What is alive?
 3. What does it cost?
@@ -14,7 +15,15 @@
 5. Building together as a pod
 6. This week's work
 7. Next week
-8. Sources and further reading
+8. Sources
+
+---
+
+## Links from class
+
+- **Aaron's AI setup, with the video from class:** https://uni-system-guide.pages.dev/overview
+- **The class film, "The class, so far":** https://api.learnvibe.build/media/class-film-2026-10.mp4 (sign in to the class site first; it shows first names, so it's for classmates only)
+- **Your pod board:** the "My pod" tab on the class board.
 
 ---
 
