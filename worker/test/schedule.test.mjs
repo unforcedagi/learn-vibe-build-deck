@@ -38,8 +38,15 @@ test('due dates are in week order and fall after their class', () => {
   }
 });
 
-test('the pages and WEEKS file match semester.json for today', () => {
+test('the pages and WEEKS file match semester.json', () => {
   const run = generator();
+  assert.equal(run.status, 0, run.stderr || run.stdout);
+});
+
+// The daily CI run sets SCHEDULE_FRESH=1: there the pages must also be for
+// today's week, so a failed week switch shows up red the same morning.
+test('the pages are for today\'s week (daily CI only)', { skip: !process.env.SCHEDULE_FRESH }, () => {
+  const run = generator('--fresh');
   assert.equal(run.status, 0, run.stderr || run.stdout);
 });
 

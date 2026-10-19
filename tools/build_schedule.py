@@ -12,7 +12,8 @@ runs this daily and commits when the week changes.
 
 Run from anywhere (stdlib only):
   python3 tools/build_schedule.py              write the files for today
-  python3 tools/build_schedule.py --check      exit 1 if a file is out of date
+  python3 tools/build_schedule.py --check      exit 1 if a file disagrees with semester.json
+  python3 tools/build_schedule.py --check --fresh   ...or is not for today's week
   python3 tools/build_schedule.py --date 2026-10-26   render as of a given day
 """
 import argparse, datetime as dt, html, json, re, sys
@@ -273,6 +274,7 @@ def validate(sem, today):
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--check", action="store_true", help="exit 1 if semester.json is invalid or a file is out of date")
+    parser.add_argument("--fresh", action="store_true", help="with --check: the pages must be for today's week")
     parser.add_argument("--date", type=dt.date.fromisoformat, help="render as of this day (YYYY-MM-DD, Denver)")
     args = parser.parse_args()
     sem = load()
@@ -283,15 +285,22 @@ def main():
         sys.exit("semester.json:\n  " + "\n  ".join(problems))
     out = render(sem, today)
     if args.check:
-        # The daily workflow flips the week a little after midnight; accept the
-        # previous day's render for a few hours so a push at 00:30 isn't red.
-        earlier = None if args.date else render(sem, today_local(sem, now - dt.timedelta(hours=6)))
-        stale = [p for p, text in out.items() if read(p) != text
-                 and not (earlier and read(p) == earlier[p])]
-        if stale:
-            sys.exit("out of date (run python3 tools/build_schedule.py): " + ", ".join(stale))
-        print(f"schedule up to date (current week {current_meeting(sem, today)['week']})")
-        return
+        # --date: the pages must be exactly that day's. --fresh: today's, or up to
+        # six hours old, since the daily workflow flips the week just after
+        # midnight. Plain --check: the pages agree with semester.json for some
+        # week, so a branch made before a Monday doesn't go red after it.
+        if args.date:
+            days = [today]
+        elif args.fresh:
+            days = [today, today_local(sem, now - dt.timedelta(hours=6))]
+        else:
+            days = [today] + [dt.date.fromisoformat(m["date"]) for m in classes(sem)]
+        for day in days:
+            if all(read(p) == text for p, text in render(sem, day).items()):
+                print(f"schedule up to date (rendered for week {current_meeting(sem, day)['week']})")
+                return
+        stale = [p for p, text in out.items() if read(p) != text]
+        sys.exit("out of date (run python3 tools/build_schedule.py): " + ", ".join(stale))
     changed = [p for p, text in out.items() if read(p) != text]
     for p in changed:
         (ROOT / p).write_text(out[p])

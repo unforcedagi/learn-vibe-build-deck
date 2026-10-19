@@ -23,15 +23,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: python3 tools/build_schedule.py
-      - name: Commit and redeploy if the week changed
+      - name: Render, commit and redeploy if the week changed
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if git diff --quiet; then echo "Pages already match today's week."; exit 0; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -am "Schedule: current week as of $(TZ=America/Denver date +%F) (tools/build_schedule.py)"
-          git push
-          # Pushes made with the workflow token may not start a Pages build; ask for one.
-          gh api -X POST "repos/$GITHUB_REPOSITORY/pages/builds"
+          # Render from the newest main; if another commit lands first, start over.
+          for attempt in 1 2 3; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            python3 tools/build_schedule.py
+            if git diff --quiet; then echo "Pages already match today's week."; exit 0; fi
+            git commit -qam "Schedule: current week as of $(TZ=America/Denver date +%F) (tools/build_schedule.py)"
+            if git push origin HEAD:main; then
+              # Pushes made with the workflow token may not start a Pages build; ask for one.
+              gh api -X POST "repos/$GITHUB_REPOSITORY/pages/builds"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Could not push the schedule update after 3 tries." >&2; exit 1
