@@ -31,6 +31,10 @@ def esc(text):
     return html.escape(text, quote=False)
 
 
+def attr(value):
+    return html.escape(value, quote=True)
+
+
 def load():
     return json.loads(SOURCE.read_text())
 
@@ -67,6 +71,11 @@ def due_local(sem, assignment):
         ZoneInfo(sem["term"]["timezone"]))
 
 
+def lower_first(text):
+    """'Studio cycle' -> 'studio cycle', but leave 'API keys' alone."""
+    return text[:1].lower() + text[1:] if text[1:2].islower() else text
+
+
 def clock(t):
     return f"{t:%I:%M %p}".lstrip("0")
 
@@ -85,7 +94,7 @@ def home_task(sem, m, n, task):
                   '        <a href="account/">Submit in your account <span aria-hidden="true">&nbsp;↗</span></a>',
                   f'        <span aria-hidden="true"> · </span><a href="{canvas_url(sem, a)}">or Canvas</a>']
     if task.get("link"):
-        lines.append(f'        <a href="{task["link"]["href"]}">{esc(task["link"]["text"])} <span aria-hidden="true">&nbsp;↗</span></a>')
+        lines.append(f'        <a href="{attr(task["link"]["href"])}">{esc(task["link"]["text"])} <span aria-hidden="true">&nbsp;↗</span></a>')
     return lines + ['      </div>']
 
 
@@ -101,11 +110,11 @@ def default_tasks(m):
 def home_brief(sem, m):
     day = dt.date.fromisoformat(m["date"])
     if m.get("lesson"):
-        buttons = f'<a class="btn" href="{m["lesson"]}">Everything for Week {m["week"]} <span aria-hidden="true">→</span></a>'
+        buttons = f'<a class="btn" href="{attr(m["lesson"])}">Everything for Week {m["week"]} <span aria-hidden="true">→</span></a>'
     else:
         buttons = f'<a class="btn" href="schedule/#week-{m["week"]}">Week {m["week"]} on the schedule <span aria-hidden="true">→</span></a>'
     if m.get("slides"):
-        buttons += f' <a class="btn" href="{m["slides"]}">Slides</a>'
+        buttons += f' <a class="btn" href="{attr(m["slides"])}">Slides</a>'
     lines = ['  <section class="week-brief" aria-labelledby="this-week-title">',
              '    <div class="brief-lesson">',
              f'      <p class="kicker">This week / {m["week"]:02d} / {day:%B} {day.day}</p>',
@@ -124,7 +133,7 @@ def term_path(sem, current):
     for m in classes(sem):
         if m["date"] > current["date"]:
             break
-        href = m.get("lesson") or f'schedule/#week-{m["week"]}'
+        href = attr(m.get("lesson") or f'schedule/#week-{m["week"]}')
         active = m is current
         label = "This week" if active else esc(m["tag"])
         lines.append(f'      <a class="term-week{" active" if active else ""}" href="{href}"><span class="number">{m["week"]:02d}</span>'
@@ -143,15 +152,15 @@ def schedule_now(sem, m):
     a = m.get("assignment")
     if a:
         due = due_local(sem, a)
-        work = m.get("work") or a["title"].lower()
+        work = m.get("work") or lower_first(a["title"])
         lines.append(f'    <p>Weekly work: {esc(work)}. Due {due:%A %b} {due.day}, {clock(due)}. Submit through your account or the '
                      f'<a href="{canvas_url(sem, a)}">Week {m["week"]} assignment on Canvas</a>.</p>')
     buttons = []
     if m.get("lesson"):
-        buttons += [f'      <a class="btn" href="../{m["lesson"]}">Read the lesson</a>',
-                    f'      <a class="btn ghost" href="../{m["lesson"]}lesson.md">Lesson as markdown</a>']
+        buttons += [f'      <a class="btn" href="../{attr(m["lesson"])}">Read the lesson</a>',
+                    f'      <a class="btn ghost" href="../{attr(m["lesson"])}lesson.md">Lesson as markdown</a>']
     if m.get("slides"):
-        buttons.append(f'      <a class="btn ghost" href="../{m["slides"]}">Slides</a>')
+        buttons.append(f'      <a class="btn ghost" href="../{attr(m["slides"])}">Slides</a>')
     if buttons:
         lines += ['    <div class="copybar">', *buttons, '    </div>']
     return "\n".join(lines + ['  </div>'])
@@ -171,9 +180,9 @@ def schedule_rows(sem, current):
             due += f' (<a href="{canvas_url(sem, m["assignment"])}">Canvas</a>)'
         links = []
         if m.get("lesson"):
-            links.append(f'<a href="../{m["lesson"]}">Lesson .md</a>')
+            links.append(f'<a href="../{attr(m["lesson"])}">Lesson .md</a>')
         if m.get("slides"):
-            links.append(f'<a href="../{m["slides"]}">{"Slides PDF" if m["slides"].endswith(".pdf") else "Slides"}</a>')
+            links.append(f'<a href="../{attr(m["slides"])}">{"Slides PDF" if m["slides"].endswith(".pdf") else "Slides"}</a>')
         materials = (f'<span class="week-links">{" ".join(links)}</span>' if links
                      else f'<span class="hint">{esc(m.get("materials_note", "Brief added that week"))}</span>')
         current_class = ' class="current"' if m is current else ""
@@ -281,8 +290,12 @@ def main():
     now = dt.datetime.now(dt.timezone.utc)
     today = args.date or today_local(sem, now)
     problems = validate(sem, today)
-    if problems:
+    if problems and args.check:
         sys.exit("semester.json:\n  " + "\n  ".join(problems))
+    if problems:
+        # Still render: a draft lesson or a short calendar must not stop the
+        # Monday week switch. The check (CI) stays red until it is fixed.
+        print("warning, semester.json:\n  " + "\n  ".join(problems), file=sys.stderr)
     out = render(sem, today)
     if args.check:
         # --date: the pages must be exactly that day's. --fresh: today's, or up to

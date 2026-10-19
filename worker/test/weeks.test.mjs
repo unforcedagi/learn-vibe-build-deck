@@ -99,9 +99,11 @@ test('signed-out requests are refused', async () => {
 });
 
 // Real-clock check, run daily in CI: fails a week BEFORE the calendar runs out,
-// so someone adds the next weeks before students hit a closed form. Once the
-// term's last weekly assignment is in WEEKS (final-project weeks have none),
-// there is nothing left to add.
+// so someone adds the next weeks before students hit a closed form. WEEKS is
+// now generated from schedule/semester.json, so this mostly guards the
+// generated file reaching the term's last weekly assignment (final-project
+// weeks have none). The calendar's own runway, and the rule that every week
+// states its assignment or null, are checked in schedule.test.mjs.
 test('WEEKS has at least a week of runway past today', async () => {
   const env = setup();
   const me = await (await worker.fetch(req('/me'), env)).json();

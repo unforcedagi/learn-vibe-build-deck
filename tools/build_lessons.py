@@ -16,7 +16,8 @@ import markdown
 
 SITE = "https://cu.learnvibe.build"
 # Each lesson's slide link comes from the semester calendar (schedule/semester.json).
-DECKS = {m["week"]: m["slides"] for m in json.load(open("schedule/semester.json"))["meetings"] if m.get("slides")}
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "schedule", "semester.json")) as f:
+    DECKS = {m["week"]: m["slides"] for m in json.load(f)["meetings"] if m.get("slides")}
 from site_templates import nav, footer
 
 
