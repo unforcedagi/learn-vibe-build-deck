@@ -23,6 +23,7 @@
 
 - **Aaron's AI setup, with the video from class:** https://uni-system-guide.pages.dev/overview
 - **The class film, "The class, so far":** https://api.learnvibe.build/media/class-film-2026-10.mp4 (sign in to the class site first; it shows first names, so it's for classmates only)
+- **How employment is changing at Anthropic:** https://www.anthropic.com/research/employment-at-anthropic
 - **How to be more ambitious with AI**, by Felix Rieseberg: https://felixrieseberg.com/how-to-be-more-ambitious-a-tutorial-for-humans-with-models/
 - **Your pod board:** the "My pod" tab on the class board.
 
@@ -110,7 +111,8 @@ A single text prompt is small. Long agent sessions, image and video generation a
 |---|---|
 | Light chat: 20 text prompts | ~6 Wh |
 | An hour of streaming (including your TV) | 77 Wh |
-| Heavy coding-agent use (hours of Claude Code or Codex) | ~1.3–3 kWh |
+| A maxed-out $20 plan (our estimate) | ~70–150 Wh |
+| Heavy coding-agent use on a $200 plan (hours of Claude Code or Codex) | ~1.3–3 kWh |
 | An average US home's electricity | ~30 kWh |
 | A 20-mile car commute (gasoline) | ~30 kWh |
 
@@ -149,6 +151,17 @@ A test for anything you build: **who is it for, what does it make better, and ho
 > "technology is never neutral, because it takes on the characteristics of those who devise, finance, regulate and use it." Pope Leo XIV, *Magnifica Humanitas* §9 (2026)
 
 Those who devise and use it: that includes this room.
+
+### Work is changing first where AI is used most
+
+Anthropic studied its own workplace (https://www.anthropic.com/research/employment-at-anthropic):
+
+- Agents work about **6 hours for every human hour**.
+- Code output per engineer rose **5×** in six months.
+- **Junior technical hiring has slowed** since January 2026. In their words: "Employment protections for incumbents will not benefit those not hired to begin with."
+- **Human attention is the bottleneck.** Reading everything their agents produce would take half the work week.
+
+It's a company reporting on itself, and it sells the agents. Still, it raises the question for all of us: if the work gets cheap, what is ours? Judgment, attention, and knowing what you want.
 
 ### Under every why is a who: you are the instrument
 
