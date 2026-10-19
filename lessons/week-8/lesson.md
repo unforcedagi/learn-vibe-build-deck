@@ -12,7 +12,7 @@
 2. What is alive?
 3. What does it cost?
 4. Why do we build?
-5. Building together as a pod
+5. Build bigger, together
 6. This week's work
 7. Next week
 8. Sources
@@ -23,6 +23,7 @@
 
 - **Aaron's AI setup, with the video from class:** https://uni-system-guide.pages.dev/overview
 - **The class film, "The class, so far":** https://api.learnvibe.build/media/class-film-2026-10.mp4 (sign in to the class site first; it shows first names, so it's for classmates only)
+- **How to be more ambitious with AI**, by Felix Rieseberg: https://felixrieseberg.com/how-to-be-more-ambitious-a-tutorial-for-humans-with-models/
 - **Your pod board:** the "My pod" tab on the class board.
 
 ---
@@ -161,7 +162,28 @@ Reflection is the rung we know we have. The answer is cheap now; the question is
 
 ---
 
-## 5. Building together as a pod
+## 5. Build bigger, together
+
+### Four kinds of ambition
+
+From Felix Rieseberg's "How to be more ambitious: a tutorial for humans with models" (https://felixrieseberg.com/how-to-be-more-ambitious-a-tutorial-for-humans-with-models/):
+
+- **Speed:** the same thing, faster. Everyone already does this.
+- **Altitude:** *What do you want to happen next?* Aim at the goal beyond the goal. Not "fix this bug" but "keep the app working".
+- **Depth:** *How would the best person in this field do it?* Push until even they could learn something.
+- **Range:** *Which other fields could help?* Write your idea as verbs, not nouns. "A study app" becomes "helping a tired student remember things at 11 PM", and suddenly psychology, design and sleep science have something to say. Five people with five backgrounds: that's your pod.
+
+Ambition costs watts too. Aim higher, not just bigger.
+
+### Why we aim low, and how to stop
+
+- **Believe it's possible.** In 1939 George Dantzig copied two problems off a blackboard and solved them as homework. They were unsolved problems in statistics.
+- **Watch someone else do it.** Once the four-minute mile fell, others broke it too. That's what next week's demos are for.
+- **Give yourself permission to fail.** Linux was announced as "just a hobby, won't be big and professional".
+
+Pick a goal a bit too big. Hold it lightly.
+
+### Every pod is building toward something together
 
 Every pod is building toward something together: **start it tonight → collaborate lightly this week → pull it together and demo on Oct 26.**
 
@@ -169,6 +191,8 @@ Two shapes to choose from:
 
 - **Shape A, one thing together:** a shared project. Each person takes a piece: the data, the design, the AI part, the page.
 - **Shape B, explore then pool:** the same question, different builds. Pull them into one demo.
+
+**First move:** write your idea as verbs, ask your AI the three ambition questions (altitude, depth, range), and pick one to push this week.
 
 *Lightly* means independent pieces, trying different things, and sending each other ideas between classes. Post your plan on your pod board ("My pod" tab on the class board): a name, one sentence, who does what, and when you check in.
 
@@ -221,3 +245,5 @@ These are the sources behind the numbers and quotes above. Ask your AI to find a
 **What does it cost?** Google Cloud blog and arXiv 2508.15734 (Aug 2025) · Altman, "The Gentle Singularity" (Jun 2025) · de Vries, *Joule* (2023) · Epoch AI (Feb 2025) · IEA and Kamiya (2020) · MIT Technology Review (May 2025) · IEA, *Energy and AI* (Apr 2025) and *Key Questions on Energy and AI* (Apr 2026) · LBNL, *US Data Center Energy Usage Report* (Dec 2024) · Google Environmental Report 2026 · Couch (2026) via Simon Willison · Hausfather (2026) · Hugging Face AI Energy Score v2 (Dec 2025) · EIA · EPA · Colorado Sun and KUNC (Aug 2025) · TechCrunch (Apr 2025, Dec 2024) · Anthropic RSP v3 (Feb 2026) · The Register (Oct 2025) · IMF blog (Oct 2026) · International AI Safety Report 2026
 
 **Why do we build?** darioamodei.com: "Machines of Loving Grace" (Oct 2024), "The Adolescence of Technology" (Jan 2026), "We Must Pace the Frontier" (Sep 2026) · Pope Leo XIV, *Magnifica Humanitas* (2026) · Crawford in *The Guardian* (2021) · a16z (2023) · Lewis, Arista, Pechawis and Kite, "Making Kin with the Machines," *Journal of Design and Science* (2018) · Bastani et al., *PNAS* (2025)
+
+**Build bigger, together:** Felix Rieseberg, "How to be more ambitious: a tutorial for humans with models" (2026) · Locke and Latham on goal setting · Gallwey, *The Inner Game of Tennis*
