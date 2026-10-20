@@ -12,3 +12,6 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '24' }
       - run: node --test 'worker/test/*.test.mjs'
+        env:
+          # The daily run also checks the pages are for today's week (schedule.yml flips it).
+          SCHEDULE_FRESH: ${{ github.event_name == 'schedule' && '1' || '' }}
