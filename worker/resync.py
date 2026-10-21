@@ -22,7 +22,7 @@ skipped because students can't submit to them.
 
 Requirements:
     - Canvas API token in ~/.canvastoken
-    - Cloudflare API token in ~/.config/cloudflare/token
+    - Cloudflare API token: CLOUDFLARE_API_TOKEN in ~/.hermes/.env (the one copy, T-234)
     - `pip install --user html2text`
     - npx/wrangler available (run from anywhere; the script cd's to worker/)
 
@@ -56,6 +56,16 @@ WORKER_DIR = os.path.dirname(os.path.abspath(__file__))
 def read_secret(path):
     with open(os.path.expanduser(path)) as f:
         return f.read().strip()
+
+
+def read_env_secret(name, path="~/.hermes/.env"):
+    """One value from the Hermes .env, the single copy of shared tokens (T-234)."""
+    with open(os.path.expanduser(path)) as f:
+        for line in f:
+            k, sep, v = line.strip().partition("=")
+            if sep and k == name:
+                return v.strip().strip('"').strip("'")
+    raise KeyError(f"{name} not in {path}")
 
 
 # ---------------------------------------------------------------------------
@@ -263,7 +273,7 @@ def build_sql(roster, submissions_by_week):
 
 def run_wrangler_d1(sql):
     env = dict(os.environ)
-    env["CLOUDFLARE_API_TOKEN"] = read_secret("~/.config/cloudflare/token")
+    env["CLOUDFLARE_API_TOKEN"] = read_env_secret("CLOUDFLARE_API_TOKEN")
     env["CLOUDFLARE_ACCOUNT_ID"] = CLOUDFLARE_ACCOUNT_ID
     # Student data goes through a temp file outside the repo, never argv.
     with tempfile.NamedTemporaryFile(
