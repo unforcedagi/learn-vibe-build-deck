@@ -73,6 +73,14 @@ You choose: a page (the course site, your own site or a shared doc), a paragraph
 
 ## 3. Your final project prompt
 
+**Watch first (1:27):** what it looks like from copying the prompt to a finished one-page artifact, with a made-up student.
+
+<video controls preload="metadata" playsinline poster="/lessons/week-9/media/final-project-prompt.jpg" style="width:100%;max-width:960px;border-radius:12px;display:block;margin:1rem 0">
+<source src="/lessons/week-9/media/final-project-prompt.mp4" type="video/mp4">
+</video>
+
+Video link: https://cu.learnvibe.build/lessons/week-9/media/final-project-prompt.mp4
+
 <!-- fp-prompt -->
 
 **Signed in:** on this page, the **Copy my final project prompt** button copies the prompt with your own semester already in it: every weekly submission and reflection you've made, with week titles and project links, plus your class board posts. Only you get yours. Sign in at https://cu.learnvibe.build/account/ first.
