@@ -55,13 +55,14 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
 document.querySelectorAll('.codebox').forEach(function (box) {
   var b = box.querySelector('button'), pre = box.querySelector('pre');
   b.addEventListener('click', function () {
-    navigator.clipboard.writeText(pre.textContent).then(function () {
+    (navigator.clipboard ? navigator.clipboard.writeText(pre.textContent) : Promise.reject()).then(function () {
       b.textContent = 'Copied ✓';
-      setTimeout(function () { b.textContent = 'Copy'; }, 1800);
     }).catch(function () {
       var r = document.createRange(); r.selectNodeContents(pre);
       var s = getSelection(); s.removeAllRanges(); s.addRange(r);
-      b.textContent = 'Selected: press Ctrl+C';
+      b.textContent = 'Selected: now copy it';
+    }).then(function () {
+      setTimeout(function () { b.textContent = 'Copy'; }, 2500);
     });
   });
 });
@@ -98,7 +99,7 @@ def main():
         rendered = "".join(p if i % 2 else re.sub(r"(https?://[^\s<)]+[^\s<).,;:])", r'<a href="\1">\1</a>', p)
                            for i, p in enumerate(parts))
         # Every code block gets its own Copy button (prompts, context files).
-        rendered = re.sub(r"(<pre>.*?</pre>)",
+        rendered = re.sub(r"(<pre[ >].*?</pre>)",
                           r'<div class="codebox"><button class="btn small" type="button">Copy</button>\n\1</div>',
                           rendered, flags=re.S)
         deck = DECKS.get(week)
