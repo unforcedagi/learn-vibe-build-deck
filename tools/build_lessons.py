@@ -102,6 +102,12 @@ def main():
         rendered = re.sub(r"(<pre[ >].*?</pre>)",
                           r'<div class="codebox"><button class="btn small" type="button">Copy</button>\n\1</div>',
                           rendered, flags=re.S)
+        # A <!-- fp-prompt --> region becomes the personalised final project prompt:
+        # assets/fp-prompt.js swaps in the signed-in student's own copy; without
+        # JS or a session, the generic prompt inside it stays.
+        rendered, fp = re.subn(r"<!-- fp-prompt -->(.*?)<!-- /fp-prompt -->",
+                               r'<div class="fp-prompt" data-fp-prompt>\1</div>', rendered, flags=re.S)
+        fp_js = '\n<script type="module" src="../../assets/fp-prompt.js?v=1"></script>' if fp else ""
         deck = DECKS.get(week)
         deck_link = f' <a class="btn ghost" href="../../{deck}">Open the slides</a>' if deck else ""
         display_title = re.sub(r'^Week \d+\s*[:—–]\s*', '', title)
@@ -135,7 +141,7 @@ def main():
     </div>
   </article>
 </div>
-{COPY_JS}'''
+{COPY_JS}{fp_js}'''
         open(f"{out}/index.html", "w").write(page(title, "../../", body))
 
     # Lessons index (HTML)

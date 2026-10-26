@@ -2154,3 +2154,13 @@ a.kit-card strong::after { content: " →"; color: var(--accent); }
 .board-pod select { width: 100%; max-width: 100%; font: inherit; font-size: 16px; background: var(--bg); color: var(--ink); padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; min-height: 44px; }
 .board-pod-past button { min-height: 36px; margin-right: 8px; }
 .board-where { text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+
+/* Final project prompt (assets/fp-prompt.js): Week 9 and My journey. */
+.fp-prompt { border: 1px solid var(--border); background: var(--soft); border-radius: 4px; padding: 18px 20px; margin: 16px 0 24px; min-width: 0; }
+.fp-prompt > .kicker { margin-top: 0; }
+.fp-prompt.is-loading { opacity: 0.6; }
+.fp-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 12px 0 4px; }
+.fp-actions .hint { margin: 0; }
+.fp-signin { margin: 8px 0 16px; }
+.fp-size, .fp-trimmed { margin: 4px 0; }
+.fp-preview { max-height: 22rem; margin: 12px 0 0; font-size: 13px; background: var(--card); }
