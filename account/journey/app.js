@@ -5,6 +5,7 @@
 // those live in Canvas and belong to the instructor.
 import { API_BASE } from '../config.js';
 import { dueLabel, whenLabel } from '../../assets/weeks.js';
+import { mountFinalProjectPrompt } from '../../assets/fp-prompt.js?v=1';
 
 const $ = (id) => document.getElementById(id);
 const LESSON_PAGES = new Set([1, 2, 3, 6]);
@@ -38,7 +39,7 @@ async function load() {
       : 'That student could not be found.'));
     return;
   }
-  if (!me) return signedOut();
+  if (!me) return signedOut(status);
   READ_ONLY = !!me.read_only;
   if (me.viewing_as) banner(me.viewing_as);
   if (me.is_instructor || me.viewer_is_instructor) picker(me.viewing_as && me.viewing_as.id);
@@ -72,14 +73,16 @@ async function picker(currentId) {
   main.insertBefore(wrap, main.querySelector('#journey'));
 }
 
-function signedOut() {
+function signedOut(status) {
   const box = el('div', 'board-signin');
   box.append(el('h2', null, 'Sign in to see your journey.'));
   box.append(el('p', null, 'Every week you have submitted, in one place, visible only to you.'));
   const a = el('a', 'btn', 'Sign in');
   a.href = '../';
   box.append(a);
-  $('journey').replaceChildren(box);
+  const fp = el('section', 'journey-fp');
+  $('journey').replaceChildren(box, fp);
+  mountFinalProjectPrompt(fp, { signIn: false, signedOut: status === 401 });
 }
 
 function weeksSoFar(me) {
@@ -128,8 +131,11 @@ function render(me) {
   }
   row.append(msg);
   note.append(row);
-  top.append(note);
+  // Week 9 on: the final project prompt with this semester already in it, above the Week 6 note.
+  const fp = el('div', 'journey-fp');
+  top.append(fp, note);
   root.append(top);
+  mountFinalProjectPrompt(fp, { as: AS });
 
   const list = el('ol', 'journey-weeks');
   for (const w of weeks) list.append(weekCard(w, byWeek.get(w.week)));
