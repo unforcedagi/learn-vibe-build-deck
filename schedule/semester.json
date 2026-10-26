@@ -178,16 +178,34 @@
       "kind": "guest",
       "title": "My AI Life",
       "tag": "Guest",
-      "summary": "Guest Justin Shacklette on “My AI Life”, then pod work and mini demos of each pod's shared build.",
+      "summary": "Justin Shacklette's talk, “My AI Life”. Pods finish and demo last week's builds. We start and end with an intro to the final project.",
       "headline": "Guest: Justin Shacklette, “My AI Life”",
-      "covers": "Guest: Justin Shacklette, “My AI Life” · pod work · mini-collab demos",
-      "due": "Weekly build + writing",
+      "plan": "Final project intro at the start and end of class. In between: Justin Shacklette's talk, then pods finish and demo last week's builds.",
+      "work": "your pod demo on the class board, plus an artifact about your final project",
+      "covers": "Guest: Justin Shacklette, “My AI Life” · pods finish and demo last week's builds · final project intro",
+      "due": "Pod demo on the board + final-project artifact",
+      "lesson": "lessons/week-9/",
+      "slides": "lessons/week-9/slides/",
       "assignment": {
         "title": "Studio cycle",
         "due_at": "2026-11-02T06:59:00Z",
         "canvas_id": 2858631,
         "prompt": "A link to what you built, plus your writing on how it went."
-      }
+      },
+      "tasks": [
+        {
+          "label": "Part 1",
+          "title": "Post your pod's demo",
+          "body": "Post a link to your pod's demo from class on the class board. If your pod made one thing together, one person posts it for the pod. If each of you made something different, everyone posts their own.",
+          "link": { "href": "board/", "text": "Open the class board" }
+        },
+        {
+          "label": "Part 2",
+          "title": "An artifact about your final project",
+          "body": "Make something that explains your project: what you're making and why. On Nov 2 we'll form final-project pods from these artifacts. The Week 9 page has what to cover and an AI interview prompt.",
+          "submit": true
+        }
+      ]
     },
     {
       "week": 10,

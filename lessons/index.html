@@ -42,7 +42,12 @@
   <p class="lead">Every lesson, as a page you can read and as a markdown file you can hand to your AI.
     Copy a lesson, paste it into Claude, ChatGPT or any other assistant, and ask it to explain, quiz you,
     or apply it to your project.</p>
-  <div class="cards">    <a class="card" href="week-8/">
+  <div class="cards">    <a class="card" href="week-9/">
+      <p class="kicker">Week 9</p>
+      <h2>My AI Life</h2>
+      <p>Justin Shacklette&#x27;s talk, pods finish and demo last week&#x27;s builds, and we turn toward the final project.</p>
+    </a>
+    <a class="card" href="week-8/">
       <p class="kicker">Week 8</p>
       <h2>The Other Side of the Screen</h2>
       <p>Seven weeks of how to build with AI. Tonight we ask three bigger questions: What is alive? What does it cost? Why do we build? Then pods start building something together.</p>
@@ -90,6 +95,20 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
       var old = b.textContent; b.textContent = 'Copied ✓';
       setTimeout(function () { b.textContent = old; }, 1800);
     }).catch(function () { location.href = b.getAttribute('data-copy'); });
+  });
+});
+document.querySelectorAll('.codebox').forEach(function (box) {
+  var b = box.querySelector('button'), pre = box.querySelector('pre');
+  b.addEventListener('click', function () {
+    (navigator.clipboard ? navigator.clipboard.writeText(pre.textContent) : Promise.reject()).then(function () {
+      b.textContent = 'Copied ✓';
+    }).catch(function () {
+      var r = document.createRange(); r.selectNodeContents(pre);
+      var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      b.textContent = 'Selected: now copy it';
+    }).then(function () {
+      setTimeout(function () { b.textContent = 'Copy'; }, 2500);
+    });
   });
 });
 </script>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 9 slides — Learn, Vibe, Build</title>
+<link rel="stylesheet" href="../../../assets/site.css">
+<style>
+html,body{margin:0;height:100%;background:#1f211d;overflow:hidden}
+.deck{position:fixed;inset:0;display:grid;place-items:center}
+.slide{display:none;box-sizing:border-box;width:min(100vw,177.78vh);aspect-ratio:16/9;background:var(--bg);color:var(--ink);
+  container-type:inline-size;padding:5.5cqw 7cqw 6cqw;position:relative;border-left:1.2cqw solid var(--accent);font-family:var(--body)}
+.slide.on{display:flex;flex-direction:column}
+.slide h1{font-family:var(--display);font-weight:600;font-size:7.4cqw;line-height:1.02;letter-spacing:-.03em;margin:auto 0 1.5cqw}
+.slide h2{font-family:var(--display);font-weight:600;font-size:3.9cqw;line-height:1.1;letter-spacing:-.02em;margin:0 0 3cqw;text-wrap:balance}
+.slide .k{color:var(--accent);text-transform:uppercase;letter-spacing:.14em;font-size:1.3cqw;font-weight:600;margin:0}
+.slide .sub{font-size:2.6cqw;color:var(--muted);margin:0 0 1cqw} .slide .date{font-size:1.6cqw;color:var(--accent);margin:0 0 auto}
+.slide ul{margin:0;padding:0;list-style:none;font-size:2.35cqw;line-height:1.35}
+.slide li{padding:.9cqw 0 .9cqw 2.6cqw;position:relative;border-top:1px solid var(--border)}
+.slide li:before{content:"";position:absolute;left:0;top:1.85cqw;width:1cqw;height:1cqw;border-radius:50%;background:var(--accent)}
+.slide a{color:var(--accent)}
+.two{display:grid;grid-template-columns:1.55fr 1fr;gap:3.5cqw;align-items:center}
+.slide pre{margin:0;background:var(--soft);border:1px solid var(--border);border-radius:1cqw;padding:2.4cqw;font-size:1.75cqw;line-height:1.5;white-space:pre-wrap}
+.cap{font-family:var(--display);font-size:2.5cqw;line-height:1.2;color:var(--accent);margin:0}
+.flow{display:flex;align-items:center;gap:1cqw;margin:0 0 3cqw;flex-wrap:wrap}
+.step{background:var(--ink);color:var(--bg);padding:1.2cqw 2cqw;border-radius:.8cqw;font-weight:600;font-size:1.9cqw} .step.first{background:var(--accent)}
+.arr{color:var(--muted);font-size:2.2cqw}
+.slide footer{position:absolute;left:7cqw;right:4cqw;bottom:2.2cqw;display:flex;justify-content:space-between;font-size:1.15cqw;color:var(--muted)}
+.ctl{position:fixed;top:12px;right:14px;display:flex;gap:6px;z-index:5;font:600 13px/1 var(--body);opacity:.35;transition:opacity .2s} .ctl:hover,.ctl:focus-within{opacity:1} @media (hover:none){.ctl{opacity:.9;top:auto;bottom:14px}}
+.ctl a,.ctl button{background:rgba(255,253,247,.92);border:1px solid #888;border-radius:6px;padding:8px 11px;color:#272a25;text-decoration:none;cursor:pointer;font:inherit;display:inline-flex;align-items:center}
+.notesbar{position:fixed;left:0;right:0;bottom:0;max-height:38vh;overflow:auto;background:#fffdf7;border-top:3px solid var(--accent);padding:12px 16px 50px;font:15px/1.5 var(--body);white-space:pre-wrap;display:none}
+body.shownotes .notesbar{display:block}
+@media (max-width:700px) and (orientation:portrait){.deck{place-items:center} .ctl{bottom:16px}}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:4cqw;flex:1;min-height:0}
+.cols h3{font-family:var(--display);font-weight:600;font-size:2.3cqw;margin:0 0 1.2cqw;color:var(--accent)}
+.cols ol{margin:0;padding:0 0 0 2.4cqw;font-size:1.85cqw;line-height:1.38}
+.cols ol li{padding:.25cqw 0 .25cqw .6cqw;border:0} .cols ol li:before{display:none}
+.cols p{font-size:1.85cqw;line-height:1.4;margin:0 0 1.4cqw}
+.slide.hw h2{margin-bottom:2.2cqw}
+.url{font-family:var(--display);font-weight:600;font-size:4.6cqw;letter-spacing:-.02em;color:var(--accent);margin:0 0 3cqw;overflow-wrap:anywhere}
+</style></head>
+<body>
+<div class="deck"><section class="slide hw"><p class="k">Week 9 homework · Due Sun Nov 1, 11:59 PM · 10 points</p><h2>An artifact about your final project</h2><div class="cols"><div><h3>Part 1: your pod demo (2 minutes)</h3><p>Post a link to your pod's demo from class on the <b>class board</b>. One thing together: one person posts it for the pod. Different things: everyone posts their own.</p><h3>Part 2: the artifact (the real homework)</h3><p>Make something that <b>explains</b> the project: what you're making and why. It isn't a piece of the project. It's an artifact <i>about</i> the project. Any form a podmate can take in in a few minutes.</p><p>On <b>Nov 2</b> we'll form final-project pods from these artifacts.</p></div><div><h3>Your artifact should cover</h3><ol><li>What you're planning to make</li><li>Who it's for, and what it makes better</li><li>What the finished thing will look like</li><li>Why this one</li><li>Skills you're growing</li><li>Where you're starting from</li><li>What support you need, and solo with pod support or build together</li></ol><p style="margin-top:1.6cqw"><b>Option:</b> let an AI interview you. The prompt is on the Week 9 page.</p></div></div><footer><span>Week 9 · Homework</span><span>1 / 2</span></footer></section><section class="slide"><p class="k">Option: let an AI interview you</p><h2>Copy the interview prompt from the Week 9 page</h2><p class="url">cu.learnvibe.build/lessons/week-9</p><ul><li>Gather your context: earlier submissions, reflections or project links (Canvas, or <b>My journey</b> on the course site).</li><li>Paste the prompt into Claude, ChatGPT or any AI you use, then paste your context where it says to.</li><li>Answer its questions. At the end it writes a draft artifact from your answers.</li><li>Edit it until it sounds like you, then submit <b>the artifact</b>.</li></ul><footer><span>Week 9 · The interview prompt</span><span>2 / 2</span></footer></section></div>
+<div class="ctl"><a href="../">Back to Week 9</a><button id="prev" aria-label="Previous slide">←</button><button id="next" aria-label="Next slide">→</button><button id="fs">Full screen</button></div>
+<script>
+var S=[].slice.call(document.querySelectorAll('.slide')),i=0;
+function go(n){i=Math.max(0,Math.min(S.length-1,n));S.forEach(function(s,j){s.classList.toggle('on',j===i)});history.replaceState(null,'','#'+(i+1));
+ var nb=document.getElementById('notes');if(nb&&window.NOTES)nb.textContent=NOTES[i];}
+go((parseInt(location.hash.slice(1))||1)-1);
+document.addEventListener('keydown',function(e){if(['ArrowRight','PageDown',' '].indexOf(e.key)>=0){e.preventDefault();go(i+1)}
+ else if(['ArrowLeft','PageUp'].indexOf(e.key)>=0){e.preventDefault();go(i-1)} else if(e.key==='f')fs(); else if(e.key==='n')document.body.classList.toggle('shownotes');
+ else if(e.key==='Home')go(0); else if(e.key==='End')go(S.length-1);});
+document.getElementById('next').onclick=function(){go(i+1)};document.getElementById('prev').onclick=function(){go(i-1)};
+function fs(){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(function(){})}
+document.getElementById('fs').onclick=fs; var nb=document.getElementById('nb'); if(nb)nb.onclick=function(){document.body.classList.toggle('shownotes')};
+var x0=null;document.addEventListener('touchstart',function(e){x0=e.touches[0].clientX});
+document.addEventListener('touchend',function(e){if(x0===null)return;var d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>40)go(i+(d<0?1:-1));x0=null});
+</script></body></html>

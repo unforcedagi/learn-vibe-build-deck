@@ -243,6 +243,20 @@ document.querySelectorAll('[data-copy]').forEach(function (b) {
     }).catch(function () { location.href = b.getAttribute('data-copy'); });
   });
 });
+document.querySelectorAll('.codebox').forEach(function (box) {
+  var b = box.querySelector('button'), pre = box.querySelector('pre');
+  b.addEventListener('click', function () {
+    (navigator.clipboard ? navigator.clipboard.writeText(pre.textContent) : Promise.reject()).then(function () {
+      b.textContent = 'Copied ✓';
+    }).catch(function () {
+      var r = document.createRange(); r.selectNodeContents(pre);
+      var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      b.textContent = 'Selected: now copy it';
+    }).then(function () {
+      setTimeout(function () { b.textContent = 'Copy'; }, 2500);
+    });
+  });
+});
 </script>
 </main>
 <footer class="site-footer">
