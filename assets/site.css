@@ -766,6 +766,19 @@ pre code {
   padding: 0;
   background: none;
 }
+.codebox {
+  position: relative;
+  margin: 16px 0 24px;
+}
+.codebox pre {
+  margin: 0;
+  padding-top: 56px;
+}
+.codebox button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
 .lesson table {
   display: block;
   width: 100%;

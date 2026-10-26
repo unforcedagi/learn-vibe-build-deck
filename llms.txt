@@ -10,6 +10,7 @@
 - [Week 6: Learn With Your AI](https://cu.learnvibe.build/lessons/week-6/lesson.md): Use your AI to learn about AI, give it helpful context, then build something that supports your learning journey.
 - [Week 7: How Things Talk](https://cu.learnvibe.build/lessons/week-7/lesson.md): Learn how programs talk to each other (networks, APIs, OAuth and MCP), so your builds can reach real data and your AI can use real tools.
 - [Week 8: The Other Side of the Screen](https://cu.learnvibe.build/lessons/week-8/lesson.md): Seven weeks of how to build with AI. Tonight we ask three bigger questions: What is alive? What does it cost? Why do we build? Then pods start building something together.
+- [Week 9: My AI Life](https://cu.learnvibe.build/lessons/week-9/lesson.md): Justin Shacklette's talk, pods finish and demo last week's builds, and we turn toward the final project.
 
 ## Course
 
