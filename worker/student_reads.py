@@ -32,7 +32,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from resync import q, run_wrangler_d1  # noqa: E402  (same D1 path and token handling)
+from resync import CLOUDFLARE_ACCOUNT_ID, WORKER_DIR, q, read_env_secret, run_wrangler_d1  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL = "opus"
@@ -103,21 +103,28 @@ def first_name(name):
     return (name or "").strip().split()[0] if (name or "").strip() else "The student"
 
 
+def parse_ts(value):
+    """ISO timestamp -> aware UTC datetime (naive counts as UTC); None if unreadable."""
+    try:
+        d = datetime.datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return d if d.tzinfo else d.replace(tzinfo=datetime.timezone.utc)
+
+
 def is_late(sub, weeks):
-    due = (weeks.get(sub["week"]) or {}).get("due_at")
-    at = sub.get("submitted_at")
-    if not (due and at):
-        return False
-    parse = lambda s: datetime.datetime.fromisoformat(s.replace("Z", "+00:00"))
-    return parse(at) > parse(due)
+    due = parse_ts((weeks.get(sub["week"]) or {}).get("due_at") or "")
+    at = parse_ts(sub.get("submitted_at") or "")
+    return bool(due and at and at > due)
 
 
-def build_input(student, subs, posts, weeks, today):
-    """This student's material as plain text. Pure: same data -> same text."""
+def build_input(student, subs, posts, weeks, now):
+    """This student's material as plain text. Pure: same data -> same text.
+    `now` is an aware datetime; a week is past due only after its deadline."""
     lines = [f"Student first name: {first_name(student['name'])}",
-             f"Today: {today}", ""]
+             f"Today: {now.strftime('%Y-%m-%d')}", ""]
     done = {s["week"] for s in subs}
-    due_weeks = sorted(w for w, v in weeks.items() if v.get("due_at") and v["due_at"][:10] <= today)
+    due_weeks = sorted(w for w, v in weeks.items() if (parse_ts(v.get("due_at") or "") or now) < now)
     missing = [w for w in due_weeks if w not in done]
     lines.append("Weeks past due with no submission: " + (", ".join(map(str, missing)) or "none"))
     lines.append("")
@@ -152,14 +159,14 @@ def based_on(subs, posts):
     return {"weeks": sorted({s["week"] for s in subs}), "posts": len(posts), "latest": max(stamps) or None}
 
 
-def plan(students, subs, posts, stored, weeks, today, force=False):
+def plan(students, subs, posts, stored, weeks, now, force=False):
     """[(student_id, text, hash, based_on)] for students whose material changed.
     Each student's text is built from rows filtered to their own id only."""
     todo = []
     for st in students:
         mine = [s for s in subs if s["student_id"] == st["id"]]
         their_posts = [p for p in posts if p["student_id"] == st["id"]]
-        text = build_input(st, mine, their_posts, weeks, today)
+        text = build_input(st, mine, their_posts, weeks, now)
         h = input_hash(text)
         if stored.get(st["id"]) == h and not force:
             continue
@@ -192,6 +199,27 @@ def ask_claude(material):
     return out["result"].strip(), float(out.get("total_cost_usd") or 0), model
 
 
+def d1_write(sql):
+    """Write to remote D1. Unlike resync.run_wrangler_d1, a failure returns False
+    and prints nothing from wrangler, whose errors echo SQL (here, read text)."""
+    env = dict(os.environ)
+    env["CLOUDFLARE_API_TOKEN"] = read_env_secret("CLOUDFLARE_API_TOKEN")
+    env["CLOUDFLARE_ACCOUNT_ID"] = CLOUDFLARE_ACCOUNT_ID
+    with tempfile.NamedTemporaryFile("w", suffix=".sql", delete=False) as f:
+        f.write(sql)
+        path = f.name
+    try:
+        res = subprocess.run(
+            ["npx", "-y", "wrangler", "d1", "execute", "lvb-accounts", "--remote", "--json", "--file", path],
+            cwd=WORKER_DIR, env=env, capture_output=True, text=True, timeout=300,
+        )
+        return res.returncode == 0
+    except subprocess.TimeoutExpired:
+        return False
+    finally:
+        os.unlink(path)
+
+
 def upsert_sql(student_id, body, h, basis, model):
     now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
     return (
@@ -215,12 +243,12 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     weeks = load_weeks()
-    today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
+    now = datetime.datetime.now(datetime.timezone.utc)
     students, subs, posts, stored = fetch_d1()
     if args.student:
         students = [s for s in students if s["id"] in set(args.student)]
 
-    todo = plan(students, subs, posts, stored, weeks, today, args.force)
+    todo = plan(students, subs, posts, stored, weeks, now, args.force)
     skipped = len(students) - len(todo)
     print(f"students with submissions: {len(students)}; nothing changed (skipped): {skipped}; to generate: {len(todo)}")
     if args.dry_run or not todo:
@@ -228,6 +256,17 @@ def main(argv=None):
 
     done = failed = 0
     cost = 0.0
+    pending = []  # upserts written in small batches: one wrangler call each
+
+    def flush():
+        nonlocal done, failed
+        if pending and d1_write("\n".join(pending)):
+            done += len(pending)
+        elif pending:
+            failed += len(pending)
+            print(f"d1 write failed for {len(pending)} read(s)")
+        pending.clear()
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
         futures = {pool.submit(ask_claude, text): (sid, h, basis) for sid, text, h, basis in todo}
         for fut in concurrent.futures.as_completed(futures):
@@ -239,8 +278,10 @@ def main(argv=None):
                 print(f"student {sid}: failed ({e.__class__.__name__})")
                 continue
             cost += c
-            run_wrangler_d1(upsert_sql(sid, body, h, basis, model))
-            done += 1
+            pending.append(upsert_sql(sid, body, h, basis, model))
+            if len(pending) >= 5:
+                flush()
+    flush()
     print(f"generated: {done}; failed: {failed}; cost: ${cost:.2f}")
     return 1 if failed else 0
 

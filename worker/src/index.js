@@ -427,8 +427,9 @@ async function handleInstructorStudent(request, env) {
   const open = openWeek(now);
   const strip = WEEKS.filter((w) => w.week <= open).map((w) => {
     const sub = byWeek.get(w.week);
+    const dueAt = Date.parse(w.due_at);
     const status = sub ? (sub.late ? 'late' : 'on_time')
-      : (Date.parse(w.due_at) > now ? 'not_due' : 'missing');
+      : (!(dueAt <= now) ? 'not_due' : 'missing'); // no due date reads as not due
     return { week: w.week, title: w.title, status };
   });
   const today = todayISO();
@@ -439,9 +440,7 @@ async function handleInstructorStudent(request, env) {
   return json(env, {
     student: { id: s.id, name: s.name, email: s.email, on_canvas: !!s.canvas_id, signed_in: !!s.signed_in },
     pod: current ? { name: current.name, set_name: current.set_name } : null,
-    pods: pods.results.map((p) => ({ name: p.name, set_name: p.set_name })),
     weeks: WEEKS,
-    open_week: open,
     strip,
     last_submission_at: submissions.reduce((m, r) => (r.submitted_at && r.submitted_at > m ? r.submitted_at : m), '') || null,
     submissions,

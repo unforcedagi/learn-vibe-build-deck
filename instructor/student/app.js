@@ -97,6 +97,7 @@ function renderRead(read) {
     const posts = b.posts ? ` and ${b.posts} board post${b.posts === 1 ? '' : 's'}` : '';
     meta.appendChild(el('span', 'date', `based on ${weeks}${posts}`));
   }
+  if (read.model) meta.appendChild(el('span', 'date', read.model));
   card.appendChild(meta);
   card.appendChild(markdownBody(read.body));
   card.appendChild(el('p', 'hint',
