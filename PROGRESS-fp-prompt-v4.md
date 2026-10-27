@@ -23,5 +23,13 @@ Worktree: ~/Code/wt/mts-la2y6n6x (branch mts/t-121-la2y6n6x). Video work: ~/Code
 - Buzz #atlas event ea09302d…; read back: imeta url …/media/f5eeac81….mp4, video/mp4, 8283260 B.
 - Week 9 media replaced (poster = the "Allowed? Probably yes" frame), "Watch first (1:24)".
 
-## Next
-- PR, CI, merge, check the live page serves the new video.
+- PR #38 merged (af8a094). Live mp4 byte-identical to the published file; page says "Watch first (1:24)"; browser
+  check: video readyState 4, duration 84.49 s; new line present; no "pressure-test" on the page.
+- /code-review (low) over 3a301b1..main: no findings.
+- Walkthrough notes + screenshots: ~/Code/teaching/week9/video-fp/WALKTHROUGH-v2.md, walkthrough-v2/.
+
+## Open
+- The homework's own "Your artifact should cover" list (7 items) is still on the page and in Canvas; the brief's
+  "old checklist" was read as the prompt's checklist. Aaron decides whether the homework list goes too.
+- Canvas: the option step that described the old menu was reworded too (beyond the prompt block and the new line).
+- Pages sends max-age=14400 for the mp4: a browser that cached the old film may show it for up to 4 h.
