@@ -17,6 +17,7 @@
 
 ## Links from class
 
+- **Justin Shacklette's slides, "My AI Life" (PDF):** https://cu.learnvibe.build/lessons/week-9/files/justin-shacklette-my-ai-life.pdf
 - **The class board:** https://cu.learnvibe.build/board/ (post your pod's demo here)
 - **My journey, your earlier submissions in one place:** https://cu.learnvibe.build/account/journey/ (sign in first)
 - **The homework on one slide:** https://cu.learnvibe.build/lessons/week-9/slides/
