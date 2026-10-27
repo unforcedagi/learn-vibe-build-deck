@@ -32,7 +32,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from resync import CLOUDFLARE_ACCOUNT_ID, WORKER_DIR, q, read_env_secret, run_wrangler_d1  # noqa: E402
+from resync import CLOUDFLARE_ACCOUNT_ID, WORKER_DIR, q, read_env_secret  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL = "opus"
@@ -85,17 +85,32 @@ def load_weeks():
     return weeks
 
 
+def wrangler(args, timeout=300):
+    env = dict(os.environ)
+    env["CLOUDFLARE_API_TOKEN"] = read_env_secret("CLOUDFLARE_API_TOKEN")
+    env["CLOUDFLARE_ACCOUNT_ID"] = CLOUDFLARE_ACCOUNT_ID
+    return subprocess.run(["npx", "-y", "wrangler", "d1", "execute", "lvb-accounts", "--remote", "--json", *args],
+                          cwd=WORKER_DIR, env=env, capture_output=True, text=True, timeout=timeout)
+
+
+def d1_rows(sql):
+    """Rows of one SELECT. --command, because --file returns only execution
+    stats. Only the query text is on argv, never student data."""
+    res = wrangler(["--command", sql])
+    if res.returncode != 0:
+        sys.exit(f"d1 read failed (wrangler exit {res.returncode})")
+    out = res.stdout
+    return json.loads(out[out.find("["):out.rfind("]") + 1])[-1].get("results") or []
+
+
 def fetch_d1():
-    """Everything the reads need, in one wrangler call. Stays in memory on uni."""
-    res = run_wrangler_d1(
-        "SELECT id, name FROM students WHERE is_instructor = 0 "
-        "AND EXISTS (SELECT 1 FROM submissions s WHERE s.student_id = students.id) ORDER BY id;\n"
-        "SELECT student_id, week, body, submitted_at, link_url FROM submissions ORDER BY student_id, week;\n"
-        "SELECT p.student_id, p.kind, p.title, p.body, p.link_url, p.created_at, pd.name AS pod_name "
-        "FROM board_posts p LEFT JOIN pods pd ON pd.id = p.pod_id ORDER BY p.student_id, p.created_at;\n"
-        "SELECT student_id, input_hash FROM student_reads;"
-    )
-    students, subs, posts, reads = (r.get("results") or [] for r in res)
+    """Everything the reads need. Stays in memory on uni."""
+    students = d1_rows("SELECT id, name FROM students WHERE is_instructor = 0 "
+                       "AND EXISTS (SELECT 1 FROM submissions s WHERE s.student_id = students.id) ORDER BY id")
+    subs = d1_rows("SELECT student_id, week, body, submitted_at, link_url FROM submissions ORDER BY student_id, week")
+    posts = d1_rows("SELECT p.student_id, p.kind, p.title, p.body, p.link_url, p.created_at, pd.name AS pod_name "
+                    "FROM board_posts p LEFT JOIN pods pd ON pd.id = p.pod_id ORDER BY p.student_id, p.created_at")
+    reads = d1_rows("SELECT student_id, input_hash FROM student_reads")
     return students, subs, posts, {r["student_id"]: r["input_hash"] for r in reads}
 
 
@@ -200,20 +215,13 @@ def ask_claude(material):
 
 
 def d1_write(sql):
-    """Write to remote D1. Unlike resync.run_wrangler_d1, a failure returns False
-    and prints nothing from wrangler, whose errors echo SQL (here, read text)."""
-    env = dict(os.environ)
-    env["CLOUDFLARE_API_TOKEN"] = read_env_secret("CLOUDFLARE_API_TOKEN")
-    env["CLOUDFLARE_ACCOUNT_ID"] = CLOUDFLARE_ACCOUNT_ID
+    """Write to remote D1 from a temp file (student text never on argv). A
+    failure returns False and prints nothing from wrangler, whose errors echo SQL."""
     with tempfile.NamedTemporaryFile("w", suffix=".sql", delete=False) as f:
         f.write(sql)
         path = f.name
     try:
-        res = subprocess.run(
-            ["npx", "-y", "wrangler", "d1", "execute", "lvb-accounts", "--remote", "--json", "--file", path],
-            cwd=WORKER_DIR, env=env, capture_output=True, text=True, timeout=300,
-        )
-        return res.returncode == 0
+        return wrangler(["--file", path]).returncode == 0
     except subprocess.TimeoutExpired:
         return False
     finally:
