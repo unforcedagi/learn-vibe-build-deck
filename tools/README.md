@@ -79,3 +79,29 @@ reader pages with a TOC, and regenerates `lessons/index.md` and `llms.txt`.
 Student work is never embedded in the site. The studio reads opt-in builds from
 the authenticated `/feed` API. Tailnet previews intentionally cannot sign in
 because the API only allows the production course origin.
+
+## Canvas sync and student reads (on uni)
+
+`lvb-canvas-sync` (a systemd user timer, units in `worker/systemd/`) runs daily
+at 06:00 MT and Mondays at 12:00 MT (after the Sunday deadline, before class):
+
+1. `worker/resync.py` pulls Canvas submissions into D1 (idempotent). Before
+   this timer existed nothing ran it on a schedule, which is how weeks 6–7 went
+   missing from D1 until a manual resync on 2026-10-26.
+2. `worker/student_reads.py` writes one AI read per student into
+   `student_reads` (`claude -p`, Opus, no tools, empty directory). Students whose
+   material hasn't changed are skipped by input hash.
+
+Aaron reads them on `/instructor/student/?id=<id>` (linked from the roster).
+Install or update the units:
+
+```sh
+cp worker/systemd/lvb-canvas-sync.* ~/.config/systemd/user/
+systemctl --user daemon-reload && systemctl --user enable --now lvb-canvas-sync.timer
+journalctl --user -u lvb-canvas-sync.service -n 20   # counts and cost only
+```
+
+Tests: `node --test 'worker/test/*.test.mjs'`,
+`uv run -q --with html2text python3 -m unittest worker/test/test_student_reads.py`,
+and the headless page check
+`PLAYWRIGHT=<path>/node_modules/playwright node tools/e2e_student_page.mjs [shots-dir]`.
