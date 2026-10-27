@@ -4,7 +4,7 @@
 // generic prompt with a paste slot. Used on /lessons/week-9/ (any
 // [data-fp-prompt] box) and on My journey (mountFinalProjectPrompt).
 import { API_BASE } from '../account/config.js';
-import { genericPrompt, GENERIC_SLOT } from './fp-prompt-template.js?v=1';
+import { genericPrompt, GENERIC_SLOT } from './fp-prompt-template.js?v=2';
 
 const ACCOUNT = new URL('../account/', import.meta.url).href;
 const JOURNEY = new URL('../account/journey/', import.meta.url).href;

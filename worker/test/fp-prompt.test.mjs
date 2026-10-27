@@ -43,10 +43,13 @@ test('a student gets their own submissions, board posts and links, and nothing o
   assert.ok(!two.includes('ONE-') && !two.includes('one.example'), "Two's prompt must not carry One's work");
 });
 
-test('the prompt is the v3 template verbatim around the context', async () => {
+test('the prompt is the v4 template verbatim around the context', async () => {
   const { prompt } = await (await get(fixtureEnv(), TOKENS.one)).json();
   assert.ok(prompt.startsWith(BEFORE) && prompt.endsWith(AFTER));
   assert.ok(!prompt.includes('{{CONTEXT}}'));
+  // v4 is open-ended: the "probably yes" line, no menu of modes, no checklist.
+  assert.ok(prompt.includes('the answer is probably yes'));
+  for (const old of ['Pressure-test it', 'Flesh it out', 'make sure we\'ve covered']) assert.ok(!prompt.includes(old), old);
 });
 
 test('an empty history still gives a complete prompt', async () => {

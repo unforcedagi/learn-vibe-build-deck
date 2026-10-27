@@ -107,7 +107,7 @@ def main():
         # JS or a session, the generic prompt inside it stays.
         rendered, fp = re.subn(r"<!-- fp-prompt -->(.*?)<!-- /fp-prompt -->",
                                r'<div class="fp-prompt" data-fp-prompt>\1</div>', rendered, flags=re.S)
-        fp_js = '\n<script type="module" src="../../assets/fp-prompt.js?v=1"></script>' if fp else ""
+        fp_js = '\n<script type="module" src="../../assets/fp-prompt.js?v=2"></script>' if fp else ""
         deck = DECKS.get(week)
         deck_link = f' <a class="btn ghost" href="../../{deck}">Open the slides</a>' if deck else ""
         display_title = re.sub(r'^Week \d+\s*[:—–]\s*', '', title)
