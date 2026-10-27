@@ -125,3 +125,14 @@ CREATE TABLE IF NOT EXISTS pod_members (
 CREATE INDEX IF NOT EXISTS idx_pod_members_student ON pod_members(student_id);
 
 CREATE INDEX IF NOT EXISTS idx_board_posts_pod ON board_posts(pod_id, created_at);
+
+-- Per-student AI reads for the instructor (0008). Additive.
+-- Written on uni by worker/student_reads.py, served only to the instructor.
+CREATE TABLE IF NOT EXISTS student_reads (
+  student_id INTEGER PRIMARY KEY REFERENCES students(id),
+  body TEXT NOT NULL,
+  input_hash TEXT NOT NULL,
+  based_on TEXT,          -- JSON: {"weeks":[1,2],"posts":3,"latest":"<iso>"}
+  model TEXT,
+  generated_at TEXT NOT NULL
+);
