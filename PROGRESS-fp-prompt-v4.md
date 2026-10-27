@@ -15,6 +15,13 @@ Worktree: ~/Code/wt/mts-la2y6n6x (branch mts/t-121-la2y6n6x). Video work: ~/Code
 - Video: old outputs copied to video-fp/{out,artifact,film,scene}/v1/. New inputs convo/{prompt-v4.txt,context-v4.md
   (Jules added to week 8), persona-v4.md, run_v4.py}; AI role opus, student role sonnet; -> convo/transcript-v4.json.
 
+- Conversation: run 1 discarded (student role asked for the sticker page, not the classmates page; kept at
+  video-fp/work/v4/transcript-v4-run1.json). Run 2 = convo/transcript-v4.json: 18 turns, $0.67, 66k tokens.
+- Film: 84.5 s, Kokoro af_heart; frames 2535 in 108 s; vt.py qa pass; bit-exact + buzz-canon-media ->
+  video-fp/out/v2/final-project-prompt.mp4 (8,283,260 B). Whisper (small.en) matches the script (Wren heard as Ren).
+- Published https://uni.taildf9ce2.ts.net:8444/final-project-prompt-f5eeac81.mp4 (uni:01M5XJGCJGSZKNFBFWFSRZKYS7).
+- Buzz #atlas event ea09302d…; read back: imeta url …/media/f5eeac81….mp4, video/mp4, 8283260 B.
+- Week 9 media replaced (poster = the "Allowed? Probably yes" frame), "Watch first (1:24)".
+
 ## Next
-- Video: lines, voice, data, scene edits, render, mix, encode, QA (ffprobe, volumedetect, decode, contact sheet, whisper).
-- Publish (uni-publish), Buzz #atlas, replace lessons/week-9/media/*, update "Watch first (m:ss)" in week-9.md, PR, merge.
+- PR, CI, merge, check the live page serves the new video.
