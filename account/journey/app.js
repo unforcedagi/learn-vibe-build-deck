@@ -5,7 +5,7 @@
 // those live in Canvas and belong to the instructor.
 import { API_BASE } from '../config.js';
 import { dueLabel, whenLabel } from '../../assets/weeks.js';
-import { mountFinalProjectPrompt } from '../../assets/fp-prompt.js?v=1';
+import { mountFinalProjectPrompt } from '../../assets/fp-prompt.js?v=2';
 
 const $ = (id) => document.getElementById(id);
 const LESSON_PAGES = new Set([1, 2, 3, 6]);

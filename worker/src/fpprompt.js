@@ -1,5 +1,5 @@
 import { FP_PROMPT_TEMPLATE } from '../../assets/fp-prompt-template.js';
-// The personalised final project prompt: the v3 template with {{CONTEXT}}
+// The personalised final project prompt: the v4 template with {{CONTEXT}}
 // filled from one student's own weekly submissions and class-board posts.
 // Pure: the Worker queries the rows (scoped to the session's student) and
 // passes them in, so tests can feed fixtures straight to it.
