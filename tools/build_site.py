@@ -20,6 +20,7 @@ PAGES = {
     "journal/index.html": ("Journal", "journal"),
     "account/index.html": ("Account", "account"),
     "instructor/index.html": ("", "instructor"),
+    "instructor/student/index.html": ("", "instructor"),
 }
 LABELS = {"schedule": "The semester / week by week", "readings": "The reading shelf / ideas to build with",
           "setup": "Start here / accounts, one tool, one proof", "journal": "Notes from the room / Fall 2026"}

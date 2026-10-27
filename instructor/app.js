@@ -432,6 +432,15 @@ function renderRoster() {
     email.className = 'email-sub';
     email.textContent = student.email;
     name.appendChild(email);
+    if (student.id != null) {
+      const open = document.createElement('a');
+      open.className = 'open-student';
+      open.href = `./student/?id=${encodeURIComponent(student.id)}`;
+      open.textContent = 'Student page →';
+      // The row toggles this week's body; the link goes to the whole student.
+      open.addEventListener('click', (e) => e.stopPropagation());
+      name.appendChild(open);
+    }
     tr.appendChild(name);
 
     tr.appendChild(statusCell(sub));
