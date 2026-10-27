@@ -1,0 +1,15 @@
+[Unit]
+Description=LVB: Canvas -> D1 resync, then per-student AI reads (counts only in the journal)
+
+[Service]
+Type=oneshot
+# Runs from the main checkout, so a merged change is picked up after git pull.
+WorkingDirectory=/home/uni/Code/learn-vibe-build-deck
+Environment=PATH=/home/uni/.local/share/mise/shims:/home/uni/.local/bin:/usr/local/bin:/usr/bin:/bin
+# User units can't order after network-online.target; wait for DNS instead
+# (a Persistent catch-up run can fire right after resume).
+ExecStartPre=/bin/sh -c 'for i in $(seq 60); do getent hosts canvas.colorado.edu >/dev/null && exit 0; sleep 2; done; exit 1'
+ExecStart=/home/uni/.local/share/mise/shims/uv run -q --no-project --with html2text python3 worker/resync.py
+ExecStart=/home/uni/.local/share/mise/shims/uv run -q --no-project --with html2text python3 worker/student_reads.py
+TimeoutStartSec=3600
+Nice=10

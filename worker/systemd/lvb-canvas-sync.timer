@@ -1,0 +1,10 @@
+[Unit]
+Description=LVB Canvas sync + student reads: daily 06:00 MT, Mondays 12:00 MT
+
+[Timer]
+OnCalendar=*-*-* 06:00:00 America/Denver
+OnCalendar=Mon *-*-* 12:00:00 America/Denver
+Persistent=true
+
+[Install]
+WantedBy=timers.target

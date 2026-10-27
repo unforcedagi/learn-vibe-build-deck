@@ -322,7 +322,7 @@ async function instructorRoster(env) {
   // consumed magic tokens (logout deletes the session row; the used token
   // is the durable evidence).
   const rows = await env.DB.prepare(
-    `SELECT s.name, s.email, s.canvas_id,
+    `SELECT s.id, s.name, s.email, s.canvas_id,
             (EXISTS (SELECT 1 FROM sessions ses WHERE ses.student_id = s.id)
              OR EXISTS (SELECT 1 FROM magic_tokens mt
                          WHERE mt.email = s.email AND mt.used_at IS NOT NULL)
@@ -338,7 +338,7 @@ async function instructorRoster(env) {
   for (const r of rows.results) {
     if (!roster.has(r.email)) {
       roster.set(r.email, {
-        name: r.name, email: r.email,
+        id: r.id, name: r.name, email: r.email,
         on_canvas: !!r.canvas_id,
         signed_in: !!r.signed_in,
         submissions: [],
@@ -379,6 +379,74 @@ async function handleInstructorStudents(request, env) {
     'SELECT id, name FROM students WHERE is_instructor = 0 ORDER BY name'
   ).all();
   return json(env, { students: rows.results });
+}
+
+// One student, for the instructor: header facts, a week strip, every
+// submission and board post, and their AI read (student_reads, written on uni
+// by worker/student_reads.py). Instructor session only; never cached.
+async function handleInstructorStudent(request, env) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+  if (!me.is_instructor) return json(env, { error: 'forbidden' }, 403);
+  const noStore = { 'Cache-Control': 'no-store' };
+  const id = new URL(request.url).searchParams.get('id') || '';
+  if (!/^\d+$/.test(id)) return json(env, { error: 'bad_request' }, 400, noStore);
+  const s = await env.DB.prepare(
+    `SELECT id, name, email, canvas_id,
+            (EXISTS (SELECT 1 FROM sessions ses WHERE ses.student_id = students.id)
+             OR EXISTS (SELECT 1 FROM magic_tokens mt
+                         WHERE mt.email = students.email AND mt.used_at IS NOT NULL)) AS signed_in
+       FROM students WHERE id = ? AND is_instructor = 0`
+  ).bind(id).first();
+  if (!s) return json(env, { error: 'not_found' }, 404, noStore);
+
+  const [subs, posts, pods, read] = await Promise.all([
+    env.DB.prepare(
+      'SELECT week, body, submitted_at, link_url FROM submissions WHERE student_id = ? ORDER BY week'
+    ).bind(s.id).all(),
+    env.DB.prepare(
+      `SELECT p.id, p.kind, p.title, p.body, p.link_url, p.created_at, pd.name AS pod_name
+         FROM board_posts p LEFT JOIN pods pd ON pd.id = p.pod_id
+        WHERE p.student_id = ? ORDER BY p.created_at`
+    ).bind(s.id).all(),
+    env.DB.prepare(
+      `SELECT p.name, ps.name AS set_name, ps.starts_on, ps.ends_on
+         FROM pod_members m JOIN pods p ON p.id = m.pod_id JOIN pod_sets ps ON ps.id = p.pod_set_id
+        WHERE m.student_id = ? ORDER BY ps.starts_on DESC, p.id`
+    ).bind(s.id).all(),
+    env.DB.prepare(
+      'SELECT body, based_on, model, generated_at FROM student_reads WHERE student_id = ?'
+    ).bind(s.id).first(),
+  ]);
+
+  const due = new Map(WEEKS.map((w) => [w.week, w.due_at]));
+  const isLate = (week, at) => !!(at && due.get(week) && Date.parse(at) > Date.parse(due.get(week)));
+  const submissions = subs.results.map((r) => ({ ...r, late: isLate(r.week, r.submitted_at) }));
+  const byWeek = new Map(submissions.map((r) => [r.week, r]));
+  const now = Date.now();
+  const open = openWeek(now);
+  const strip = WEEKS.filter((w) => w.week <= open).map((w) => {
+    const sub = byWeek.get(w.week);
+    const dueAt = Date.parse(w.due_at);
+    const status = sub ? (sub.late ? 'late' : 'on_time')
+      : (!(dueAt <= now) ? 'not_due' : 'missing'); // no due date reads as not due
+    return { week: w.week, title: w.title, status };
+  });
+  const today = todayISO();
+  const current = pods.results.find((p) => p.starts_on <= today && (!p.ends_on || p.ends_on >= today));
+  let basedOn = null;
+  try { basedOn = read?.based_on ? JSON.parse(read.based_on) : null; } catch { basedOn = null; }
+
+  return json(env, {
+    student: { id: s.id, name: s.name, email: s.email, on_canvas: !!s.canvas_id, signed_in: !!s.signed_in },
+    pod: current ? { name: current.name, set_name: current.set_name } : null,
+    weeks: WEEKS,
+    strip,
+    last_submission_at: submissions.reduce((m, r) => (r.submitted_at && r.submitted_at > m ? r.submitted_at : m), '') || null,
+    submissions,
+    posts: posts.results,
+    read: read ? { body: read.body, model: read.model, generated_at: read.generated_at, based_on: basedOn } : null,
+  }, 200, noStore);
 }
 
 async function handleMe(request, env) {
@@ -1086,6 +1154,7 @@ export default {
       const media = path.match(/^\/media\/([a-z0-9][a-z0-9._-]*)$/);
       if (media && (request.method === 'GET' || request.method === 'HEAD')) return handleMedia(request, env, media[1]);
       if (path === '/instructor/students' && request.method === 'GET') return handleInstructorStudents(request, env);
+      if (path === '/instructor/student' && request.method === 'GET') return handleInstructorStudent(request, env);
       if (path === '/auth/request' && request.method === 'POST') return handleAuthRequest(request, env);
       if (path === '/auth/callback' && request.method === 'GET') return handleAuthCallbackPage(request, env);
       if (path === '/auth/callback' && request.method === 'POST') return handleAuthCallbackConsume(request, env);

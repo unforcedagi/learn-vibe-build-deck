@@ -35,6 +35,7 @@ export function fixtureEnv() {
   sub.run(1, 4, 'ONE-W4 build notes: the tide chart now reads live data.', '2026-10-01T12:00:00Z', 'https://one.example/tides');
   sub.run(1, 6, 'ONE-W6 reflection: I learned to ask the AI for smaller steps.', '2026-10-11T12:00:00Z', null);
   sub.run(2, 2, 'TWO-W2 private words about a recipe app.', '2026-09-13T12:00:00Z', 'https://two.example/recipes');
+  sub.run(2, 3, 'TWO-W3 late: tried three tools for the recipe app.\n\n---\n\n**Uploaded: [notes.pdf](https://two.example/notes.pdf)**\n\nTWO-ATTACHMENT extracted text.', '2026-09-25T12:00:00Z', null);
   db.prepare("INSERT INTO pod_sets (id, name, starts_on, ends_on, created_at) VALUES (1, 'Learning pods', '2026-10-12', NULL, 'x')").run();
   db.prepare("INSERT INTO pods (id, pod_set_id, name) VALUES (11, 1, 'Pod Tide')").run();
   db.prepare('INSERT INTO pod_members (pod_id, student_id) VALUES (11, 1), (11, 2)').run();
@@ -44,5 +45,9 @@ export function fixtureEnv() {
   post.run(201, 2, 'build', 'TWO-POST recipe demo', 'TWO-POST body', 'https://two.example/demo', '2026-10-20T19:00:00Z', '2026-10-20T19:00:00Z', null);
   // A classmate's comment on One's post is not One's work.
   db.prepare("INSERT INTO board_comments (post_id, student_id, body, created_at, updated_at) VALUES (101, 2, 'TWO-COMMENT on one''s post', 'x', 'x')").run();
+  // AI reads (instructor-only, /instructor/student). E2E Empty has none.
+  const read = db.prepare('INSERT INTO student_reads (student_id, body, input_hash, based_on, model, generated_at) VALUES (?, ?, ?, ?, ?, ?)');
+  read.run(1, '## Where they are\nONE-READ: steady builder of a tide chart (Week 4).', 'h1', '{"weeks":[1,4,6],"posts":2,"latest":"2026-10-21T18:00:00Z"}', 'opus', '2026-10-26T12:00:00Z');
+  read.run(2, '## Where they are\nTWO-READ: one recipe app submission (Week 2).', 'h2', '{"weeks":[2],"posts":1,"latest":"2026-10-20T19:00:00Z"}', 'opus', '2026-10-26T12:00:00Z');
   return { DB: { prepare: (sql) => stmt(sql) }, SITE_ORIGIN: 'https://cu.learnvibe.build' };
 }

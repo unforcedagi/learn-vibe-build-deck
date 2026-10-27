@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Student — Instructor — Learn, Vibe, Build · ATLS 4519</title>
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body class="instructor-page">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">L</span>Learn, Vibe, Build</a>
+    <nav class="desktop-nav" aria-label="Course"><a href="../../schedule/">Schedule</a>
+<a href="../../lessons/">Lessons</a>
+<a href="../../readings/">Readings</a>
+<a href="../../syllabus.html">Syllabus</a>
+<a href="../../setup/">Setup</a>
+<a href="../../board/">Class board</a>
+<a href="../../studio/">Studio</a>
+<a href="../../journal/">Journal</a>
+<a href="../../account/journey/">My journey</a>
+<a href="../../account/">Account</a></nav>
+    <details class="mobile-nav">
+      <summary>Menu <span aria-hidden="true">&nbsp;+</span></summary>
+      <nav aria-label="Course menu"><a href="../../schedule/">Schedule</a>
+<a href="../../lessons/">Lessons</a>
+<a href="../../readings/">Readings</a>
+<a href="../../syllabus.html">Syllabus</a>
+<a href="../../setup/">Setup</a>
+<a href="../../board/">Class board</a>
+<a href="../../studio/">Studio</a>
+<a href="../../journal/">Journal</a>
+<a href="../../account/journey/">My journey</a>
+<a href="../../account/">Account</a></nav>
+    </details>
+  </div>
+</header>
+<main class="instructor-main" id="main-content">
+  <section id="loading">
+    <h1>Student</h1>
+    <p class="lead">Checking your session&hellip;</p>
+  </section>
+
+  <section id="signedout" class="hidden">
+    <h1>Student</h1>
+    <p class="lead">You're not signed in.</p>
+    <div class="card">
+      <p style="margin-top:0">Sign in from the account page — the session carries over here.</p>
+      <a class="button" href="../../account/">Go sign in</a>
+    </div>
+  </section>
+
+  <section id="denied" class="hidden">
+    <h1>Student</h1>
+    <p class="lead">This page is for Aaron.</p>
+    <div class="card">
+      <p style="margin-top:0">You're signed in, but this view belongs to the instructor.</p>
+      <a class="button" href="../../account/">Back to your account</a>
+    </div>
+  </section>
+
+  <section id="notfound" class="hidden">
+    <h1>Student</h1>
+    <p class="lead">No student with that id.</p>
+    <a class="button" href="../">Back to the roster</a>
+  </section>
+
+  <section id="main" class="hidden">
+    <p class="hint"><a href="../">&larr; Instructor</a></p>
+    <div class="page-head">
+      <h1 id="s-name"></h1>
+      <p id="s-meta" class="week-status"></p>
+      <div id="s-strip" class="student-strip" aria-label="Weeks"></div>
+      <p id="s-strip-key" class="hint"></p>
+      <p><a id="s-journey" class="btn ghost" href="../../account/journey/">View their My journey (read-only)</a></p>
+    </div>
+
+    <h3 class="section">AI read</h3>
+    <div id="s-read"></div>
+
+    <h3 class="section" id="s-subs-heading">Submissions</h3>
+    <div id="s-subs"></div>
+
+    <h3 class="section" id="s-posts-heading">Class board posts</h3>
+    <div id="s-posts"></div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/marked@14.1.4/marked.min.js"
+        integrity="sha384-lqPzN0kmFw9t2syAMwVPM4VbAyqsz/lPyYWbb2Xt6nSPM0WPNrpSWCUBgdcAdgnC"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"
+        integrity="sha384-XQqX/4yiUGu+oyr87jvWzRuqBUK/adrY0DunhL+tID9m/9dwSpV8h9Fk/Sg6ifVQ"
+        crossorigin="anonymous"></script>
+<script type="module" src="./app.js?v=1"></script>
+<footer class="site-footer">
+  <p>Learn, Vibe, Build<br>ATLS 4519 · CU Boulder · Fall 2026</p>
+  <p><a href="../../setup/">Getting started</a> · <a href="../../syllabus.html">Syllabus</a><br>
+  <a href="../../llms.txt">Course map for AI</a> · <a href="https://github.com/unforcedagi/learn-vibe-build-deck">Source</a></p>
+</footer>
+</body>
+</html>
