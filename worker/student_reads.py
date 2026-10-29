@@ -36,7 +36,7 @@ from resync import CLOUDFLARE_ACCOUNT_ID, WORKER_DIR, q, read_env_secret  # noqa
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL = "opus"
-PROMPT_VERSION = "2026-10-26.1"
+PROMPT_VERSION = "2026-10-29.1"
 MAX_BODY_CHARS = 12000   # per submission; attachment text can be long
 CLAUDE_TIMEOUT = 600
 
@@ -67,6 +67,7 @@ One open question Aaron could ask in person.
 Rules:
 - Ground every claim in their material and name the week it comes from, like "(Week 4)" or "(board post, Oct 20)". If you can't point to it, leave it out.
 - No diagnosis of any kind (mental health, learning differences, motivation as a trait). No guessing about their personal life, health, family or circumstances, even if they mention them; you may say a week was missing or short, not why.
+- Never guess a student's gender from their name. Refer to the student by first name or "they/them", unless their own writing states their pronouns. Classmates' pronouns for them don't count.
 - Plain, warm, direct sentences. Under 350 words. No preamble, no closing remarks, no title above the first heading."""
 
 
