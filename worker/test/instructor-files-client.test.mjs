@@ -20,8 +20,12 @@ test('keeps the writing and the Canvas comment, drops the extracted copies', () 
   assert.equal(bodyWithoutUploads(synced), 'My reflection on the week.\n\n**Comment on Canvas:**\n\nSee page two.');
 });
 
+test('a file name with brackets still splits', () => {
+  assert.equal(bodyWithoutUploads('Mine.\n\n**Uploaded: [Essay [final].docx](https://canvas.colorado.edu/files/3/download)**\n\nextracted'), 'Mine.');
+});
+
 test('an upload-only body leaves nothing; a body without uploads is untouched', () => {
-  assert.equal(bodyWithoutUploads('**Uploaded: [a.pdf](u)**\n\ntext'), '');
+  assert.equal(bodyWithoutUploads('**Uploaded: [a.pdf](https://c.example/f)**\n\ntext'), '');
   assert.equal(bodyWithoutUploads('Just writing. **Uploaded: [x](y)** mentioned inline'), 'Just writing. **Uploaded: [x](y)** mentioned inline');
   assert.equal(bodyWithoutUploads(null), '');
 });

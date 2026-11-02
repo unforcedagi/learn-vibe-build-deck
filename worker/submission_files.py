@@ -216,6 +216,12 @@ def process(path, att, workdir):
     return {"row": row, "uploads": uploads}
 
 
+# Statuses that won't change on a retry. Anything else ("download failed",
+# "could not convert", "could not read: ...") is tried again next run.
+FINAL_STATUS_SQL = ("status = 'ok' OR status = 'no preview for this file type' "
+                    "OR status = 'video too large to copy'")
+
+
 def has_content(row):
     return bool((row.get("text") or "").strip() or row.get("pages") or row.get("rendition"))
 

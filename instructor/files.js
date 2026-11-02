@@ -27,10 +27,6 @@ const LONG_TEXT = 1200; // characters before the text box clamps with "Show all"
 
 export const fileUrl = (f, part) => `${API_BASE}/instructor/file/${encodeURIComponent(f.id)}/${part}`;
 
-export function hasContent(f) {
-  return !!(f.text_chars || (f.text && f.text.trim()) || f.pages || f.rendition);
-}
-
 function sizeLabel(bytes) {
   if (!bytes) return '';
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
@@ -170,7 +166,7 @@ export function sandboxedHtml(html) {
 function htmlView(f) {
   const box = el('div', 'sub-file-html');
   const note = el('p', 'hint',
-    `Runs the uploaded page in a locked-down frame (its scripts can't reach this site or the network)${f.size ? ` · ${sizeLabel(f.size)}` : ''}.`);
+    `Runs the uploaded page in a locked-down frame: it can't see this site or your sign-in, or send data by fetch or form. Images and scripts it links to still load from the web${f.size ? ` · ${sizeLabel(f.size)}` : ''}.`);
   const load = el('button', 'btn', 'Show the page');
   load.type = 'button';
   load.addEventListener('click', async () => {
@@ -200,7 +196,8 @@ function htmlView(f) {
 // ("\n\n---\n\n" between files), then "**Comment on Canvas:**\n\n...". When
 // the files have their own cards, the instructor sees the writing and the
 // comment from the body and the files from the cards, not twice.
-const UPLOAD_HEAD = /(^|\n\n)\*\*Uploaded(?: build)?: \[[^\]]*\]\([^)]*\)\*\*/;
+// A file name can hold "]" ("Essay [final].docx"), so match up to "](http".
+const UPLOAD_HEAD = /(^|\n\n)\*\*Uploaded(?: build)?: \[[^\n]*?\]\(https?:[^)\s]*\)\*\*/;
 const COMMENT_HEAD = '\n\n**Comment on Canvas:**\n\n';
 
 export function bodyWithoutUploads(body) {

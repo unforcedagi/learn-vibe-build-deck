@@ -36,13 +36,6 @@ EMAILS = f"('{STUDENT}', '{INSTRUCTOR}')"
 q = sf._q
 
 
-def env():
-    e = dict(os.environ)
-    e["CLOUDFLARE_API_TOKEN"] = resync.read_env_secret("CLOUDFLARE_API_TOKEN")
-    e["CLOUDFLARE_ACCOUNT_ID"] = resync.CLOUDFLARE_ACCOUNT_ID
-    return e
-
-
 def seed(work):
     os.makedirs(work, mode=0o700, exist_ok=True)
     instructor_files_fixture.main(work)
@@ -71,7 +64,7 @@ def seed(work):
             f"{int(r['size'])}, {q(r['kind'])}, {q(r['text'])}, {int(r['pages'])}, {q(r['rendition'])}, "
             f"{q(r['rendition_type'])}, {q(r['canvas_url'])}, {q(r['status'])}, {sf.RENDER_VERSION}, '{iso(now)}' "
             f"FROM students WHERE email = '{STUDENT}';")
-    sf.r2_bulk_put([(o["key"], o["file"]) for o in manifest["objects"]], env(), resync.WORKER_DIR)
+    sf.r2_bulk_put([(o["key"], o["file"]) for o in manifest["objects"]], resync.wrangler_env(), resync.WORKER_DIR)
     resync.run_wrangler_d1("\n".join(stmts))
     student_id = resync.d1_select(f"SELECT id FROM students WHERE email = '{STUDENT}'")[0]["id"]
     path = os.path.join(work, "tokens.json")
@@ -96,7 +89,7 @@ def clean(work):
     ]))
     for o in manifest["objects"]:
         subprocess.run(["npx", "-y", "wrangler", "r2", "object", "delete", f"{sf.R2_BUCKET}/{o['key']}", "--remote"],
-                       cwd=resync.WORKER_DIR, env=env(), capture_output=True, text=True, timeout=120, check=True)
+                       cwd=resync.WORKER_DIR, env=resync.wrangler_env(), capture_output=True, text=True, timeout=120, check=True)
     left = resync.d1_select(
         f"SELECT (SELECT COUNT(*) FROM students WHERE email IN {EMAILS}) students, "
         "(SELECT COUNT(*) FROM submission_files WHERE canvas_file_id LIKE 'e2e-fixture-%') files")[0]

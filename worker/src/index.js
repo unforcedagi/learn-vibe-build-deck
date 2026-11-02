@@ -377,12 +377,15 @@ function fileRow(r) {
   return out;
 }
 
-// Map "<student_id>:<week>" -> files in upload order. One student, or all.
-async function filesByStudentWeek(env, studentId, withText) {
+// Map "<student_id>:<week>" -> files in upload order. All students, one
+// student, or one student's week.
+async function filesByStudentWeek(env, studentId, withText, week = null) {
   const cols = withText ? `${FILE_COLS}, text` : FILE_COLS;
   const q = studentId == null
     ? env.DB.prepare(`SELECT ${cols} FROM submission_files ORDER BY student_id, week, position`)
-    : env.DB.prepare(`SELECT ${cols} FROM submission_files WHERE student_id = ? ORDER BY week, position`).bind(studentId);
+    : week == null
+      ? env.DB.prepare(`SELECT ${cols} FROM submission_files WHERE student_id = ? ORDER BY week, position`).bind(studentId)
+      : env.DB.prepare(`SELECT ${cols} FROM submission_files WHERE student_id = ? AND week = ? ORDER BY position`).bind(studentId, week);
   const out = new Map();
   for (const r of (await q.all()).results) {
     const k = `${r.student_id}:${r.week}`;
@@ -402,7 +405,7 @@ async function handleInstructorFiles(request, env) {
   const student = q.get('student') || '';
   const week = q.get('week') || '';
   if (!/^\d+$/.test(student) || !/^\d+$/.test(week)) return json(env, { error: 'bad_request' }, 400, noStore);
-  const files = await filesByStudentWeek(env, Number(student), true);
+  const files = await filesByStudentWeek(env, Number(student), true, Number(week));
   return json(env, { files: files.get(`${student}:${week}`) || [] }, 200, noStore);
 }
 
