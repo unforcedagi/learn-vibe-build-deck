@@ -334,6 +334,7 @@ async function instructorRoster(env) {
       WHERE s.is_instructor = 0
       ORDER BY s.name, sub.week`
   ).all();
+  const files = await filesByStudentWeek(env, null, false);
   const roster = new Map();
   for (const r of rows.results) {
     if (!roster.has(r.email)) {
@@ -349,10 +350,99 @@ async function instructorRoster(env) {
         id: r.sub_id, week: r.week, body: r.body,
         submitted_at: r.submitted_at, link_url: r.link_url,
         share_build: !!r.share_build, share_writing: !!r.share_writing,
+        files: files.get(`${r.id}:${r.week}`) || [],
       });
     }
   }
   return [...roster.values()];
+}
+
+// ---------------------------------------------------------------------------
+// Uploaded files, readable (submission_files, 0009). Written on uni by
+// worker/resync.py --files: extracted text in D1, page images and the file
+// itself in the private R2 bucket (FILES) under files/<canvas_file_id>/.
+// Instructor only. The student-facing endpoints never read this table.
+// ---------------------------------------------------------------------------
+
+const FILE_COLS = `id, student_id, week, position, name, kind, content_type, size, pages,
+  rendition, rendition_type, canvas_url, status, LENGTH(text) AS text_chars`;
+
+function fileRow(r) {
+  const out = {
+    id: r.id, week: r.week, name: r.name, kind: r.kind, content_type: r.content_type,
+    size: r.size, pages: r.pages, rendition: r.rendition, rendition_type: r.rendition_type,
+    canvas_url: r.canvas_url, status: r.status, text_chars: r.text_chars || 0,
+  };
+  if (r.text !== undefined) out.text = r.text || '';
+  return out;
+}
+
+// Map "<student_id>:<week>" -> files in upload order. One student, or all.
+async function filesByStudentWeek(env, studentId, withText) {
+  const cols = withText ? `${FILE_COLS}, text` : FILE_COLS;
+  const q = studentId == null
+    ? env.DB.prepare(`SELECT ${cols} FROM submission_files ORDER BY student_id, week, position`)
+    : env.DB.prepare(`SELECT ${cols} FROM submission_files WHERE student_id = ? ORDER BY week, position`).bind(studentId);
+  const out = new Map();
+  for (const r of (await q.all()).results) {
+    const k = `${r.student_id}:${r.week}`;
+    if (!out.has(k)) out.set(k, []);
+    out.get(k).push(fileRow(r));
+  }
+  return out;
+}
+
+// One student's files for one week, with their text (the roster's detail row).
+async function handleInstructorFiles(request, env) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+  if (!me.is_instructor) return json(env, { error: 'forbidden' }, 403);
+  const noStore = { 'Cache-Control': 'no-store' };
+  const q = new URL(request.url).searchParams;
+  const student = q.get('student') || '';
+  const week = q.get('week') || '';
+  if (!/^\d+$/.test(student) || !/^\d+$/.test(week)) return json(env, { error: 'bad_request' }, 400, noStore);
+  const files = await filesByStudentWeek(env, Number(student), true);
+  return json(env, { files: files.get(`${student}:${week}`) || [] }, 200, noStore);
+}
+
+// The renderings themselves: GET /instructor/file/<id>/p<N> (a page image) or
+// /instructor/file/<id>/rendition (the HTML page, image or video as uploaded).
+// Student HTML is sent as text/plain and every response carries a sandbox CSP,
+// so opening one of these URLs directly never runs a student's script in the
+// api origin; the instructor page shows HTML only in a sandboxed iframe.
+const RENDITION_TYPES = new Set(['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml',
+  'video/mp4', 'video/quicktime', 'video/webm']);
+
+async function handleInstructorFile(request, env, id, part) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+  if (!me.is_instructor) return json(env, { error: 'forbidden' }, 403);
+  const f = await env.DB.prepare(
+    'SELECT canvas_file_id, pages, rendition, rendition_type FROM submission_files WHERE id = ?'
+  ).bind(id).first();
+  if (!f) return json(env, { error: 'not_found' }, 404);
+  let key;
+  let type;
+  const page = part.match(/^p(\d+)$/);
+  if (page && Number(page[1]) >= 1 && Number(page[1]) <= f.pages) {
+    key = `files/${f.canvas_file_id}/p${Number(page[1])}.jpg`;
+    type = 'image/jpeg';
+  } else if (part === 'rendition' && f.rendition) {
+    key = `files/${f.canvas_file_id}/rendition`;
+    type = f.rendition === 'html' ? 'text/plain; charset=utf-8'
+      : RENDITION_TYPES.has(f.rendition_type) ? f.rendition_type : 'application/octet-stream';
+  } else {
+    return json(env, { error: 'not_found' }, 404);
+  }
+  if (!env.FILES) return json(env, { error: 'not_configured' }, 503);
+  return r2Response(request, env.FILES, key, {
+    ...corsHeaders(env),
+    'Content-Type': type,
+    'Content-Security-Policy': "default-src 'none'; sandbox",
+    'X-Content-Type-Options': 'nosniff',
+    'Cache-Control': 'no-store',
+  });
 }
 
 // Instructor "view as student": read-only. `?as=<student_id>` is honored
@@ -421,7 +511,10 @@ async function handleInstructorStudent(request, env) {
 
   const due = new Map(WEEKS.map((w) => [w.week, w.due_at]));
   const isLate = (week, at) => !!(at && due.get(week) && Date.parse(at) > Date.parse(due.get(week)));
-  const submissions = subs.results.map((r) => ({ ...r, late: isLate(r.week, r.submitted_at) }));
+  const files = await filesByStudentWeek(env, s.id, true);
+  const submissions = subs.results.map((r) => ({
+    ...r, late: isLate(r.week, r.submitted_at), files: files.get(`${s.id}:${r.week}`) || [],
+  }));
   const byWeek = new Map(submissions.map((r) => [r.week, r]));
   const now = Date.now();
   const open = openWeek(now);
@@ -1102,6 +1195,12 @@ async function handleMedia(request, env, key) {
   const me = await currentStudent(request, env);
   if (!me) return new Response('Sign in at https://cu.learnvibe.build/account/ to watch this.', { status: 401, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
   if (!env.MEDIA) return new Response('not configured', { status: 503 });
+  return r2Response(request, env.MEDIA, key, { 'Cache-Control': 'private, max-age=3600' }, true);
+}
+
+// An R2 object as a response, honoring a single Range (video seeks on phones).
+// `useStoredType` takes Content-Type from the object, else `headers` sets it.
+async function r2Response(request, bucket, key, headers, useStoredType = false) {
   const range = request.headers.get('Range');
   let r2range;
   const m = range && range.match(/^bytes=(\d*)-(\d*)$/);
@@ -1109,18 +1208,19 @@ async function handleMedia(request, env, key) {
     if (m[1] === '') r2range = { suffix: Number(m[2]) };
     else r2range = m[2] === '' ? { offset: Number(m[1]) } : { offset: Number(m[1]), length: Number(m[2]) - Number(m[1]) + 1 };
   }
-  const obj = await env.MEDIA.get(key, r2range ? { range: r2range } : undefined);
-  if (!obj) return new Response('not found', { status: 404 });
-  const headers = new Headers({ 'Content-Type': obj.httpMetadata?.contentType || 'application/octet-stream', 'Accept-Ranges': 'bytes', 'Cache-Control': 'private, max-age=3600' });
+  const obj = await bucket.get(key, r2range ? { range: r2range } : undefined);
+  if (!obj) return new Response('not found', { status: 404, headers: { 'Cache-Control': 'no-store' } });
+  const out = new Headers({ ...headers, 'Accept-Ranges': 'bytes' });
+  if (useStoredType) out.set('Content-Type', obj.httpMetadata?.contentType || 'application/octet-stream');
   if (r2range && obj.range) {
     const start = obj.range.offset ?? (obj.size - obj.range.suffix);
     const len = obj.range.length ?? (obj.size - start);
-    headers.set('Content-Range', `bytes ${start}-${start + len - 1}/${obj.size}`);
-    headers.set('Content-Length', String(len));
-    return new Response(obj.body, { status: 206, headers });
+    out.set('Content-Range', `bytes ${start}-${start + len - 1}/${obj.size}`);
+    out.set('Content-Length', String(len));
+    return new Response(obj.body, { status: 206, headers: out });
   }
-  headers.set('Content-Length', String(obj.size));
-  return new Response(obj.body, { status: 200, headers });
+  out.set('Content-Length', String(obj.size));
+  return new Response(obj.body, { status: 200, headers: out });
 }
 
 // ---------------------------------------------------------------------------
@@ -1155,6 +1255,9 @@ export default {
       if (media && (request.method === 'GET' || request.method === 'HEAD')) return handleMedia(request, env, media[1]);
       if (path === '/instructor/students' && request.method === 'GET') return handleInstructorStudents(request, env);
       if (path === '/instructor/student' && request.method === 'GET') return handleInstructorStudent(request, env);
+      if (path === '/instructor/files' && request.method === 'GET') return handleInstructorFiles(request, env);
+      const file = path.match(/^\/instructor\/file\/(\d+)\/(p\d+|rendition)$/);
+      if (file && (request.method === 'GET' || request.method === 'HEAD')) return handleInstructorFile(request, env, file[1], file[2]);
       if (path === '/auth/request' && request.method === 'POST') return handleAuthRequest(request, env);
       if (path === '/auth/callback' && request.method === 'GET') return handleAuthCallbackPage(request, env);
       if (path === '/auth/callback' && request.method === 'POST') return handleAuthCallbackConsume(request, env);

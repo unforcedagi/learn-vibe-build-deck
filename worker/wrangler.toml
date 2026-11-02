@@ -29,3 +29,10 @@ name = "EMAIL"
 [[r2_buckets]]
 binding = "MEDIA"
 bucket_name = "lvb-class-media"
+
+# What students uploaded to Canvas, rendered for the instructor (page images,
+# HTML, images, video), written by worker/resync.py --files. Private: served
+# only by /instructor/file/<id>/<part> to an instructor session.
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "lvb-instructor-files"

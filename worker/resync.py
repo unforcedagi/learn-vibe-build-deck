@@ -15,6 +15,8 @@ Usage:
     python3 worker/resync.py                # every published "Week N" assignment
     python3 worker/resync.py --week 4       # only that week (roster still refreshes)
     python3 worker/resync.py --dry-run      # read Canvas, print counts, write nothing
+    python3 worker/resync.py --files        # uploads -> readable content for the
+                                            # instructor (worker/submission_files.py)
 
 Weeks are discovered from Canvas by assignment name ("Week 4 Studio Cycle",
 "Week 1 — Intentions"), so no per-week edit is needed. Unpublished weeks are
@@ -299,6 +301,77 @@ def run_wrangler_d1(sql):
     return json.loads(res.stdout[start:res.stdout.rfind("]") + 1])
 
 
+def d1_select(sql):
+    """Rows from one read-only query (--command returns rows; --file doesn't)."""
+    env = dict(os.environ)
+    env["CLOUDFLARE_API_TOKEN"] = read_env_secret("CLOUDFLARE_API_TOKEN")
+    env["CLOUDFLARE_ACCOUNT_ID"] = CLOUDFLARE_ACCOUNT_ID
+    res = subprocess.run(
+        ["npx", "-y", "wrangler", "d1", "execute", "lvb-accounts", "--remote", "--json",
+         "--command", sql],
+        cwd=WORKER_DIR, env=env, capture_output=True, text=True, timeout=300,
+    )
+    if res.returncode != 0:
+        sys.exit(f"wrangler d1 select failed:\n{res.stderr[-1000:]}")
+    out = res.stdout
+    return json.loads(out[out.find("["):out.rfind("]") + 1])[0]["results"]
+
+
+def sync_files(canvas_token, uploads_by_week, dry_run=False):
+    """Every uploaded file -> extracted text + renderings (R2) + a
+    submission_files row. Files already processed at the current
+    RENDER_VERSION are skipped; rows for files a student replaced are pruned.
+    uploads_by_week: {week: [(canvas_user_id, [attachment, ...]), ...]}"""
+    import datetime
+    import submission_files as sf
+
+    total = sum(len(atts) for subs in uploads_by_week.values() for _, atts in subs)
+    if dry_run:
+        print(f"files: {total} uploads across weeks {sorted(uploads_by_week)} (dry run, nothing read)")
+        return
+    done = {r["canvas_file_id"] for r in d1_select(
+        f"SELECT canvas_file_id FROM submission_files WHERE render_version = {sf.RENDER_VERSION}")}
+    now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    stmts, uploads, counts = [], [], {"new": 0, "skipped": 0, "with_content": 0, "link_only": 0}
+    with tempfile.TemporaryDirectory(dir=os.path.expanduser("~/.scratch")) as work:
+        for week, subs in uploads_by_week.items():
+            for user_id, atts in subs:
+                for pos, att in enumerate(atts):
+                    if str(att["id"]) in done:
+                        counts["skipped"] += 1
+                        continue
+                    try:
+                        path = fetch_attachment(canvas_token, att)
+                    except Exception:  # one unreachable file doesn't stop the rest
+                        path = None
+                    out = sf.process(path, att, work)
+                    counts["new"] += 1
+                    counts["with_content" if sf.has_content(out["row"]) else "link_only"] += 1
+                    uploads += out["uploads"]
+                    stmts.append(sf.upsert_sql(out["row"], user_id, week, pos, now))
+                stmts.append(sf.prune_sql(user_id, week, [a["id"] for a in atts]))
+        print(f"files: {total} uploads, {counts['skipped']} already done, {counts['new']} processed "
+              f"({counts['with_content']} with content, {counts['link_only']} link only), "
+              f"{len(uploads)} objects to upload")
+        env = dict(os.environ)
+        env["CLOUDFLARE_API_TOKEN"] = read_env_secret("CLOUDFLARE_API_TOKEN")
+        env["CLOUDFLARE_ACCOUNT_ID"] = CLOUDFLARE_ACCOUNT_ID
+        # Objects first, rows second: a row never points at a missing page.
+        sf.r2_bulk_put(uploads, env, WORKER_DIR)
+    # D1 caps a statement at 100 KB; send the rows in ~1 MB files.
+    batch, size, written = [], 0, 0
+    for st in stmts + [None]:
+        if st is None or (batch and size + len(st) > 1_000_000):
+            if batch:
+                results = run_wrangler_d1("\n".join(batch))
+                written += sum(r.get("meta", {}).get("changes", 0) for r in results)
+            batch, size = [], 0
+        if st is not None:
+            batch.append(st)
+            size += len(st)
+    print(f"files: d1 {len(stmts)} statements, {written} rows written")
+
+
 def discover_week_assignments(token, include_unpublished=False):
     """Map week number -> assignment id from Canvas assignment names."""
     found = {}
@@ -326,6 +399,8 @@ def main(argv=None):
                     help="only sync this week (repeatable)")
     ap.add_argument("--dry-run", action="store_true",
                     help="read Canvas and print counts; no D1 writes")
+    ap.add_argument("--files", action="store_true",
+                    help="only the uploaded files: extract, render, upload for the instructor")
     args = ap.parse_args(argv)
 
     canvas_token = read_secret("~/.canvastoken")
@@ -346,6 +421,7 @@ def main(argv=None):
 
     conv = make_converter()
     submissions_by_week = {}
+    uploads_by_week = {}
     for week, assignment_id in weeks.items():
         rows = canvas_get_paginated(
             canvas_token,
@@ -364,6 +440,9 @@ def main(argv=None):
             # A URL submission's attachment is Canvas's own screenshot of the
             # page, not something the student uploaded.
             atts = [] if link else (r.get("attachments") or [])
+            uploads_by_week.setdefault(week, []).append((r["user_id"], atts))
+            if args.files:
+                continue
             if not link and atts:
                 link = atts[0].get("url")
             if not body and not link:
@@ -382,10 +461,16 @@ def main(argv=None):
                 "submitted_at": r.get("submitted_at"),
                 "link_url": link,
             })
+        if args.files:
+            continue
         leftover = sum(1 for s in subs if re.search(r"</?(p|div|span|br)\b", s["body_md"] or ""))
         print(f"week {week}: {len(subs)} submissions with bodies "
               f"({leftover} with residual html tags)")
         submissions_by_week[week] = subs
+
+    if args.files:
+        sync_files(canvas_token, uploads_by_week, dry_run=args.dry_run)
+        return
 
     sql = build_sql(roster, submissions_by_week)
     if args.dry_run:
