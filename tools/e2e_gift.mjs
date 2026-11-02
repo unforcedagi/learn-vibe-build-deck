@@ -179,6 +179,8 @@ try {
   await page.locator('#main:not(.hidden)').waitFor();
   await page.locator('#s-gift video').waitFor();
   check('the student page shows the video', (await page.locator('#s-gift video').getAttribute('src')) === giftUrl);
+  check('right under the page header, above the AI read', await page.evaluate(() =>
+    document.querySelector('#main .page-head').nextElementSibling === document.getElementById('s-gift')));
   await page.waitForFunction(() => document.querySelector('#s-gift video').readyState >= 1, null, { timeout: 30000 });
   await shot(page, '04-instructor-student-gift.png');
   await page.context().close();
