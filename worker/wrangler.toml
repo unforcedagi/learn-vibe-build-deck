@@ -36,3 +36,10 @@ bucket_name = "lvb-class-media"
 [[r2_buckets]]
 binding = "FILES"
 bucket_name = "lvb-instructor-files"
+
+# One-minute gift videos, one per student, at gift/<student_id>.mp4, written by
+# tools/publish_gift_videos.py. Private: served only by /gift/<id> to that
+# student's own session or an instructor.
+[[r2_buckets]]
+binding = "GIFTS"
+bucket_name = "lvb-gift-videos"
