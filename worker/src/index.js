@@ -1209,25 +1209,35 @@ async function handleMedia(request, env, key) {
 // ownership check comes before the bucket so a classmate can't learn whether one exists.
 const giftKey = (studentId) => `gift/${Number(studentId)}.mp4`;
 
+// Optional extras: an R2 hiccup leaves the field out, never breaks /me or the roster.
 async function giftFor(env, studentId) {
   if (!env.GIFTS) return null;
-  const obj = await env.GIFTS.head(giftKey(studentId));
-  return obj ? { url: `/gift/${Number(studentId)}` } : null;
+  try {
+    const obj = await env.GIFTS.head(giftKey(studentId));
+    return obj ? { url: `/gift/${Number(studentId)}` } : null;
+  } catch (err) {
+    console.error('gift head failed:', err.message);
+    return null;
+  }
 }
 
 // Student ids that have a gift video (one listing, for the instructor roster).
 async function giftIds(env) {
   const ids = new Set();
   if (!env.GIFTS) return ids;
-  let cursor;
-  do {
-    const page = await env.GIFTS.list({ prefix: 'gift/', cursor });
-    for (const o of page.objects) {
-      const m = o.key.match(/^gift\/(\d+)\.mp4$/);
-      if (m) ids.add(Number(m[1]));
-    }
-    cursor = page.truncated ? page.cursor : undefined;
-  } while (cursor);
+  try {
+    let cursor;
+    do {
+      const page = await env.GIFTS.list({ prefix: 'gift/', cursor });
+      for (const o of page.objects) {
+        const m = o.key.match(/^gift\/(\d+)\.mp4$/);
+        if (m) ids.add(Number(m[1]));
+      }
+      cursor = page.truncated ? page.cursor : undefined;
+    } while (cursor);
+  } catch (err) {
+    console.error('gift list failed:', err.message);
+  }
   return ids;
 }
 

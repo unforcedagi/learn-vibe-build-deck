@@ -134,3 +134,15 @@ test('without the bucket bound nothing breaks', async () => {
   assert.equal((await (await get(env, 'tok-ana', '/me')).json()).gift, null);
   assert.equal((await get(env, 'tok-ana', '/gift/1')).status, 503);
 });
+
+test('an R2 error leaves the gift out instead of breaking /me or the roster', async () => {
+  const env = setup();
+  env.GIFTS.head = async () => { throw new Error('r2 down'); };
+  env.GIFTS.list = async () => { throw new Error('r2 down'); };
+  const me = await get(env, 'tok-ana', '/me');
+  assert.equal(me.status, 200);
+  assert.equal((await me.json()).gift, null);
+  const data = await get(env, 'tok-teach', '/instructor/data');
+  assert.equal(data.status, 200);
+  assert.ok((await data.json()).roster.every((s) => s.gift === null));
+});

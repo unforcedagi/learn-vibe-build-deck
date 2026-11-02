@@ -46,31 +46,31 @@ def seed(work, video):
         pg.d1("INSERT INTO sessions (token_hash, student_id, expires_at) VALUES (?, ?, ?)", (h(tokens[who]), ids[email], expires))
     key = pg.key_for(ids[OWNER])
     if pg.stored_objects(key):
-        sys.exit(f"{key} already holds a video; not overwriting it")
+        sys.exit(f"{key} already holds a video; not overwriting it (clean will not touch it either)")
+    path = os.path.join(work, "tokens.json")
+    with open(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "w") as f:
+        json.dump({"tokens": tokens, "owner_id": ids[OWNER], "other_id": ids[OTHER], "key": key}, f)
     got = pg.put_object(key, video)
     d = pg.digests(video)
     if got["size"] != d["size"] or got["etag"] != d["md5"]:
         sys.exit("test video stored with different bytes")
-    path = os.path.join(work, "tokens.json")
-    with open(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "w") as f:
-        json.dump({"tokens": tokens, "owner_id": ids[OWNER], "other_id": ids[OTHER], "key": key}, f)
     print(f"seeded: owner id {ids[OWNER]}, classmate id {ids[OTHER]}, instructor id {ids[PROF]}; "
           f"test video at {key} ({d['size']} bytes); tokens in {path}")
 
 
 def clean(work):
-    ids = ids_by_email()
-    for sid in ids.values():
-        if pg.stored_objects(pg.key_for(sid)):
-            pg.delete_object(pg.key_for(sid))
+    # Only the one object seed wrote (its key is in tokens.json); never a key guessed from an id.
+    tok = os.path.join(work, "tokens.json")
+    key = json.load(open(tok))["key"] if os.path.exists(tok) else None
+    if key and pg.stored_objects(key):
+        pg.delete_object(key)
     for sql in ("DELETE FROM sessions WHERE student_id IN (SELECT id FROM students WHERE email IN ({m}))",
                 "DELETE FROM magic_tokens WHERE email IN ({m})",
                 "DELETE FROM students WHERE email IN ({m})"):
         pg.d1(sql.format(m=MARKS), EMAILS)
     left_rows = pg.d1(f"SELECT COUNT(*) n FROM students WHERE email IN ({MARKS})", EMAILS)[0]["n"]
-    left_objs = sum(len(pg.stored_objects(pg.key_for(s))) for s in ids.values())
-    print(f"cleaned: e2e students left {left_rows}, e2e gift objects left {left_objs}")
-    tok = os.path.join(work, "tokens.json")
+    left_objs = len(pg.stored_objects(key)) if key else "unknown (no tokens.json)"
+    print(f"cleaned: e2e students left {left_rows}, test video objects left {left_objs}")
     if os.path.exists(tok):
         os.remove(tok)
 

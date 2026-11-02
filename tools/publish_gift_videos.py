@@ -22,6 +22,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.parse
@@ -128,7 +129,8 @@ def ready_rows(status):
     out = {}
     for k, row in status["rows"].items():
         st = (row.get("status") or "").lower()
-        if "published" in st and "fail" not in st and (row.get("url") or "").endswith(".mp4"):
+        if "published" in st and not re.search(r"unpublished|not published|fail", st) \
+                and (row.get("url") or "").endswith(".mp4"):
             out[int(k)] = row
     return out
 
@@ -140,6 +142,8 @@ def local_file(sid, url):
     if not name.startswith(stem):
         return None, "file name is for another id"
     sha8 = name[len(stem):-len(".mp4")]
+    if not re.fullmatch(r"[0-9a-f]{8,64}", sha8):
+        return None, "file name has no sha256 prefix"
     path = SERVE_DIR / name
     if not path.is_file():
         return None, "published file missing"

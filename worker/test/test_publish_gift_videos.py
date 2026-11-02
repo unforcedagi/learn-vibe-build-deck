@@ -49,11 +49,14 @@ class Ready(unittest.TestCase):
     def test_only_published_mp4_rows(self):
         rows = {"rows": {
             "1": {**ROW, "status": "published 56 s; QA pass"},
+            "7": {**ROW, "status": "demo, 57.1 s; republished 2:45 PM"},
             "2": {**ROW, "status": "rendering"},
             "3": {**ROW, "status": "published? no: render failed"},
             "4": {**ROW, "status": "published", "url": ""},
+            "5": {**ROW, "status": "unpublished: pulled"},
+            "6": {**ROW, "status": "not published yet"},
         }}
-        self.assertEqual(sorted(pg.ready_rows(rows)), [1])
+        self.assertEqual(sorted(pg.ready_rows(rows)), [1, 7])
 
     def test_local_file_must_be_this_id_and_these_bytes(self):
         with tempfile.TemporaryDirectory() as d:
@@ -69,6 +72,8 @@ class Ready(unittest.TestCase):
                 self.assertIsNotNone(pg.local_file(8, f"https://x.invalid/gift2-s7-{sha8}.mp4")[1])
                 self.assertIsNotNone(pg.local_file(7, "https://x.invalid/gift2-s7-00000000.mp4")[1])
                 self.assertIsNotNone(pg.local_file(7, "https://x.invalid/gift2-s7-11111111.mp4")[1])
+                (Path(d) / "gift2-s7-.mp4").write_bytes(data)
+                self.assertIsNotNone(pg.local_file(7, "https://x.invalid/gift2-s7-.mp4")[1])
             finally:
                 pg.SERVE_DIR = old
 
