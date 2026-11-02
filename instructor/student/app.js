@@ -95,7 +95,7 @@ function renderGift(gift) {
   video.src = API_BASE + gift.url;
   video.style.cssText = 'display:block;width:100%;max-height:70vh;border-radius:4px;background:#000';
   box.appendChild(video);
-  $('s-read').before(box);
+  document.querySelector('#main .page-head').after(box);
 }
 
 function renderRead(read) {
