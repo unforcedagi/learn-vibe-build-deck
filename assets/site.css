@@ -2239,3 +2239,121 @@ a.kit-card strong::after { content: " →"; color: var(--accent); }
   margin-top: 4px;
   font-size: 11px;
 }
+/* Instructor: uploaded files, readable (instructor/files.js) */
+.sub-files {
+  display: grid;
+  gap: 14px;
+  margin-top: 0.9rem;
+}
+.sub-file {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--card);
+  padding: 12px 14px;
+  min-width: 0;
+}
+.sub-file-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-bottom: 8px;
+}
+.sub-file-name {
+  overflow-wrap: anywhere;
+}
+.sub-file-size {
+  color: var(--muted);
+  font-size: 13px;
+}
+.sub-file-orig {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+.sub-file-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.sub-file-tab {
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  min-height: 38px;
+  padding: 4px 14px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.sub-file-tab:hover {
+  background: var(--soft);
+  color: var(--ink);
+}
+.sub-file-tab[aria-selected='true'] {
+  color: var(--ink);
+  border-color: var(--ink);
+  background: var(--soft);
+}
+.sub-file-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.sub-file-textwrap.clamped .sub-file-body {
+  max-height: 26rem;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 80%, transparent);
+  mask-image: linear-gradient(to bottom, #000 80%, transparent);
+}
+.sub-file-more {
+  margin-top: 8px;
+  font-size: 13px;
+}
+.sub-file-pages {
+  display: grid;
+  gap: 12px;
+}
+.sub-file-page {
+  margin: 0;
+}
+.sub-file-page img,
+.sub-file-image,
+.sub-file-video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+.sub-file-page img {
+  width: 100%;
+  min-height: 120px;
+}
+.sub-file-page figcaption {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.sub-file-frame {
+  display: block;
+  width: 100%;
+  height: 75vh;
+  border: 1px solid var(--border);
+  background: #fff;
+  resize: vertical;
+}
+.sub-file-html .hint {
+  margin: 8px 0 0;
+}
+.sub-file.link-only .empty {
+  margin: 0;
+}
+.files-label {
+  overflow-wrap: anywhere;
+  color: var(--ink);
+}

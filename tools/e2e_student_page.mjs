@@ -82,16 +82,21 @@ try {
   await shot(page, '03-student-timeline.png');
   await page.context().close();
 
-  // A late week and a collapsed attachment (student two).
+  // A late week with an uploaded file (student two): the file is a readable
+  // card (tools/e2e_instructor_files.mjs covers the renderings), and the
+  // body's old extracted copy of it is not shown again.
   page = await newPage(browser, { token: TOKENS.prof, width: 1280, height: 900 });
   await page.goto('https://cu.learnvibe.build/instructor/student/?id=2');
   await page.locator('#main:not(.hidden)').waitFor();
   check('late week badged', (await page.locator('#week-3 .badge.late').count()) === 1);
-  const det = page.locator('#week-3 details.attachment');
-  check('attachment text starts collapsed', (await det.count()) === 1 && !(await det.evaluate((d) => d.open)));
-  await det.locator('summary').click();
-  check('attachment opens to its extracted text', (await det.textContent()).includes('TWO-ATTACHMENT'));
-  await det.scrollIntoViewIfNeeded();
+  const file = page.locator('#week-3 .sub-file');
+  check('the upload is a file card, not a folded copy', (await file.count()) === 1 &&
+    (await page.locator('#week-3 details.attachment').count()) === 0);
+  await file.getByRole('tab', { name: 'Text' }).click();
+  check('the card opens to its extracted text', (await file.textContent()).includes('TWO-FILE pdf text') &&
+    !(await page.locator('#week-3').textContent()).includes('TWO-ATTACHMENT'));
+  check('their own writing still shows', (await page.locator('#week-3').textContent()).includes('TWO-W3 late'));
+  await file.scrollIntoViewIfNeeded();
   await shot(page, '04-late-week-attachment.png');
   await page.context().close();
 

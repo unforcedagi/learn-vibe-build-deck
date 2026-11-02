@@ -91,6 +91,14 @@ at 06:00 MT and Mondays at 12:00 MT (after the Sunday deadline, before class):
 2. `worker/student_reads.py` writes one AI read per student into
    `student_reads` (`claude -p`, Opus, no tools, empty directory). Students whose
    material hasn't changed are skipped by input hash.
+3. `worker/resync.py --files` makes every Canvas upload readable for the
+   instructor (`worker/submission_files.py`): extracted text into
+   `submission_files` (D1), page images (PDF, Word, RTF, slides via LibreOffice
+   and pdftoppm) and the HTML page, image or video itself into the private R2
+   bucket `lvb-instructor-files`. Files already done at the current
+   `RENDER_VERSION` are skipped, so a normal run only handles new uploads.
+   Served only to the instructor (`/instructor/files`, `/instructor/file/<id>/<part>`);
+   uploaded HTML runs only in a sandboxed iframe.
 
 Aaron reads them on `/instructor/student/?id=<id>` (linked from the roster).
 Install or update the units:
@@ -102,6 +110,8 @@ journalctl --user -u lvb-canvas-sync.service -n 20   # counts and cost only
 ```
 
 Tests: `node --test 'worker/test/*.test.mjs'`,
-`uv run -q --with html2text python3 -m unittest worker/test/test_student_reads.py`,
-and the headless page check
-`PLAYWRIGHT=<path>/node_modules/playwright node tools/e2e_student_page.mjs [shots-dir]`.
+`uv run -q --no-project --with html2text python3 -m unittest worker/test/test_student_reads.py worker/test/test_submission_files.py`
+(needs pdftotext, pdftoppm and soffice), and the headless page checks
+`PLAYWRIGHT=<path>/node_modules/playwright node tools/e2e_student_page.mjs [shots-dir]` and
+`... node tools/e2e_instructor_files.mjs [shots-dir]` (add `--prod <tokens.json>` after
+`tools/prod_e2e_instructor_files.py seed` to run it against production with the e2e accounts).

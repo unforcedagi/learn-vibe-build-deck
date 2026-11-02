@@ -49,5 +49,34 @@ export function fixtureEnv() {
   const read = db.prepare('INSERT INTO student_reads (student_id, body, input_hash, based_on, model, generated_at) VALUES (?, ?, ?, ?, ?, ?)');
   read.run(1, '## Where they are\nONE-READ: steady builder of a tide chart (Week 4).', 'h1', '{"weeks":[1,4,6],"posts":2,"latest":"2026-10-21T18:00:00Z"}', 'opus', '2026-10-26T12:00:00Z');
   read.run(2, '## Where they are\nTWO-READ: one recipe app submission (Week 2).', 'h2', '{"weeks":[2],"posts":1,"latest":"2026-10-20T19:00:00Z"}', 'opus', '2026-10-26T12:00:00Z');
-  return { DB: { prepare: (sql) => stmt(sql) }, SITE_ORIGIN: 'https://cu.learnvibe.build' };
+  // Uploaded files (instructor-only, 0009): One's week 4 has an HTML page and a
+  // Word doc, Two's week 3 a PDF. Renderings live in the fake FILES bucket.
+  const file = db.prepare(`INSERT INTO submission_files (id, student_id, week, canvas_file_id, position, name,
+    content_type, size, kind, text, pages, rendition, rendition_type, canvas_url, status, render_version, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ok', 1, '2026-11-02T00:00:00Z')`);
+  file.run(31, 1, 4, 'cf-one-html', 0, 'tide-planner.html', 'text/html', 686, 'html', 'ONE-FILE html text: Tide planner', 0, 'html', 'text/html', 'https://canvas.example/files/31');
+  file.run(32, 1, 4, 'cf-one-docx', 1, 'final-plan.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 5366, 'office', 'ONE-FILE docx text: Final project plan', 1, null, null, 'https://canvas.example/files/32');
+  file.run(33, 2, 3, 'cf-two-pdf', 0, 'notes.pdf', 'application/pdf', 22852, 'pdf', 'TWO-FILE pdf text', 2, null, null, 'https://canvas.example/files/33');
+  const objects = new Map([
+    ['files/cf-one-html/rendition', '<!DOCTYPE html><p>ONE-FILE html page</p><script>parent.document.title="ESCAPED"</script>'],
+    ['files/cf-one-docx/p1.jpg', 'ONE-FILE-JPEG'],
+    ['files/cf-two-pdf/p1.jpg', 'TWO-FILE-JPEG-1'],
+    ['files/cf-two-pdf/p2.jpg', 'TWO-FILE-JPEG-2'],
+  ]);
+  const FILES = {
+    objects,
+    async get(key, opts) {
+      if (!objects.has(key)) return null;
+      const v = objects.get(key);
+      const bytes = typeof v === 'string' ? new TextEncoder().encode(v) : v;
+      const r = opts?.range;
+      let start = 0, len = bytes.length;
+      if (r) {
+        if (r.suffix !== undefined) { start = bytes.length - r.suffix; len = r.suffix; }
+        else { start = r.offset; len = r.length ?? bytes.length - r.offset; }
+      }
+      return { size: bytes.length, range: r, httpMetadata: {}, body: bytes.slice(start, start + len) };
+    },
+  };
+  return { DB: { prepare: (sql) => stmt(sql) }, FILES, SITE_ORIGIN: 'https://cu.learnvibe.build' };
 }

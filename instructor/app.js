@@ -17,6 +17,7 @@ import {
   weekLabel, dueLabel, whenLabel, findWeek,
   renderWeekTabs, weekFromHash, onWeekHashChange, defaultWeek,
 } from '../assets/weeks.js';
+import { renderFiles, bodyWithoutUploads, isCanvasFileLink } from './files.js?v=1';
 
 const $ = (id) => document.getElementById(id);
 const show = (el) => el && el.classList.remove('hidden');
@@ -296,7 +297,13 @@ function demoRow(student, sub, week, done) {
   if (!sub) return li; // "not submitted yet" — name only, they demo off their own laptop
 
   const url = sub.link_url || firstUrlIn(sub.body);
-  if (url) {
+  if (isCanvasFileLink(url, sub.files)) {
+    // An upload: open it readable on their student page, not as a download.
+    const a = document.createElement('a');
+    a.href = `./student/?id=${encodeURIComponent(student.id)}#week-${week}`;
+    a.textContent = filesLabel(sub.files);
+    li.appendChild(a);
+  } else if (url) {
     const a = document.createElement('a');
     a.href = url;
     a.target = '_blank';
@@ -474,7 +481,13 @@ function statusCell(sub) {
   td.appendChild(when);
 
   const url = sub.link_url || firstUrlIn(sub.body);
-  if (url) {
+  if (isCanvasFileLink(url, sub.files)) {
+    // The row opens the files themselves; no download link up here.
+    const p = document.createElement('div');
+    p.className = 'files-label';
+    p.textContent = filesLabel(sub.files);
+    td.appendChild(p);
+  } else if (url) {
     const p = document.createElement('div');
     const a = document.createElement('a');
     a.href = url;
@@ -487,6 +500,12 @@ function statusCell(sub) {
     td.appendChild(p);
   }
   return td;
+}
+
+// "artifact.pdf" or "artifact.pdf + 2 more"
+function filesLabel(files) {
+  const more = files.length - 1;
+  return files[0].name + (more > 0 ? ` + ${more} more` : '');
 }
 
 function sharesCell(sub) {
@@ -546,7 +565,7 @@ function toggleStudentDetail(tr, student, sub) {
   const td = document.createElement('td');
   td.colSpan = ROSTER_COLS;
   if (sub) {
-    td.appendChild(renderSubmission(sub));
+    td.appendChild(renderSubmission(sub, student));
   } else {
     td.appendChild(emptyNote(
       `Nothing from ${student.name} for week ${state.week}.`));
@@ -561,7 +580,7 @@ function writingIsShared(sub) {
   return sub.share_writing !== undefined ? !!sub.share_writing : sub.visibility === 'class';
 }
 
-function renderSubmission(sub) {
+function renderSubmission(sub, student) {
   const card = document.createElement('div');
   card.className = 'card';
 
@@ -592,7 +611,8 @@ function renderSubmission(sub) {
 
   card.appendChild(meta);
 
-  if (sub.link_url) {
+  const files = sub.files || [];
+  if (sub.link_url && !isCanvasFileLink(sub.link_url, files)) {
     const link = document.createElement('p');
     link.style.margin = '0 0 0.6rem';
     const a = document.createElement('a');
@@ -604,7 +624,19 @@ function renderSubmission(sub) {
     card.appendChild(link);
   }
 
-  card.appendChild(markdownBody(sub.body));
+  if (!files.length) {
+    card.appendChild(markdownBody(sub.body));
+    return card;
+  }
+  const writing = bodyWithoutUploads(sub.body);
+  if (writing) card.appendChild(markdownBody(writing));
+  // The roster carries file names only; the text comes with this one week.
+  const box = emptyNote(`Loading ${files.length === 1 ? 'the file' : `${files.length} files`}…`);
+  card.appendChild(box);
+  api(`/instructor/files?student=${encodeURIComponent(student.id)}&week=${encodeURIComponent(sub.week)}`)
+    .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
+    .then((d) => box.replaceWith(renderFiles(d.files, { markdownBody })))
+    .catch(() => { box.textContent = 'Could not load the files. Refresh and try again.'; });
   return card;
 }
 

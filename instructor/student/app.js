@@ -6,6 +6,7 @@
 
 import { API_BASE } from '../../account/config.js';
 import { whenLabel } from '../../assets/weeks.js';
+import { renderFiles, bodyWithoutUploads, isCanvasFileLink } from '../files.js?v=1';
 
 const $ = (id) => document.getElementById(id);
 const show = (el) => el && el.classList.remove('hidden');
@@ -118,12 +119,22 @@ function renderSubmissions(d) {
     if (sub.submitted_at) meta.appendChild(el('span', 'date', whenLabel(sub.submitted_at)));
     if (sub.late) meta.appendChild(el('span', 'badge late', 'late'));
     card.appendChild(meta);
-    if (sub.link_url) {
+    const files = sub.files || [];
+    // A Canvas upload's link is only the download: the file card below holds
+    // the content and keeps that link as "Original on Canvas".
+    if (sub.link_url && !isCanvasFileLink(sub.link_url, files)) {
       const p = el('p', 'link');
       const a = el('a', null, sub.link_url);
       a.href = sub.link_url; a.target = '_blank'; a.rel = 'noopener noreferrer';
       p.appendChild(a);
       card.appendChild(p);
+    }
+    if (files.length) {
+      const writing = bodyWithoutUploads(sub.body);
+      if (writing) card.appendChild(markdownBody(writing));
+      card.appendChild(renderFiles(files, { markdownBody }));
+      box.appendChild(card);
+      continue;
     }
     for (const part of splitAttachments(sub.body)) {
       if (part.attachment) {

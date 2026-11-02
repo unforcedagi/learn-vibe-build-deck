@@ -1,5 +1,5 @@
 [Unit]
-Description=LVB: Canvas -> D1 resync, then per-student AI reads (counts only in the journal)
+Description=LVB: Canvas -> D1 resync, per-student AI reads, then uploaded files for the instructor (counts only in the journal)
 
 [Service]
 Type=oneshot
@@ -11,5 +11,7 @@ Environment=PATH=/home/uni/.local/share/mise/shims:/home/uni/.local/bin:/usr/loc
 ExecStartPre=/bin/sh -c 'for i in $(seq 60); do getent hosts canvas.colorado.edu >/dev/null && exit 0; sleep 2; done; exit 1'
 ExecStart=/home/uni/.local/share/mise/shims/uv run -q --no-project --with html2text python3 worker/resync.py
 ExecStart=/home/uni/.local/share/mise/shims/uv run -q --no-project --with html2text python3 worker/student_reads.py
+# Last, so a file that won't convert never holds up the sync or the reads.
+ExecStart=/home/uni/.local/share/mise/shims/uv run -q --no-project --with html2text python3 worker/resync.py --files
 TimeoutStartSec=3600
 Nice=10
