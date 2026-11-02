@@ -320,18 +320,17 @@ def d1_select(sql):
 
 def run_wrangler_d1_batched(stmts, limit=1_000_000):
     """D1 caps a statement at 100 KB; send many statements in ~1 MB files.
-    Returns rows changed."""
-    batch, size, written = [], 0, 0
+    (Not a row count: in file mode D1 reports changes=1 even for a DELETE
+    that matched nothing, so per-file "changes" can't be trusted.)"""
+    batch, size = [], 0
     for st in stmts + [None]:
         if st is None or (batch and size + len(st) > limit):
             if batch:
-                results = run_wrangler_d1("\n".join(batch))
-                written += sum(r.get("meta", {}).get("changes", 0) for r in results)
+                run_wrangler_d1("\n".join(batch))
             batch, size = [], 0
         if st is not None:
             batch.append(st)
             size += len(st)
-    return written
 
 
 def sync_files(canvas_token, uploads_by_week, dry_run=False):
@@ -387,11 +386,12 @@ def sync_files(canvas_token, uploads_by_week, dry_run=False):
             # Objects first, rows second: a row never points at a missing page.
             sf.r2_bulk_put(uploads, env, WORKER_DIR)
             counts["objects"] += len(uploads)
-            counts["rows_written"] += run_wrangler_d1_batched(stmts)
+            run_wrangler_d1_batched(stmts)
+            counts["statements"] += len(stmts)
     print(f"files: {total} uploads, {counts['skipped']} already done, {counts['new']} processed "
           f"({counts['with_content']} with content, {counts['link_only']} link only), "
           f"{counts['no_student']} from Canvas users not in D1, {counts['objects']} objects uploaded, "
-          f"{counts['rows_written']} rows written")
+          f"{counts['statements']} D1 statements sent")
 
 
 def discover_week_assignments(token, include_unpublished=False):

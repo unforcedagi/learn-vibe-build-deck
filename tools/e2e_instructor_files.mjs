@@ -178,7 +178,7 @@ try {
   await page.locator('tr.detail-row .sub-file').first().waitFor();
   check('roster detail shows the 5 file cards', (await page.locator('tr.detail-row .sub-file').count()) === 5);
   await row.evaluate((n) => { n.scrollIntoView({ block: 'start', behavior: 'instant' }); window.scrollBy({ top: -60, behavior: 'instant' }); });
-  await shot(page, '04-roster-detail.png');
+  if (!prod) await shot(page, '04-roster-detail.png'); // in prod the roster shows real names
   const demo = page.locator('#demo-rows li', { hasText: prod ? 'E2E' : 'E2E One' }).first();
   check('demo queue links to the readable student page', (await demo.locator('a').getAttribute('href')).endsWith(`#week-9`));
   await page.context().close();
