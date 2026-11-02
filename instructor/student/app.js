@@ -76,9 +76,26 @@ function render(d) {
 
   $('s-journey').href = `../../account/journey/?as=${encodeURIComponent(s.id)}`;
 
+  renderGift(d.gift);
   renderRead(d.read);
   renderSubmissions(d);
   renderPosts(d.posts);
+}
+
+// Their gift video, as they see it on their account page. Nothing when there's none.
+function renderGift(gift) {
+  if (!gift || !gift.url) return;
+  const box = el('section', 'card gift');
+  box.id = 's-gift';
+  box.appendChild(el('h3', null, 'Gift video'));
+  const video = document.createElement('video');
+  video.controls = true;
+  video.preload = 'metadata';
+  video.playsInline = true;
+  video.src = API_BASE + gift.url;
+  video.style.cssText = 'display:block;width:100%;max-height:70vh;border-radius:4px;background:#000';
+  box.appendChild(video);
+  $('s-read').before(box);
 }
 
 function renderRead(read) {

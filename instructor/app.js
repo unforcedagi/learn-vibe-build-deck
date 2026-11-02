@@ -448,6 +448,16 @@ function renderRoster() {
       open.addEventListener('click', (e) => e.stopPropagation());
       name.appendChild(open);
     }
+    if (student.gift && student.gift.url) {
+      const gift = document.createElement('a');
+      gift.className = 'open-student';
+      gift.href = API_BASE + student.gift.url;
+      gift.target = '_blank';
+      gift.rel = 'noopener';
+      gift.textContent = 'Gift video ▶';
+      gift.addEventListener('click', (e) => e.stopPropagation());
+      name.append(' ', gift);
+    }
     tr.appendChild(name);
 
     tr.appendChild(statusCell(sub));

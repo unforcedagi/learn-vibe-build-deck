@@ -178,6 +178,7 @@ function showAccount(me) {
   // The instructor gets a pointer to their own view; this page stays the
   // student page for everyone (the roster lives at /instructor/ now).
   if (me.is_instructor) showInstructorLink();
+  renderGift(me.gift);
   renderReadings(me.readings);
 
   const wanted = weekFromHash();
@@ -188,6 +189,28 @@ function showAccount(me) {
 
   setupSubmitForm();
   loadFeed();
+}
+
+// Their own gift video, only when there is one (no box, no placeholder otherwise).
+// Built here rather than in index.html so a stale cached page still shows it.
+function renderGift(gift) {
+  const old = document.getElementById('gift');
+  if (old) old.remove();
+  if (!gift || !gift.url) return;
+  const box = document.createElement('section');
+  box.id = 'gift';
+  box.className = 'card gift';
+  const line = document.createElement('p');
+  line.className = 'gift-line';
+  line.textContent = 'A gift from Aaron: a one-minute film made from what you’ve built this semester.';
+  const video = document.createElement('video');
+  video.controls = true;
+  video.preload = 'metadata';
+  video.playsInline = true;
+  video.src = API_BASE + gift.url;
+  video.style.cssText = 'display:block;width:100%;max-height:70vh;border-radius:4px;background:#000';
+  box.append(line, video);
+  document.querySelector('#account .who').after(box);
 }
 
 // Prominent pointer to the dedicated instructor view (only ever rendered for

@@ -334,7 +334,7 @@ async function instructorRoster(env) {
       WHERE s.is_instructor = 0
       ORDER BY s.name, sub.week`
   ).all();
-  const files = await filesByStudentWeek(env, null, false);
+  const [files, gifts] = await Promise.all([filesByStudentWeek(env, null, false), giftIds(env)]);
   const roster = new Map();
   for (const r of rows.results) {
     if (!roster.has(r.email)) {
@@ -342,6 +342,7 @@ async function instructorRoster(env) {
         id: r.id, name: r.name, email: r.email,
         on_canvas: !!r.canvas_id,
         signed_in: !!r.signed_in,
+        gift: gifts.has(r.id) ? { url: `/gift/${r.id}` } : null,
         submissions: [],
       });
     }
@@ -542,6 +543,7 @@ async function handleInstructorStudent(request, env) {
     submissions,
     posts: posts.results,
     read: read ? { body: read.body, model: read.model, generated_at: read.generated_at, based_on: basedOn } : null,
+    gift: await giftFor(env, s.id),
   }, 200, noStore);
 }
 
@@ -567,6 +569,7 @@ async function handleMe(request, env) {
     submissions: subs.results.map((s) => ({
       ...s, share_build: !!s.share_build, share_writing: !!s.share_writing,
     })),
+    gift: await giftFor(env, me.id),
   };
 
   if (target) {
@@ -1201,6 +1204,47 @@ async function handleMedia(request, env, key) {
   return r2Response(request, env.MEDIA, key, { 'Cache-Control': 'private, max-age=3600' }, true);
 }
 
+// Gift videos (R2 GIFTS, gift/<student_id>.mp4, written by tools/publish_gift_videos.py):
+// a one-minute film per student. Only that student, or an instructor, may fetch it; the
+// ownership check comes before the bucket so a classmate can't learn whether one exists.
+const giftKey = (studentId) => `gift/${Number(studentId)}.mp4`;
+
+async function giftFor(env, studentId) {
+  if (!env.GIFTS) return null;
+  const obj = await env.GIFTS.head(giftKey(studentId));
+  return obj ? { url: `/gift/${Number(studentId)}` } : null;
+}
+
+// Student ids that have a gift video (one listing, for the instructor roster).
+async function giftIds(env) {
+  const ids = new Set();
+  if (!env.GIFTS) return ids;
+  let cursor;
+  do {
+    const page = await env.GIFTS.list({ prefix: 'gift/', cursor });
+    for (const o of page.objects) {
+      const m = o.key.match(/^gift\/(\d+)\.mp4$/);
+      if (m) ids.add(Number(m[1]));
+    }
+    cursor = page.truncated ? page.cursor : undefined;
+  } while (cursor);
+  return ids;
+}
+
+async function handleGift(request, env, id) {
+  const noStore = { 'Cache-Control': 'no-store' };
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401, noStore);
+  if (me.id !== Number(id) && !me.is_instructor) return json(env, { error: 'forbidden' }, 403, noStore);
+  if (!env.GIFTS) return json(env, { error: 'not_configured' }, 503, noStore);
+  return r2Response(request, env.GIFTS, giftKey(id), {
+    ...corsHeaders(env),
+    'Content-Type': 'video/mp4',
+    'X-Content-Type-Options': 'nosniff',
+    'Cache-Control': 'private, no-store',
+  });
+}
+
 // An R2 object as a response, honoring a single Range (video seeks on phones).
 // `useStoredType` takes Content-Type from the object, else `headers` sets it.
 async function r2Response(request, bucket, key, headers, useStoredType = false) {
@@ -1256,6 +1300,8 @@ export default {
     try {
       const media = path.match(/^\/media\/([a-z0-9][a-z0-9._-]*)$/);
       if (media && (request.method === 'GET' || request.method === 'HEAD')) return handleMedia(request, env, media[1]);
+      const gift = path.match(/^\/gift\/(\d+)$/);
+      if (gift && (request.method === 'GET' || request.method === 'HEAD')) return handleGift(request, env, gift[1]);
       if (path === '/instructor/students' && request.method === 'GET') return handleInstructorStudents(request, env);
       if (path === '/instructor/student' && request.method === 'GET') return handleInstructorStudent(request, env);
       if (path === '/instructor/files' && request.method === 'GET') return handleInstructorFiles(request, env);

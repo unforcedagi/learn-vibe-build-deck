@@ -2321,6 +2321,10 @@ a.kit-card strong::after { content: " →"; color: var(--accent); }
 .sub-file-page {
   margin: 0;
 }
+.gift-line {
+  margin: 0 0 14px;
+  font-size: 18px;
+}
 .sub-file-page img,
 .sub-file-image,
 .sub-file-video {
