@@ -62,7 +62,8 @@ def clean(work):
     # Only the one object seed wrote (its key is in tokens.json); never a key guessed from an id.
     tok = os.path.join(work, "tokens.json")
     key = json.load(open(tok))["key"] if os.path.exists(tok) else None
-    if key and pg.stored_objects(key):
+    # ...and only while that id is still the e2e owner's (a stale tokens.json must not hit a real student).
+    if key and key == pg.key_for(ids_by_email().get(OWNER, -1)) and pg.stored_objects(key):
         pg.delete_object(key)
     for sql in ("DELETE FROM sessions WHERE student_id IN (SELECT id FROM students WHERE email IN ({m}))",
                 "DELETE FROM magic_tokens WHERE email IN ({m})",
