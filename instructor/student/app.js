@@ -124,10 +124,11 @@ function renderSignin(s, attempts) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const d = await res.json();
       $('s-link-text').value = d.link;
-      $('s-link-note').textContent = `Works once, until ${whenLabel(d.expires_at)}. Only for ${s.name}.`;
+      $('s-link-note').textContent = `Works once, until ${whenLabel(d.expires_at)}. Only for ${s.name}: ` +
+        'don\'t open it yourself, it would sign this browser in as them and use it up.';
       show($('s-link'));
       attempts = [{ created_at: d.created_at, expires_at: d.expires_at, used_at: null,
-        sent_to: 'in_person', send_status: 'shown to instructor' }, ...attempts];
+        sent_to: 'in_person', send_status: 'shown to instructor' }, ...attempts].slice(0, 10);
       body.replaceChildren(...attempts.map(row));
     } catch (err) {
       $('s-link-text').value = '';

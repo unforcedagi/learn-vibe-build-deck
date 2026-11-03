@@ -120,7 +120,8 @@ test('an emailed link records sent + message id; the log has no address, link or
 
 test('a failed send records the reason without the address or link, and still 502s', async () => {
   const e = env(async (m) => {
-    const err = new Error(`recipient ${m.to} rejected for ${m.text.match(/https:\S+/)[0]}`);
+    const token = m.text.match(/token=([0-9a-f]+)/)[1];
+    const err = new Error(`recipient ${m.to} rejected for ${m.text.match(/https:\S+/)[0]} (body ${token})`);
     err.code = 'E_RECIPIENT_SUPPRESSED';
     throw err;
   });
@@ -128,7 +129,7 @@ test('a failed send records the reason without the address or link, and still 50
     assert.equal((await requestEmail(e, 'e2e-test@learnvibe.build')).status, 502);
   });
   const row = await sql(e, 'SELECT send_status FROM magic_tokens').first();
-  assert.equal(row.send_status, 'failed: E_RECIPIENT_SUPPRESSED: recipient <address> rejected for <url>');
+  assert.equal(row.send_status, 'failed: E_RECIPIENT_SUPPRESSED: recipient <address> rejected for <url> (body <hex>)');
   assert.match(logs, /"ok":false,"error":"E_RECIPIENT_SUPPRESSED/);
   assert.ok(!logs.includes('e2e-test@') && !logs.includes('token='));
 });

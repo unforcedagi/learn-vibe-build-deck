@@ -162,23 +162,40 @@ async function sendMagicEmail(env, to, link) {
 }
 
 // A send failure as a short, non-secret reason: the error code plus its
-// message with any address or URL (the link) cut out.
-function sendFailure(err) {
-  const code = String(err?.code || err?.name || 'Error').slice(0, 40);
-  const msg = String(err?.message || '')
+// message with any URL (the link), token-like hex or address cut out.
+function scrub(s) {
+  return String(s || '')
     .replace(/https?:\/\/\S+/g, '<url>')
-    .replace(/[^\s<>@]+@[^\s<>@]+/g, '<address>')
-    .slice(0, 160);
+    .replace(/[0-9a-f]{32,}/gi, '<hex>')
+    .replace(/[^\s<>@]+@[^\s<>@]+/g, '<address>');
+}
+function sendFailure(err) {
+  const code = scrub(err?.code || err?.name || 'Error').slice(0, 40);
+  const msg = scrub(err?.message).slice(0, 160);
   return msg ? `${code}: ${msg}` : code;
+}
+
+// A one-time sign-in token for a student's canonical email. Only its hash is
+// stored; returns the token and the link that carries it.
+async function mintMagicToken(env, email, ttlMs, sentTo, status = null) {
+  const token = randomToken();
+  const hash = await sha256hex(token);
+  const createdAt = nowISO();
+  const expiresAt = isoIn(ttlMs);
+  await env.DB.prepare(
+    `INSERT INTO magic_tokens (token_hash, email, created_at, expires_at, sent_to, send_status)
+     VALUES (?, ?, ?, ?, ?, ?)`
+  ).bind(hash, email, createdAt, expiresAt, sentTo, status).run();
+  return { hash, createdAt, expiresAt, link: `${env.API_ORIGIN}/auth/callback?token=${token}` };
 }
 
 // Record what happened to a link on its row, for the instructor's student
 // page. Best effort: a failed write here must never break signing in.
-async function recordSend(env, hash, sentTo, status, messageId = null) {
+async function recordSend(env, hash, status, messageId = null) {
   try {
     await env.DB.prepare(
-      'UPDATE magic_tokens SET sent_to = ?, send_status = ?, send_message_id = ? WHERE token_hash = ?'
-    ).bind(sentTo, status, messageId, hash).run();
+      'UPDATE magic_tokens SET send_status = ?, send_message_id = ? WHERE token_hash = ?'
+    ).bind(status, messageId, hash).run();
   } catch (err) {
     console.error('magic send status not recorded:', err.message);
   }
@@ -216,26 +233,21 @@ async function handleAuthRequest(request, env) {
     return json(env, { error: 'rate_limited' }, 429);
   }
 
-  const token = randomToken();
-  const hash = await sha256hex(token);
-  await env.DB.prepare(
-    'INSERT INTO magic_tokens (token_hash, email, created_at, expires_at) VALUES (?, ?, ?, ?)'
-  ).bind(hash, student.email, nowISO(), isoIn(MAGIC_TTL_MS)).run();
+  const sentTo = email === student.email.toLowerCase() ? 'email' : 'alias';
+  const { hash, link } = await mintMagicToken(env, student.email, MAGIC_TTL_MS, sentTo);
 
   // One log line per attempt: student id, which address, the recipient's
   // domain, and Cloudflare's message id or error. Never the address, link or token.
-  const sentTo = email === student.email.toLowerCase() ? 'email' : 'alias';
   const logged = { event: 'magic_email', student_id: student.id, sent_to: sentTo, to_domain: email.split('@').pop() };
-  const link = `${env.API_ORIGIN}/auth/callback?token=${token}`;
   try {
     const result = await sendMagicEmail(env, email, link); // deliver to whatever address they typed
     const messageId = result?.messageId ? String(result.messageId).slice(0, 200) : null;
     console.log(JSON.stringify({ ...logged, ok: true, message_id: messageId }));
-    await recordSend(env, hash, sentTo, 'sent', messageId);
+    await recordSend(env, hash, 'sent', messageId);
   } catch (err) {
     const reason = sendFailure(err);
     console.error(JSON.stringify({ ...logged, ok: false, error: reason }));
-    await recordSend(env, hash, sentTo, `failed: ${reason}`);
+    await recordSend(env, hash, `failed: ${reason}`);
     return json(env, { error: 'email_failed' }, 502);
   }
   return json(env, { ok: true });
@@ -608,19 +620,9 @@ async function handleInstructorSigninLink(request, env) {
   ).bind(id).first();
   if (!s) return json(env, { error: 'not_found' }, 404, noStore);
 
-  const token = randomToken();
-  const createdAt = nowISO();
-  const expiresAt = isoIn(HANDED_TTL_MS);
-  await env.DB.prepare(
-    `INSERT INTO magic_tokens (token_hash, email, created_at, expires_at, sent_to, send_status)
-     VALUES (?, ?, ?, ?, 'in_person', 'shown to instructor')`
-  ).bind(await sha256hex(token), s.email, createdAt, expiresAt).run();
+  const { link, createdAt, expiresAt } = await mintMagicToken(env, s.email, HANDED_TTL_MS, 'in_person', 'shown to instructor');
   console.log(JSON.stringify({ event: 'instructor_signin_link', student_id: s.id, by: me.id }));
-  return json(env, {
-    link: `${env.API_ORIGIN}/auth/callback?token=${token}`,
-    created_at: createdAt,
-    expires_at: expiresAt,
-  }, 200, noStore);
+  return json(env, { link, created_at: createdAt, expires_at: expiresAt }, 200, noStore);
 }
 
 async function handleMe(request, env) {

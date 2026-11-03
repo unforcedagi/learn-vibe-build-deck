@@ -83,7 +83,7 @@ try {
   await page.locator('#s-link:not(.hidden)').waitFor();
   const link = await page.locator('#s-link-text').inputValue();
   check('a one-time link is shown', /^https:\/\/api\.learnvibe\.build\/auth\/callback\?token=[0-9a-f]{64}$/.test(link));
-  check('the note says once, until when, for whom', /Works once, until .*Only for E2E One\./.test(await page.locator('#s-link-note').textContent()));
+  check('the note says once, until when, for whom', /Works once, until .*Only for E2E One: don't open it yourself/.test(await page.locator('#s-link-note').textContent()));
   check('the new link heads the attempts as "made here"', (await rows.count()) === 3 &&
     (await rows.nth(0).textContent()).includes('made here'));
   await page.getByRole('button', { name: 'Copy' }).click();
