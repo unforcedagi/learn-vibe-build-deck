@@ -9,9 +9,14 @@ routes = [
 
 # Workers Logs: keep console output (one line per sign-in email attempt, see
 # handleAuthRequest) so a failed send can be looked up after the fact.
+# Invocation logs stay off: they record the request URL, and a sign-in link's
+# token is in the /auth/callback query string.
 [observability]
 enabled = true
 head_sampling_rate = 1
+
+[observability.logs]
+invocation_logs = false
 
 [vars]
 SITE_ORIGIN = "https://cu.learnvibe.build"
