@@ -115,3 +115,14 @@ Tests: `node --test 'worker/test/*.test.mjs'`,
 `PLAYWRIGHT=<path>/node_modules/playwright node tools/e2e_student_page.mjs [shots-dir]` and
 `... node tools/e2e_instructor_files.mjs [shots-dir]` (add `--prod <tokens.json>` after
 `tools/prod_e2e_instructor_files.py seed` to run it against production with the e2e accounts).
+
+## Sign-in links
+
+Each emailed sign-in link records what the Email Service said on its `magic_tokens` row
+(`sent_to`, `send_status`, `send_message_id`, migration 0010) and writes one log line
+(`"event":"magic_email"`: student id, recipient domain, message id or error code) to Workers Logs.
+The instructor's student page lists the last 10 and can make a one-time 30-minute link to hand
+over in person (`POST /instructor/signin-link`). Checks: `node tools/e2e_signin_link.mjs` (fixture
+class, headless) and `tools/prod_e2e_signin_link.py seed|check|clean <dir>` (production, e2e accounts).
+To see whether a sent message was accepted by the recipient's server, query the GraphQL dataset
+`emailSendingAdaptive` (account level) for its message id: `status` `delivered` means accepted.

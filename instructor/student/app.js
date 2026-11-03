@@ -94,12 +94,12 @@ function renderSignin(s, attempts) {
   const body = $('s-attempts').querySelector('tbody');
   const row = (a) => {
     const tr = document.createElement('tr');
-    const used = a.used_at ? `used ${whenLabel(a.used_at)}`
-      : (Date.parse(a.expires_at) <= Date.now() ? 'never used' : 'not used yet');
+    const expired = !a.used_at && Date.parse(a.expires_at) <= Date.now();
+    const used = a.used_at ? `used ${whenLabel(a.used_at)}` : (expired ? 'never used' : 'not used yet');
     const status = el('td', null, a.send_status || 'not recorded');
     if (a.send_message_id) status.title = `Message id ${a.send_message_id}`;
     tr.append(el('td', null, whenLabel(a.created_at)), el('td', null, HOW[a.sent_to] || 'emailed'), status,
-      el('td', a.used_at ? null : 'status-missing', used));
+      el('td', expired ? 'status-missing' : null, used));
     return tr;
   };
   const empty = () => {
@@ -124,14 +124,19 @@ function renderSignin(s, attempts) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const d = await res.json();
       $('s-link-text').value = d.link;
+      show($('s-link-row'));
       $('s-link-note').textContent = `Works once, until ${whenLabel(d.expires_at)}. Only for ${s.name}: ` +
         'don\'t open it yourself, it would sign this browser in as them and use it up.';
       show($('s-link'));
       attempts = [{ created_at: d.created_at, expires_at: d.expires_at, used_at: null,
-        sent_to: 'in_person', send_status: 'shown to instructor' }, ...attempts].slice(0, 10);
+        sent_to: 'in_person', send_status: 'shown to instructor' },
+        // the server ended any earlier unused in-person link
+        ...attempts.map((a) => (a.sent_to === 'in_person' && !a.used_at && Date.parse(a.expires_at) > Date.now()
+          ? { ...a, expires_at: d.created_at } : a))].slice(0, 10);
       body.replaceChildren(...attempts.map(row));
     } catch (err) {
       $('s-link-text').value = '';
+      hide($('s-link-row'));
       $('s-link-note').textContent = `Couldn't make a link (${err.message}). Try again.`;
       show($('s-link'));
     } finally {
