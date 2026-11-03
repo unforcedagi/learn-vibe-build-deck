@@ -287,7 +287,7 @@ async function handleAuthCallbackPage(request, env) {
   const token = url.searchParams.get('token') || '';
   const found = await loadMagicToken(env, token);
   if (!found) return callbackFail(env);
-  const minutes = Math.round((Date.parse(found.row.expires_at) - Date.parse(found.row.created_at)) / 60000);
+  const minutes = Math.round((Date.parse(found.row.expires_at) - Date.parse(found.row.created_at)) / 60000) || 15;
 
   const html = `<!doctype html>
 <html lang="en">
@@ -612,6 +612,10 @@ async function handleInstructorSigninLink(request, env) {
   if (!me) return json(env, { error: 'unauthorized' }, 401);
   if (!me.is_instructor) return json(env, { error: 'forbidden' }, 403);
   const noStore = { 'Cache-Control': 'no-store' };
+  // JSON only: a cross-site form can't send it without a CORS preflight.
+  if (!(request.headers.get('Content-Type') || '').startsWith('application/json')) {
+    return json(env, { error: 'unsupported_media_type' }, 415, noStore);
+  }
   const body = await readJson(request);
   const id = String(body?.student_id ?? '');
   if (!/^\d+$/.test(id)) return json(env, { error: 'bad_request' }, 400, noStore);
@@ -620,6 +624,12 @@ async function handleInstructorSigninLink(request, env) {
   ).bind(id).first();
   if (!s) return json(env, { error: 'not_found' }, 404, noStore);
 
+  // One live in-person link per student: a new one ends any earlier unused one
+  // (say it was shown to the wrong person).
+  await env.DB.prepare(
+    `UPDATE magic_tokens SET expires_at = ?
+      WHERE email = ? AND sent_to = 'in_person' AND used_at IS NULL AND expires_at > ?`
+  ).bind(nowISO(), s.email, nowISO()).run();
   const { link, createdAt, expiresAt } = await mintMagicToken(env, s.email, HANDED_TTL_MS, 'in_person', 'shown to instructor');
   console.log(JSON.stringify({ event: 'instructor_signin_link', student_id: s.id, by: me.id }));
   return json(env, { link, created_at: createdAt, expires_at: expiresAt }, 200, noStore);

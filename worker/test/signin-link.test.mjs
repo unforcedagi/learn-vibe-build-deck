@@ -146,3 +146,16 @@ test('the student page lists recent sign-in attempts, newest first, only theirs'
   ]);
   assert.ok(!JSON.stringify(d.signin_attempts).includes('token'), 'no token or hash in the payload');
 });
+
+test('a new in-person link ends the earlier unused one; JSON only', async () => {
+  const e = env();
+  const first = await (await mint(e, TOKENS.prof, { student_id: 1 })).json();
+  const second = await (await mint(e, TOKENS.prof, { student_id: 1 })).json();
+  const t = (d) => new URL(d.link).searchParams.get('token');
+  assert.match((await consume(e, t(first))).headers.get('Location'), /#error=expired$/, 'the first link no longer works');
+  assert.equal((await consume(e, t(second))).headers.get('Location'), 'https://cu.learnvibe.build/account/');
+  const form = await worker.fetch(new Request(`${API}/instructor/signin-link`, {
+    method: 'POST', headers: { 'Content-Type': 'text/plain', Cookie: `lvb_session=${TOKENS.prof}` }, body: '{"student_id":1}',
+  }), e);
+  assert.equal(form.status, 415);
+});
