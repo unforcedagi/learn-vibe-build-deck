@@ -57,7 +57,13 @@ CREATE TABLE IF NOT EXISTS magic_tokens (
   email TEXT NOT NULL,
   created_at TEXT NOT NULL,
   expires_at TEXT NOT NULL,
-  used_at TEXT
+  used_at TEXT,
+  -- What happened to the link (0010): sent_to 'email' | 'alias' | 'in_person',
+  -- send_status 'sent' | 'failed: <reason>' | 'shown to instructor', and the
+  -- Email Service message id.
+  sent_to TEXT,
+  send_status TEXT,
+  send_message_id TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_magic_tokens_email ON magic_tokens(email, created_at);

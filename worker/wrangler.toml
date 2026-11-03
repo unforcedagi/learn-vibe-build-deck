@@ -7,6 +7,12 @@ routes = [
   { pattern = "api.learnvibe.build", custom_domain = true }
 ]
 
+# Workers Logs: keep console output (one line per sign-in email attempt, see
+# handleAuthRequest) so a failed send can be looked up after the fact.
+[observability]
+enabled = true
+head_sampling_rate = 1
+
 [vars]
 SITE_ORIGIN = "https://cu.learnvibe.build"
 API_ORIGIN = "https://api.learnvibe.build"
