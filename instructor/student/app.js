@@ -76,10 +76,80 @@ function render(d) {
 
   $('s-journey').href = `../../account/journey/?as=${encodeURIComponent(s.id)}`;
 
+  renderSignin(s, d.signin_attempts || []);
   renderGift(d.gift);
   renderRead(d.read);
   renderSubmissions(d);
   renderPosts(d.posts);
+}
+
+// Sign-in: recent links (emailed or made here) and a button that makes a
+// one-time, 30-minute link to hand over in person when the email never comes.
+const HOW = { email: 'emailed (Canvas address)', alias: 'emailed (sign-in alias)', in_person: 'made here' };
+
+function renderSignin(s, attempts) {
+  $('s-signin-lead').textContent = s.signed_in
+    ? 'If their sign-in email doesn\'t arrive, make a link here and give it to them. It works once, for 30 minutes.'
+    : 'They have never signed in. Make a link here and give it to them: it works once, for 30 minutes.';
+  const body = $('s-attempts').querySelector('tbody');
+  const row = (a) => {
+    const tr = document.createElement('tr');
+    const used = a.used_at ? `used ${whenLabel(a.used_at)}`
+      : (Date.parse(a.expires_at) <= Date.now() ? 'never used' : 'not used yet');
+    const status = el('td', null, a.send_status || 'not recorded');
+    if (a.send_message_id) status.title = `Message id ${a.send_message_id}`;
+    tr.append(el('td', null, whenLabel(a.created_at)), el('td', null, HOW[a.sent_to] || 'emailed'), status,
+      el('td', a.used_at ? null : 'status-missing', used));
+    return tr;
+  };
+  const empty = () => {
+    const tr = document.createElement('tr');
+    const td = el('td', 'empty', 'No sign-in links yet.');
+    td.colSpan = 4;
+    tr.appendChild(td);
+    return tr;
+  };
+  body.replaceChildren(...(attempts.length ? attempts.map(row) : [empty()]));
+
+  const btn = $('s-mint');
+  btn.onclick = async () => {
+    btn.disabled = true;
+    try {
+      const res = await fetch(`${API_BASE}/instructor/signin-link`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_id: s.id }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const d = await res.json();
+      $('s-link-text').value = d.link;
+      $('s-link-note').textContent = `Works once, until ${whenLabel(d.expires_at)}. Only for ${s.name}.`;
+      show($('s-link'));
+      attempts = [{ created_at: d.created_at, expires_at: d.expires_at, used_at: null,
+        sent_to: 'in_person', send_status: 'shown to instructor' }, ...attempts];
+      body.replaceChildren(...attempts.map(row));
+    } catch (err) {
+      $('s-link-text').value = '';
+      $('s-link-note').textContent = `Couldn't make a link (${err.message}). Try again.`;
+      show($('s-link'));
+    } finally {
+      btn.disabled = false;
+    }
+  };
+  $('s-copy').onclick = async () => {
+    const input = $('s-link-text');
+    try {
+      if (!navigator.clipboard) throw new Error('no clipboard');
+      await navigator.clipboard.writeText(input.value);
+      $('s-copy').textContent = 'Copied ✓';
+    } catch {
+      // No clipboard API: select the text so it can be copied by hand.
+      input.select();
+      $('s-copy').textContent = 'Selected: now copy it';
+    }
+    setTimeout(() => { $('s-copy').textContent = 'Copy'; }, 2000);
+  };
 }
 
 // Their gift video, as they see it on their account page. Nothing when there's none.

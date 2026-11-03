@@ -10,6 +10,7 @@ import { buildPrompt } from './fpprompt.js';
 
 const COOKIE_NAME = 'lvb_session';
 const MAGIC_TTL_MS = 15 * 60 * 1000;         // 15 minutes
+const HANDED_TTL_MS = 30 * 60 * 1000;        // instructor-made link: 30 minutes
 const SESSION_TTL_MS = 30 * 24 * 3600 * 1000; // 30 days
 const RATE_LIMIT_MAX = 3;                     // per email per 15 minutes
 
@@ -138,7 +139,8 @@ async function sendMagicEmail(env, to, link) {
   // Cloudflare Email Service — the `from` domain (learnvibe.build) is
   // already onboarded with DKIM/SPF/DMARC for the main learnvibe.build
   // worker, so mail sent through this binding authenticates cleanly.
-  await env.EMAIL.send({
+  // Resolves to { messageId }.
+  return env.EMAIL.send({
     from: env.EMAIL_FROM,
     to,
     subject: 'Your Learn Vibe Build sign-in link',
@@ -157,6 +159,29 @@ async function sendMagicEmail(env, to, link) {
       `<p style="color:#888">If you didn't request this, you can ignore it.</p>` +
       `</div>`,
   });
+}
+
+// A send failure as a short, non-secret reason: the error code plus its
+// message with any address or URL (the link) cut out.
+function sendFailure(err) {
+  const code = String(err?.code || err?.name || 'Error').slice(0, 40);
+  const msg = String(err?.message || '')
+    .replace(/https?:\/\/\S+/g, '<url>')
+    .replace(/[^\s<>@]+@[^\s<>@]+/g, '<address>')
+    .slice(0, 160);
+  return msg ? `${code}: ${msg}` : code;
+}
+
+// Record what happened to a link on its row, for the instructor's student
+// page. Best effort: a failed write here must never break signing in.
+async function recordSend(env, hash, sentTo, status, messageId = null) {
+  try {
+    await env.DB.prepare(
+      'UPDATE magic_tokens SET sent_to = ?, send_status = ?, send_message_id = ? WHERE token_hash = ?'
+    ).bind(sentTo, status, messageId, hash).run();
+  } catch (err) {
+    console.error('magic send status not recorded:', err.message);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -181,24 +206,36 @@ async function handleAuthRequest(request, env) {
   if (!student) return json(env, { error: 'not_on_roster' }, 404);
 
   // Rate limit, keyed on the canonical email so both addresses share one
-  // bucket: max 3 link requests per student per 15 minutes.
+  // bucket: max 3 emailed links per student per 15 minutes. Links the
+  // instructor made in person don't count.
   const recent = await env.DB.prepare(
-    'SELECT COUNT(*) AS n FROM magic_tokens WHERE email = ? AND created_at > ?'
+    `SELECT COUNT(*) AS n FROM magic_tokens
+      WHERE email = ? AND created_at > ? AND (sent_to IS NULL OR sent_to != 'in_person')`
   ).bind(student.email, isoAgo(MAGIC_TTL_MS)).first();
   if ((recent?.n ?? 0) >= RATE_LIMIT_MAX) {
     return json(env, { error: 'rate_limited' }, 429);
   }
 
   const token = randomToken();
+  const hash = await sha256hex(token);
   await env.DB.prepare(
     'INSERT INTO magic_tokens (token_hash, email, created_at, expires_at) VALUES (?, ?, ?, ?)'
-  ).bind(await sha256hex(token), student.email, nowISO(), isoIn(MAGIC_TTL_MS)).run();
+  ).bind(hash, student.email, nowISO(), isoIn(MAGIC_TTL_MS)).run();
 
+  // One log line per attempt: student id, which address, the recipient's
+  // domain, and Cloudflare's message id or error. Never the address, link or token.
+  const sentTo = email === student.email.toLowerCase() ? 'email' : 'alias';
+  const logged = { event: 'magic_email', student_id: student.id, sent_to: sentTo, to_domain: email.split('@').pop() };
   const link = `${env.API_ORIGIN}/auth/callback?token=${token}`;
   try {
-    await sendMagicEmail(env, email, link); // deliver to whatever address they typed
+    const result = await sendMagicEmail(env, email, link); // deliver to whatever address they typed
+    const messageId = result?.messageId ? String(result.messageId).slice(0, 200) : null;
+    console.log(JSON.stringify({ ...logged, ok: true, message_id: messageId }));
+    await recordSend(env, hash, sentTo, 'sent', messageId);
   } catch (err) {
-    console.error('magic email failed:', err.message);
+    const reason = sendFailure(err);
+    console.error(JSON.stringify({ ...logged, ok: false, error: reason }));
+    await recordSend(env, hash, sentTo, `failed: ${reason}`);
     return json(env, { error: 'email_failed' }, 502);
   }
   return json(env, { ok: true });
@@ -214,7 +251,7 @@ async function loadMagicToken(env, token) {
   if (!token) return null;
   const hash = await sha256hex(token);
   const row = await env.DB.prepare(
-    'SELECT token_hash, email, expires_at, used_at FROM magic_tokens WHERE token_hash = ?'
+    'SELECT token_hash, email, created_at, expires_at, used_at FROM magic_tokens WHERE token_hash = ?'
   ).bind(hash).first();
   if (!row || row.used_at || row.expires_at <= nowISO()) return null;
   return { hash, row };
@@ -238,6 +275,7 @@ async function handleAuthCallbackPage(request, env) {
   const token = url.searchParams.get('token') || '';
   const found = await loadMagicToken(env, token);
   if (!found) return callbackFail(env);
+  const minutes = Math.round((Date.parse(found.row.expires_at) - Date.parse(found.row.created_at)) / 60000);
 
   const html = `<!doctype html>
 <html lang="en">
@@ -259,7 +297,7 @@ async function handleAuthCallbackPage(request, env) {
 <body>
 <main>
   <h1>Sign in to Learn, Vibe, Build</h1>
-  <p>One click and you're in. This works once and expires 15 minutes after it was sent.</p>
+  <p>One click and you're in. This works once and expires ${minutes} minutes after it was made.</p>
   <form method="post" action="/auth/callback">
     <input type="hidden" name="token" value="${escapeHtml(token)}">
     <button type="submit">Sign in</button>
@@ -494,7 +532,7 @@ async function handleInstructorStudent(request, env) {
   ).bind(id).first();
   if (!s) return json(env, { error: 'not_found' }, 404, noStore);
 
-  const [subs, posts, pods, read] = await Promise.all([
+  const [subs, posts, pods, read, attempts] = await Promise.all([
     env.DB.prepare(
       'SELECT week, body, submitted_at, link_url FROM submissions WHERE student_id = ? ORDER BY week'
     ).bind(s.id).all(),
@@ -511,6 +549,11 @@ async function handleInstructorStudent(request, env) {
     env.DB.prepare(
       'SELECT body, based_on, model, generated_at FROM student_reads WHERE student_id = ?'
     ).bind(s.id).first(),
+    // Recent sign-in links, newest first, so a stuck student is obvious.
+    env.DB.prepare(
+      `SELECT created_at, expires_at, used_at, sent_to, send_status, send_message_id
+         FROM magic_tokens WHERE email = ? ORDER BY created_at DESC, rowid DESC LIMIT 10`
+    ).bind(s.email).all(),
   ]);
 
   const due = new Map(WEEKS.map((w) => [w.week, w.due_at]));
@@ -544,6 +587,39 @@ async function handleInstructorStudent(request, env) {
     posts: posts.results,
     read: read ? { body: read.body, model: read.model, generated_at: read.generated_at, based_on: basedOn } : null,
     gift: await giftFor(env, s.id),
+    signin_attempts: attempts.results,
+  }, 200, noStore);
+}
+
+// A sign-in link the instructor hands a student in person (for when the
+// emailed one never arrives): same magic_tokens row and hashing as the email
+// flow, 30 minutes, works once. Instructor session only; the link is shown
+// once and never stored or logged.
+async function handleInstructorSigninLink(request, env) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401);
+  if (!me.is_instructor) return json(env, { error: 'forbidden' }, 403);
+  const noStore = { 'Cache-Control': 'no-store' };
+  const body = await readJson(request);
+  const id = String(body?.student_id ?? '');
+  if (!/^\d+$/.test(id)) return json(env, { error: 'bad_request' }, 400, noStore);
+  const s = await env.DB.prepare(
+    'SELECT id, email FROM students WHERE id = ? AND is_instructor = 0'
+  ).bind(id).first();
+  if (!s) return json(env, { error: 'not_found' }, 404, noStore);
+
+  const token = randomToken();
+  const createdAt = nowISO();
+  const expiresAt = isoIn(HANDED_TTL_MS);
+  await env.DB.prepare(
+    `INSERT INTO magic_tokens (token_hash, email, created_at, expires_at, sent_to, send_status)
+     VALUES (?, ?, ?, ?, 'in_person', 'shown to instructor')`
+  ).bind(await sha256hex(token), s.email, createdAt, expiresAt).run();
+  console.log(JSON.stringify({ event: 'instructor_signin_link', student_id: s.id, by: me.id }));
+  return json(env, {
+    link: `${env.API_ORIGIN}/auth/callback?token=${token}`,
+    created_at: createdAt,
+    expires_at: expiresAt,
   }, 200, noStore);
 }
 
@@ -1314,6 +1390,7 @@ export default {
       if (gift && (request.method === 'GET' || request.method === 'HEAD')) return handleGift(request, env, gift[1]);
       if (path === '/instructor/students' && request.method === 'GET') return handleInstructorStudents(request, env);
       if (path === '/instructor/student' && request.method === 'GET') return handleInstructorStudent(request, env);
+      if (path === '/instructor/signin-link' && request.method === 'POST') return handleInstructorSigninLink(request, env);
       if (path === '/instructor/files' && request.method === 'GET') return handleInstructorFiles(request, env);
       const file = path.match(/^\/instructor\/file\/(\d+)\/(p\d+|rendition)$/);
       if (file && (request.method === 'GET' || request.method === 'HEAD')) return handleInstructorFile(request, env, file[1], file[2]);

@@ -3,6 +3,12 @@ main = "src/index.js"
 compatibility_date = "2026-08-01"
 workers_dev = false
 
+# Workers Logs: keep console output (one line per sign-in email attempt, see
+# handleAuthRequest) so a failed send can be looked up after the fact.
+[observability]
+enabled = true
+head_sampling_rate = 1
+
 routes = [
   { pattern = "api.learnvibe.build", custom_domain = true }
 ]
