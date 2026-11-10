@@ -22,7 +22,8 @@ None of the three unit files sets `CLOUDFLARE_API_TOKEN` in `Environment=`; the 
 - `tools/prod_e2e_instructor_files.py` (manual) keeps wrangler, but only with a key in the environment (run under cf-job).
 - Reader + final-plans: those folders are read-only to this run, so the change is a patch:
   `~/Builders/lvb-timer-patches-u04y7ez8/` (`new/`, `orig/`, `timers-off-broad-token.patch`, `apply.sh`, `--undo`).
-  Both get `--dry-run`.
+  Both get `--dry-run`. `~/Code/teaching/week10/pods/check.py` and `d1q.py` (ad-hoc SQL through the reader's
+  `sync.d1`) stop working after apply; see the patch README.
 - End to end on a local `wrangler dev` (local D1/R2, throwaway key): real Canvas -> resync -> 25 roster rows,
   204 submissions; a site row kept its text, an emptied row was refilled; `--files --week 10`: 13 files, 24 objects,
   each served by `/instructor/file/...` to a local instructor session; rerun skipped all 13; a 95 MB multipart
@@ -43,17 +44,24 @@ None of the three unit files sets `CLOUDFLARE_API_TOKEN` in `Environment=`; the 
 ## Next (Uni), in order. Not Mon 5:05-7:35 PM MT.
 1. ztycfm8j's backup + `0011_demo_slots.sql` migration must be done first (its PROGRESS-demo-signup.md steps 1-2):
    main already carries #48, so this deploy ships the demo code too (flag off), and /demos needs those tables.
-2. Merge this PR (CI green), then `git -C ~/Code/learn-vibe-build-deck pull --ff-only` (lvb-canvas-sync runs from there).
-3. Deploy, one card:
+2. Merge this PR (CI green). Do NOT pull the main checkout yet: lvb-canvas-sync runs from
+   `~/Code/learn-vibe-build-deck`, and the new scripts get 404 from the old Worker until the deploy is live.
+3. Deploy from a fresh clone of main. Build first with no token (also warms npx), then one card:
    ```sh
-   cd ~/Code/learn-vibe-build-deck/worker && ~/Code/uni-ops/bin/cf-job --account unforced --template workers-scripts-write \
+   D=~/.scratch/lvb-deploy-$(date +%Y%m%d-%H%M) && git clone -q --depth 1 https://github.com/unforcedagi/learn-vibe-build-deck "$D" \
+     && cd "$D/worker" && npx -y wrangler@4 deploy --dry-run >/dev/null && echo build-ok
+   ~/Code/uni-ops/bin/cf-job --account unforced --template workers-scripts-write \
      --purpose "LVB: deploy lvb-accounts with /admin/sync so 3 class timers drop the broad token (T-121); includes demo sign-up PR 48, off" \
      -- sh -c 'npx -y wrangler@4 deployments list | tail -12 && npx -y wrangler@4 deploy'
    ```
-   The list printed first holds the rollback version id.
+   The list printed first holds the rollback version id; the deploy prints the new one.
+   Card (rendered offline with sealed/card_text.py; the account name comes from the broker's list):
+   > 🔴 Unforced Development — PRODUCTION account · all of it · 5 min
+   > Can: deploy any Worker (account-wide). Revoked at the end; lookups too.
+   > Uni says: LVB: deploy lvb-accounts with /admin/sync so 3 class timers drop the broad token (T-121); includes demo sign-up PR 48, off
 4. Check, no token: `curl -s -o /dev/null -w '%{http_code}\n' https://api.learnvibe.build/admin/sync/students` -> 401;
-   `python3 ~/Code/learn-vibe-build-deck/worker/lvb_admin.py` -> row counts.
-5. `sh ~/Builders/lvb-timer-patches-u04y7ez8/apply.sh` (reader + final-plans; refuses if either changed since).
+   then `git -C ~/Code/learn-vibe-build-deck pull --ff-only` and `python3 ~/Code/learn-vibe-build-deck/worker/lvb_admin.py` -> row counts.
+5. `sh ~/Builders/lvb-timer-patches-u04y7ez8/apply.sh` (reader + final-plans; it checks the API answers first).
 6. Resume u04y7ez8 with the user systemd bus reachable to run the three units and compare counts, or run:
    `systemctl --user start lvb-canvas-sync.service lvb-reader-sync.service lvb-final-plans-sync.service`.
 

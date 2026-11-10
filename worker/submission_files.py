@@ -30,7 +30,7 @@ RENDER_VERSION = 1
 R2_BUCKET = "lvb-instructor-files"
 MAX_PAGES = 40                 # page images per document
 MAX_TEXT_BYTES = 60000         # keeps a row well under D1's limits
-MAX_RENDITION_BYTES = 290 * 1024 * 1024  # larger videos stay a Canvas link (lvb_admin uploads multipart)
+MAX_RENDITION_BYTES = 290 * 1024 * 1024  # videos above this stay a Canvas link (set in the wrangler days; kept)
 PAGE_WIDTH = 1400              # px; readable on a laptop, fine on a phone
 
 OFFICE_EXT = {".docx", ".doc", ".rtf", ".odt", ".pptx", ".ppt", ".odp", ".pages"}
@@ -247,11 +247,17 @@ def object_type(key, rows_by_file):
 
 def upload_objects(uploads, rows_by_file, workers=8):
     """Upload [(key, path)] to the private bucket, 8 at a time like the old
-    `wrangler r2 bulk put --concurrency 8` (large files go multipart). Raises
-    lvb_admin.ApiError if any upload failed, after the rest have finished."""
+    `wrangler r2 bulk put --concurrency 8` (large files go multipart). On the
+    first failure the queued uploads are cancelled and lvb_admin.ApiError is
+    raised (the week's rows are then not written; the next run retries)."""
     import concurrent.futures
     import lvb_admin
-    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=workers)
+    try:
         jobs = [pool.submit(lvb_admin.put_object, key, path, object_type(key, rows_by_file)) for key, path in uploads]
-        for job in jobs:
+        for job in concurrent.futures.as_completed(jobs):
             job.result()
+    except BaseException:
+        pool.shutdown(wait=True, cancel_futures=True)
+        raise
+    pool.shutdown(wait=True)

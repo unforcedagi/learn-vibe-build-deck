@@ -46,8 +46,18 @@ def _key():
     return key
 
 
-def call(method, path, body=None, data=None, content_type=None, timeout=300):
-    """One request to the Worker; returns the parsed JSON reply."""
+def _error_code(e):
+    """The Worker's short error code from an HTTP error reply, or ''."""
+    try:
+        reply = json.loads(e.read().decode(errors="replace"))
+        return str(reply.get("error", "")) if isinstance(reply, dict) else ""
+    except Exception:  # an unreadable or non-JSON error body: the status is enough
+        return ""
+
+
+def call(method, path, body=None, data=None, content_type=None, timeout=300, length=None):
+    """One request to the Worker; returns the parsed JSON reply. `data` may be
+    bytes or an open file (then give its `length`; urllib streams it)."""
     headers = {
         "Authorization": "Bearer " + _key(),
         # Cloudflare's browser integrity check refuses urllib's default UA (error 1010).
@@ -59,17 +69,13 @@ def call(method, path, body=None, data=None, content_type=None, timeout=300):
     if content_type:
         headers["Content-Type"] = content_type
     if data is not None:
-        headers["Content-Length"] = str(len(data))
+        headers["Content-Length"] = str(len(data) if length is None else length)
     req = urllib.request.Request(API + path, method=method, data=data, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=timeout) as res:
             return json.load(res)
     except urllib.error.HTTPError as e:
-        try:
-            code = json.loads(e.read().decode(errors="replace")).get("error", "")
-        except ValueError:
-            code = ""
-        raise ApiError(f"{method} {path.split('?')[0]} -> HTTP {e.code} {code}".rstrip()) from None
+        raise ApiError(f"{method} {path.split('?')[0]} -> HTTP {e.code} {_error_code(e)}".rstrip()) from None
     except urllib.error.URLError as e:
         raise ApiError(f"{method} {path.split('?')[0]} -> {e.reason}") from None
     except (OSError, ValueError, http.client.HTTPException) as e:  # timeout, reset, a reply that isn't JSON
@@ -96,8 +102,8 @@ def put_object(key, path, content_type="application/octet-stream"):
     size = os.path.getsize(path)
     route = f"/admin/sync/object/{key}"
     with open(path, "rb") as f:
-        if size <= SINGLE_PUT_MAX:
-            return call("PUT", route, data=f.read(), content_type=content_type, timeout=900)
+        if size <= SINGLE_PUT_MAX:  # streamed from disk, not read into memory
+            return call("PUT", route, data=f, length=size, content_type=content_type, timeout=900)
         # An explicit empty body, so the start carries Content-Length: 0.
         upload = call("POST", route + "?uploads", data=b"", content_type=content_type)["upload_id"]
         at = f"{route}?upload_id={urllib.parse.quote(upload, safe='')}"

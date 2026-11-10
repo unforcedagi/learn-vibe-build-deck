@@ -113,6 +113,17 @@ test('canvas: bad rows and oversized batches are refused whole', async () => {
   assert.equal(env.DB.db.prepare('SELECT COUNT(*) n FROM students').get().n, before);
   const many = Array.from({ length: 46 }, (_, i) => ({ canvas_id: String(100 + i), week: 1, body: 'x', submitted_at: null, link_url: null }));
   assert.equal((await call(env, 'POST', '/admin/sync/canvas', { key: KEY, body: { submissions: many } })).status, 413);
+  // A missing or null week is refused, not read as week 0.
+  for (const week of [null, '', undefined, '4', true]) {
+    const res = await call(env, 'POST', '/admin/sync/canvas', { key: KEY, body: { submissions: [
+      { canvas_id: '1', week, body: 'x', submitted_at: null, link_url: null }] } });
+    assert.equal(res.status, 400, `week ${JSON.stringify(week)}`);
+  }
+  const prune = await call(env, 'POST', '/admin/sync/files', { key: KEY, body: { groups: [{ canvas_id: '1', rows: [], keep: [] }] } });
+  assert.equal(prune.status, 400, 'a group without a week never prunes week 0');
+  const who = await call(env, 'POST', '/admin/sync/student-reads', { key: KEY, body: { reads: [
+    { student_id: true, body: 'x', input_hash: 'h', based_on: null, model: null }] } });
+  assert.equal(who.status, 400);
   const text = await call(env, 'POST', '/admin/sync/canvas', { key: KEY, raw: '{}', type: 'text/plain' });
   assert.equal(text.status, 415);
 });

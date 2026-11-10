@@ -306,7 +306,7 @@ def sync_files(canvas_token, uploads_by_week, dry_run=False):
             counts["objects"] += len(uploads)
             for chunk in file_group_chunks(groups):
                 res = lvb_admin.post("files", {"groups": chunk})
-                counts["rows"] += res["sent"]
+                counts["rows"] += res["written"]
                 counts["pruned"] += res["pruned"]
     print(f"files: {total} uploads, {counts['skipped']} already done, {counts['new']} processed "
           f"({counts['with_content']} with content, {counts['link_only']} link only), "

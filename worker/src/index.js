@@ -913,6 +913,8 @@ async function handleSyncRead(request, env, name) {
 // a write takes at most this many statements; the clients send smaller chunks.
 const SYNC_MAX_STATEMENTS = 45;
 const CANVAS_ID = /^[0-9]{1,20}$/;
+// Numbers must arrive as JSON integers: Number(null) or Number('') would pass as 0.
+const int = (v) => (Number.isInteger(v) ? v : NaN);
 const optText = (v) => (v === null || v === undefined ? null : typeof v === 'string' ? v : undefined);
 
 // { body } on success, { refused: Response } otherwise (a client body may carry any key).
@@ -950,7 +952,7 @@ async function handleSyncCanvas(request, env) {
     ).bind(String(u.canvas_id), u.name, email, alias));
   }
   for (const s of subs) {
-    const week = Number(s?.week);
+    const week = int(s?.week);
     const text = optText(s?.body);
     const at = optText(s?.submitted_at);
     const link = optText(s?.link_url);
@@ -988,7 +990,7 @@ async function handleSyncStudentReads(request, env) {
   const now = nowISO();
   const stmts = [];
   for (const r of reads) {
-    const id = Number(r?.student_id);
+    const id = int(r?.student_id);
     const basedOn = optText(r?.based_on);
     const model = optText(r?.model);
     if (!Number.isInteger(id) || id < 1 || typeof r.body !== 'string' || !r.body.trim()
@@ -1024,14 +1026,14 @@ async function handleSyncFiles(request, env) {
   const stmts = [];
   let upserts = 0;
   for (const g of groups) {
-    const week = Number(g?.week);
+    const week = int(g?.week);
     const keep = g?.keep;
     if (!CANVAS_ID.test(String(g?.canvas_id ?? '')) || !Number.isInteger(week) || week < 0 || week > 99
       || !Array.isArray(g.rows) || !Array.isArray(keep) || !keep.every((k) => typeof k === 'string')) {
       return json(env, { error: 'bad_group' }, 400, NO_STORE);
     }
     for (const r of g.rows) {
-      const nums = [r?.position, r?.size ?? 0, r?.pages, r?.render_version].map(Number);
+      const nums = [r?.position, r?.size ?? 0, r?.pages, r?.render_version].map(int);
       if (typeof r?.canvas_file_id !== 'string' || !r.canvas_file_id || typeof r.name !== 'string' || typeof r.kind !== 'string'
         || !nums.every((n) => Number.isInteger(n) && n >= 0) || FILE_TEXT_COLS.some((c) => optText(r[c]) === undefined)) {
         return json(env, { error: 'bad_file' }, 400, NO_STORE);
