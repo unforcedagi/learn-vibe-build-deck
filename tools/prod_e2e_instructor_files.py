@@ -14,6 +14,13 @@ bucket under files/e2e-fixture-*/. Session tokens go to <workdir>/tokens.json
 clean: deletes exactly those rows (by the two e2e emails and the e2e-fixture
 file ids) and objects, then prints the remaining counts, which must be 0.
 No real student's row is read or written.
+
+It writes sessions and deletes rows, which the sync API (/admin/sync/*) does
+not allow, so it uses wrangler with a short-lived Cloudflare key from the
+environment. Run each step under the broker, e.g.
+    ~/Code/uni-ops/bin/cf-job --account unforced --template d1-write \
+        --purpose "seed the LVB e2e files fixture" -- uv run ... seed <workdir>
+(the R2 objects need an r2 write key the same way).
 """
 import hashlib
 import json
@@ -21,19 +28,58 @@ import os
 import secrets
 import subprocess
 import sys
+import tempfile
 import datetime
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "worker"))
 sys.path.insert(0, os.path.join(ROOT, "tools"))
-import resync  # noqa: E402
 import submission_files as sf  # noqa: E402
 import instructor_files_fixture  # noqa: E402
 
 STUDENT = "e2e-test@learnvibe.build"
 INSTRUCTOR = "e2e-instructor@learnvibe.build"
 EMAILS = f"('{STUDENT}', '{INSTRUCTOR}')"
-q = sf._q
+WORKER_DIR = os.path.join(ROOT, "worker")
+ACCOUNT_ID = "8f2a7eb9d5e21ffa902a76cf62975c82"  # Unforced Development
+
+
+def q(s):
+    return "NULL" if s is None else "'" + str(s).replace("'", "''") + "'"
+
+
+def wrangler_env():
+    """The key cf-job put in the environment; never one read from disk."""
+    if not os.environ.get("CLOUDFLARE_API_TOKEN"):
+        sys.exit("no CLOUDFLARE_API_TOKEN in the environment: run this under cf-job")
+    return dict(os.environ, CLOUDFLARE_ACCOUNT_ID=os.environ.get("CLOUDFLARE_ACCOUNT_ID", ACCOUNT_ID))
+
+
+def wrangler(*args, timeout=300):
+    res = subprocess.run(["npx", "-y", "wrangler", *args], cwd=WORKER_DIR, env=wrangler_env(),
+                         capture_output=True, text=True, timeout=timeout)
+    if res.returncode != 0:
+        sys.exit(f"wrangler {args[0]} {args[1]} failed:\n{res.stderr[-1000:]}")
+    return res.stdout
+
+
+def run_d1(sql):
+    with tempfile.NamedTemporaryFile("w", suffix=".sql", delete=False) as f:
+        f.write(sql)
+    try:
+        wrangler("d1", "execute", "lvb-accounts", "--remote", "--json", "--file", f.name)
+    finally:
+        os.unlink(f.name)
+
+
+def d1_select(sql):
+    out = wrangler("d1", "execute", "lvb-accounts", "--remote", "--json", "--command", sql)
+    return json.loads(out[out.find("["):out.rfind("]") + 1])[0]["results"]
+
+
+def r2_put(objects):
+    for o in objects:
+        wrangler("r2", "object", "put", f"{sf.R2_BUCKET}/{o['key']}", "--remote", "--file", o["file"], timeout=600)
 
 
 def seed(work):
@@ -64,9 +110,9 @@ def seed(work):
             f"{int(r['size'])}, {q(r['kind'])}, {q(r['text'])}, {int(r['pages'])}, {q(r['rendition'])}, "
             f"{q(r['rendition_type'])}, {q(r['canvas_url'])}, {q(r['status'])}, {sf.RENDER_VERSION}, '{iso(now)}' "
             f"FROM students WHERE email = '{STUDENT}';")
-    sf.r2_bulk_put([(o["key"], o["file"]) for o in manifest["objects"]], resync.wrangler_env(), resync.WORKER_DIR)
-    resync.run_wrangler_d1("\n".join(stmts))
-    student_id = resync.d1_select(f"SELECT id FROM students WHERE email = '{STUDENT}'")[0]["id"]
+    r2_put(manifest["objects"])
+    run_d1("\n".join(stmts))
+    student_id = d1_select(f"SELECT id FROM students WHERE email = '{STUDENT}'")[0]["id"]
     path = os.path.join(work, "tokens.json")
     with open(os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "w") as f:
         json.dump({"tokens": tokens, "student_id": student_id}, f)
@@ -78,7 +124,7 @@ def clean(work):
     with open(os.path.join(work, "manifest.json")) as f:
         manifest = json.load(f)
     ids = f"(SELECT id FROM students WHERE email IN {EMAILS})"
-    resync.run_wrangler_d1("\n".join([
+    run_d1("\n".join([
         "DELETE FROM submission_files WHERE canvas_file_id LIKE 'e2e-fixture-%';",
         f"DELETE FROM submission_files WHERE student_id IN {ids};",
         f"DELETE FROM submissions WHERE student_id IN {ids};",
@@ -88,9 +134,8 @@ def clean(work):
         f"DELETE FROM students WHERE email IN {EMAILS};",
     ]))
     for o in manifest["objects"]:
-        subprocess.run(["npx", "-y", "wrangler", "r2", "object", "delete", f"{sf.R2_BUCKET}/{o['key']}", "--remote"],
-                       cwd=resync.WORKER_DIR, env=resync.wrangler_env(), capture_output=True, text=True, timeout=120, check=True)
-    left = resync.d1_select(
+        wrangler("r2", "object", "delete", f"{sf.R2_BUCKET}/{o['key']}", "--remote", timeout=120)
+    left = d1_select(
         f"SELECT (SELECT COUNT(*) FROM students WHERE email IN {EMAILS}) students, "
         "(SELECT COUNT(*) FROM submission_files WHERE canvas_file_id LIKE 'e2e-fixture-%') files")[0]
     print(f"cleaned: {len(manifest['objects'])} objects deleted; left: {left}")

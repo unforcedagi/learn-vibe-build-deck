@@ -2,8 +2,9 @@
 """Re-sync the lvb-accounts D1 database from Canvas.
 
 Pulls the current roster and submissions from the Canvas API, converts each
-submission body from Canvas HTML to markdown, and upserts everything into the
-remote D1 database via `wrangler d1 execute`. Idempotent and re-runnable:
+submission body from Canvas HTML to markdown, and upserts everything into D1
+through the course Worker's sync API (POST /admin/sync/canvas, see
+worker/lvb_admin.py). Idempotent and re-runnable:
 new Canvas submissions appear, existing bodies get refreshed, visibility
 choices students have made are never touched.
 
@@ -24,9 +25,9 @@ skipped because students can't submit to them.
 
 Requirements:
     - Canvas API token in ~/.canvastoken
-    - Cloudflare API token: CLOUDFLARE_API_TOKEN in ~/.hermes/.env (the one copy, T-234)
-    - `pip install --user html2text`
-    - npx/wrangler available (run from anywhere; the script cd's to worker/)
+    - the course Worker's admin key in ~/.config/lvb/admin.key (reaches only
+      course data; no Cloudflare token is used)
+    - html2text (`uv run --with html2text`)
 
 Prints only counts — never tokens, never student data.
 """
@@ -51,23 +52,14 @@ COURSE_ID = 145074
 WEEK_ASSIGNMENTS = None
 WEEK_NAME_RE = re.compile(r"^\s*Week\s+(\d+)\b", re.IGNORECASE)
 
-CLOUDFLARE_ACCOUNT_ID = "8f2a7eb9d5e21ffa902a76cf62975c82"
 WORKER_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, WORKER_DIR)
+import lvb_admin  # noqa: E402
 
 
 def read_secret(path):
     with open(os.path.expanduser(path)) as f:
         return f.read().strip()
-
-
-def read_env_secret(name, path="~/.hermes/.env"):
-    """One value from the Hermes .env, the single copy of shared tokens (T-234)."""
-    with open(os.path.expanduser(path)) as f:
-        for line in f:
-            k, sep, v = line.strip().partition("=")
-            if sep and k == name:
-                return v.strip().strip('"').strip("'")
-    raise KeyError(f"{name} not in {path}")
 
 
 # ---------------------------------------------------------------------------
@@ -226,111 +218,37 @@ def comments_markdown(conv, r):
     return "**Comment on Canvas:**\n\n" + "\n\n".join(parts)
 
 # ---------------------------------------------------------------------------
-# SQL
+# Writing (the Worker's sync API)
 # ---------------------------------------------------------------------------
 
-def q(s):
-    """Quote a value as a SQL string literal (or NULL)."""
-    if s is None:
-        return "NULL"
-    return "'" + str(s).replace("'", "''") + "'"
-
-
-def build_sql(roster, submissions_by_week):
-    stmts = []
+def build_rows(roster, submissions_by_week):
+    """The roster and submissions as POST /admin/sync/canvas takes them.
+    The Worker applies the rule resync always had: Canvas only fills a
+    submission row that has no writing yet, so a student's own site text
+    (two Week 2 reflections were replaced by shorter Canvas text on 10-05) is
+    never overwritten."""
+    students = []
     for u in roster:
         email = (u.get("email") or "").strip().lower()
         if not email:
             continue
         login_id = (u.get("login_id") or "").strip().lower()
-        login_alias = f"{login_id}@colorado.edu" if login_id else None
-        stmts.append(
-            "INSERT INTO students (canvas_id, name, email, login_alias) VALUES "
-            f"({q(str(u['id']))}, {q(u['name'])}, {q(email)}, {q(login_alias)}) "
-            "ON CONFLICT (email) DO UPDATE SET "
-            "canvas_id = excluded.canvas_id, name = excluded.name, "
-            "login_alias = excluded.login_alias;"
-        )
-    for week, subs in submissions_by_week.items():
-        for s in subs:
-            # Never overwrite a site-native submission (it has a link and the
-            # student's own share choices); Canvas only fills in rows that
-            # Canvas created, i.e. rows whose link_url is still NULL or that
-            # this sync wrote before.
-            stmts.append(
-                "INSERT INTO submissions (student_id, week, body, submitted_at, link_url) "
-                f"SELECT id, {int(week)}, {q(s['body_md'])}, {q(s['submitted_at'])}, {q(s.get('link_url'))} "
-                f"FROM students WHERE canvas_id = {q(str(s['user_id']))} "
-                # Only fill rows that have no writing yet. A row with a body is
-                # either site-native (the student's own words) or already synced;
-                # Canvas must never overwrite it (it did: two Week 2 site
-                # reflections were replaced by shorter Canvas text on 10-05).
-                "ON CONFLICT (student_id, week) DO UPDATE SET "
-                "body = excluded.body, submitted_at = excluded.submitted_at, "
-                "link_url = COALESCE(submissions.link_url, excluded.link_url) "
-                "WHERE submissions.body IS NULL OR TRIM(submissions.body) = '';"
-            )
-    return "\n".join(stmts)
+        students.append({"canvas_id": str(u["id"]), "name": u["name"], "email": email,
+                         "login_alias": f"{login_id}@colorado.edu" if login_id else None})
+    subs = [{"canvas_id": str(s["user_id"]), "week": int(week), "body": s["body_md"],
+             "submitted_at": s["submitted_at"], "link_url": s.get("link_url")}
+            for week, ss in submissions_by_week.items() for s in ss]
+    return students, subs
 
 
-def wrangler_env():
-    env = dict(os.environ)
-    env["CLOUDFLARE_API_TOKEN"] = read_env_secret("CLOUDFLARE_API_TOKEN")
-    env["CLOUDFLARE_ACCOUNT_ID"] = CLOUDFLARE_ACCOUNT_ID
-    return env
-
-
-def run_wrangler_d1(sql):
-    # Student data goes through a temp file outside the repo, never argv.
-    with tempfile.NamedTemporaryFile(
-        "w", suffix=".sql", dir=tempfile.gettempdir(), delete=False
-    ) as f:
-        f.write(sql)
-        path = f.name
-    try:
-        res = subprocess.run(
-            ["npx", "-y", "wrangler", "d1", "execute", "lvb-accounts",
-             "--remote", "--json", "--file", path],
-            cwd=WORKER_DIR, env=wrangler_env(), capture_output=True, text=True, timeout=300,
-        )
-    finally:
-        os.unlink(path)
-    if res.returncode != 0:
-        # wrangler errors echo the SQL context, not credentials; keep it short.
-        sys.exit(f"wrangler d1 execute failed:\n{res.stderr[-2000:]}")
-    # npx/wrangler may print banner noise around the JSON; take the array.
-    start = res.stdout.find("[")
-    if start == -1:
-        sys.exit(f"wrangler produced no JSON output:\n{res.stdout[-500:]}")
-    return json.loads(res.stdout[start:res.stdout.rfind("]") + 1])
-
-
-def d1_select(sql):
-    """Rows from one read-only query (--command returns rows; --file doesn't)."""
-    res = subprocess.run(
-        ["npx", "-y", "wrangler", "d1", "execute", "lvb-accounts", "--remote", "--json",
-         "--command", sql],
-        cwd=WORKER_DIR, env=wrangler_env(), capture_output=True, text=True, timeout=300,
-    )
-    if res.returncode != 0:
-        sys.exit(f"wrangler d1 select failed:\n{res.stderr[-1000:]}")
-    out = res.stdout
-    return json.loads(out[out.find("["):out.rfind("]") + 1])[0]["results"]
-
-
-def run_wrangler_d1_batched(stmts, limit=1_000_000):
-    """D1 caps a statement at 100 KB; send many statements in ~1 MB files.
-    (Not a row count: in file mode D1 reports changes=1 even for a DELETE
-    that matched nothing, so per-file "changes" can't be trusted.)"""
-    batch, size = [], 0
-    for st in stmts + [None]:
-        if st is None or (batch and size + len(st) > limit):
-            if batch:
-                run_wrangler_d1("\n".join(batch))
-            batch, size = [], 0
-        if st is not None:
-            batch.append(st)
-            size += len(st)
+def write_rows(students, subs):
+    """Send the roster first (submissions find their student by canvas id),
+    in chunks under the Worker's per-request statement cap."""
+    written = {"students": 0, "submissions": 0}
+    for kind, items in (("students", students), ("submissions", subs)):
+        for chunk in lvb_admin.chunks(items):
+            written[kind] += lvb_admin.post("canvas", {kind: chunk})[kind]["written"]
+    return written
 
 
 def sync_files(canvas_token, uploads_by_week, dry_run=False):
@@ -341,34 +259,31 @@ def sync_files(canvas_token, uploads_by_week, dry_run=False):
     saved before the next starts, so a run cut short keeps what it finished.
     uploads_by_week: {week: [(canvas_user_id, [attachment, ...]), ...]}"""
     import collections
-    import datetime
     import submission_files as sf
 
     total = sum(len(atts) for subs in uploads_by_week.values() for _, atts in subs)
     if dry_run:
         print(f"files: {total} uploads across weeks {sorted(uploads_by_week)} (dry run, nothing read)")
         return
-    done = {r["canvas_file_id"] for r in d1_select(
-        f"SELECT canvas_file_id FROM submission_files WHERE render_version = {sf.RENDER_VERSION} "
-        f"AND ({sf.FINAL_STATUS_SQL})")}
+    done = {r["canvas_file_id"] for r in lvb_admin.rows("files")
+            if r["render_version"] == sf.RENDER_VERSION and r["status"] in sf.FINAL_STATUSES}
     # A Canvas user with no students row (the Test Student, a drop) would get
     # no row and be re-rendered every night; leave them out.
-    known = {r["canvas_id"] for r in d1_select("SELECT canvas_id FROM students WHERE canvas_id IS NOT NULL")}
+    known = {r["canvas_id"] for r in lvb_admin.rows("students") if r["canvas_id"] is not None}
     seen = collections.Counter(str(a["id"]) for subs in uploads_by_week.values() for _, atts in subs for a in atts)
     shared = sum(1 for n in seen.values() if n > 1)
     if shared:
         # canvas_file_id is unique: the later week would take the row over.
         print(f"files: warning: {shared} Canvas file ids appear in more than one submission")
-    now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     counts = collections.Counter()
-    env = wrangler_env()
     with tempfile.TemporaryDirectory(dir=os.path.expanduser("~/.scratch")) as work:
         for week, subs in uploads_by_week.items():
-            stmts, uploads = [], []
+            groups, uploads, rows_by_file = [], [], {}
             for user_id, atts in subs:
                 if str(user_id) not in known:
                     counts["no_student"] += len(atts)
                     continue
+                rows = []
                 for pos, att in enumerate(atts):
                     if str(att["id"]) in done:
                         counts["skipped"] += 1
@@ -381,17 +296,44 @@ def sync_files(canvas_token, uploads_by_week, dry_run=False):
                     counts["new"] += 1
                     counts["with_content" if sf.has_content(out["row"]) else "link_only"] += 1
                     uploads += out["uploads"]
-                    stmts.append(sf.upsert_sql(out["row"], user_id, week, pos, now))
-                stmts.append(sf.prune_sql(user_id, week, [a["id"] for a in atts]))
+                    rows_by_file[out["row"]["canvas_file_id"]] = out["row"]
+                    rows.append(sf.api_row(out["row"], pos))
+                # Upsert what was processed, then prune files a resubmission dropped.
+                groups.append({"week": int(week), "canvas_id": str(user_id), "rows": rows,
+                               "keep": [str(a["id"]) for a in atts]})
             # Objects first, rows second: a row never points at a missing page.
-            sf.r2_bulk_put(uploads, env, WORKER_DIR)
+            sf.upload_objects(uploads, rows_by_file)
             counts["objects"] += len(uploads)
-            run_wrangler_d1_batched(stmts)
-            counts["statements"] += len(stmts)
+            for chunk in file_group_chunks(groups):
+                res = lvb_admin.post("files", {"groups": chunk})
+                counts["rows"] += res["sent"]
+                counts["pruned"] += res["pruned"]
     print(f"files: {total} uploads, {counts['skipped']} already done, {counts['new']} processed "
           f"({counts['with_content']} with content, {counts['link_only']} link only), "
           f"{counts['no_student']} from Canvas users not in D1, {counts['objects']} objects uploaded, "
-          f"{counts['statements']} D1 statements sent")
+          f"{counts['rows']} rows written, {counts['pruned']} replaced files pruned")
+
+
+def file_group_chunks(groups, limit=lvb_admin.CHUNK):
+    """Groups in requests of at most `limit` statements (one per row, one prune
+    per group); a group with more rows than that is split, the prune last."""
+    batch, size = [], 0
+    for g in groups:
+        rows = g["rows"]
+        while len(rows) + 1 > limit:  # only a submission with 40+ files
+            if batch:
+                yield batch
+                batch, size = [], 0
+            # Each part carries the same prune; it keeps every current id, so repeating it is safe.
+            yield [{**g, "rows": rows[:limit - 1]}]
+            rows = rows[limit - 1:]
+        if size + len(rows) + 1 > limit and batch:
+            yield batch
+            batch, size = [], 0
+        batch.append({**g, "rows": rows})
+        size += len(rows) + 1
+    if batch:
+        yield batch
 
 
 def discover_week_assignments(token, include_unpublished=False):
@@ -494,15 +436,21 @@ def main(argv=None):
         sync_files(canvas_token, uploads_by_week, dry_run=args.dry_run)
         return
 
-    sql = build_sql(roster, submissions_by_week)
+    students, subs = build_rows(roster, submissions_by_week)
     if args.dry_run:
-        print(f"dry run: {sql.count(chr(10)) + 1} SQL statements built, nothing written")
+        print(f"dry run: {len(students)} roster rows and {len(subs)} submissions built, nothing written")
         return
-    results = run_wrangler_d1(sql)
-    changed = sum(r.get("meta", {}).get("changes", 0) for r in results)
-    print(f"d1: {len(results)} statements executed, {changed} rows written")
+    written = write_rows(students, subs)
+    # Rows with no writing yet (new, or link-only with no body) are written on
+    # every run; rows with writing are left alone.
+    print(f"d1: {len(students)} roster rows and {len(subs)} submissions sent; "
+          f"{written['students']} roster rows written, {written['submissions']} submissions written "
+          f"(new or still without writing)")
     print("done — re-run any time; visibility choices are preserved.")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except lvb_admin.ApiError as e:  # the route and status only, never data
+        sys.exit(f"sync api: {e}")
