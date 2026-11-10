@@ -875,6 +875,241 @@ async function handleReadsDelete(request, env, week, slug) {
   return json(env, { ok: true });
 }
 
+// ---------------------------------------------------------------------------
+// Sync API for the three uni timers (lvb-canvas-sync, lvb-reader-sync,
+// lvb-final-plans-sync). They used to reach D1 and R2 with a Cloudflare
+// account token that could touch every database on the account; these routes
+// give them exactly what they read and write, behind the admin key.
+// Clients: worker/lvb_admin.py (resync.py, student_reads.py) and the reader
+// and final-plans syncs. A signed-in session, even the instructor's, is 403:
+// these are for the key only.
+
+async function syncGate(request, env) {
+  if (await adminAuthorized(request, env)) return null;
+  const me = await currentStudent(request, env);
+  return me ? json(env, { error: 'forbidden' }, 403, NO_STORE) : json(env, { error: 'unauthorized' }, 401, NO_STORE);
+}
+
+// What the timers read, by name. Nothing else is readable here.
+const SYNC_READS = {
+  students: 'SELECT id, canvas_id, name, email, is_instructor FROM students ORDER BY id',
+  submissions: `SELECT x.id, x.student_id, x.week, x.body, x.submitted_at, x.link_url, x.share_build,
+                       x.share_writing, s.canvas_id, s.email, s.name, s.is_instructor
+                  FROM submissions x JOIN students s ON s.id = x.student_id ORDER BY x.student_id, x.week`,
+  'board-posts': `SELECT p.student_id, p.kind, p.title, p.body, p.link_url, p.created_at, pd.name AS pod_name
+                    FROM board_posts p LEFT JOIN pods pd ON pd.id = p.pod_id ORDER BY p.student_id, p.created_at`,
+  'student-reads': 'SELECT student_id, input_hash FROM student_reads',
+  files: 'SELECT canvas_file_id, render_version, status FROM submission_files',
+};
+
+async function handleSyncRead(request, env, name) {
+  const denied = await syncGate(request, env);
+  if (denied) return denied;
+  const rows = await env.DB.prepare(SYNC_READS[name]).all();
+  return json(env, { rows: rows.results }, 200, NO_STORE);
+}
+
+// D1 caps the queries one Worker invocation may run (50 on the Free plan), so
+// a write takes at most this many statements; the clients send smaller chunks.
+const SYNC_MAX_STATEMENTS = 45;
+const CANVAS_ID = /^[0-9]{1,20}$/;
+const optText = (v) => (v === null || v === undefined ? null : typeof v === 'string' ? v : undefined);
+
+async function readSyncBody(request) {
+  if (!isJsonRequest(request)) return { error: 'unsupported_media_type', status: 415 };
+  const body = await readJson(request);
+  return body && typeof body === 'object' && !Array.isArray(body) ? body : { error: 'bad_request', status: 400 };
+}
+
+// Canvas -> D1 (worker/resync.py): roster upserts and submission fills. The
+// submission rule is the one resync.py always had: Canvas only fills a row
+// with no writing yet. A row with a body is the student's own site text (or
+// an earlier sync) and is never overwritten.
+async function handleSyncCanvas(request, env) {
+  const denied = await syncGate(request, env);
+  if (denied) return denied;
+  const body = await readSyncBody(request);
+  if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
+  const students = body.students ?? [];
+  const subs = body.submissions ?? [];
+  if (!Array.isArray(students) || !Array.isArray(subs)) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  if (students.length + subs.length > SYNC_MAX_STATEMENTS) return json(env, { error: 'too_many' }, 413, NO_STORE);
+  const stmts = [];
+  for (const u of students) {
+    const email = typeof u?.email === 'string' ? u.email.trim().toLowerCase() : '';
+    const alias = optText(u?.login_alias);
+    if (!CANVAS_ID.test(String(u?.canvas_id ?? '')) || !email || typeof u.name !== 'string' || alias === undefined) {
+      return json(env, { error: 'bad_student' }, 400, NO_STORE);
+    }
+    stmts.push(env.DB.prepare(
+      `INSERT INTO students (canvas_id, name, email, login_alias) VALUES (?, ?, ?, ?)
+       ON CONFLICT (email) DO UPDATE SET canvas_id = excluded.canvas_id, name = excluded.name,
+         login_alias = excluded.login_alias`
+    ).bind(String(u.canvas_id), u.name, email, alias));
+  }
+  for (const s of subs) {
+    const week = Number(s?.week);
+    const text = optText(s?.body);
+    const at = optText(s?.submitted_at);
+    const link = optText(s?.link_url);
+    if (!CANVAS_ID.test(String(s?.canvas_id ?? '')) || !Number.isInteger(week) || week < 0 || week > 99
+      || text === undefined || at === undefined || link === undefined) {
+      return json(env, { error: 'bad_submission' }, 400, NO_STORE);
+    }
+    stmts.push(env.DB.prepare(
+      `INSERT INTO submissions (student_id, week, body, submitted_at, link_url)
+       SELECT id, ?, ?, ?, ? FROM students WHERE canvas_id = ?
+       ON CONFLICT (student_id, week) DO UPDATE SET
+         body = excluded.body, submitted_at = excluded.submitted_at,
+         link_url = COALESCE(submissions.link_url, excluded.link_url)
+       WHERE submissions.body IS NULL OR TRIM(submissions.body) = ''`
+    ).bind(week, text, at, link, String(s.canvas_id)));
+  }
+  const res = stmts.length ? await env.DB.batch(stmts) : [];
+  const changes = (from, to) => res.slice(from, to).reduce((n, r) => n + (r.meta?.changes || 0), 0);
+  return json(env, {
+    ok: true,
+    students: { sent: students.length, written: changes(0, students.length) },
+    submissions: { sent: subs.length, written: changes(students.length) },
+  }, 200, NO_STORE);
+}
+
+// Per-student AI reads (worker/student_reads.py).
+async function handleSyncStudentReads(request, env) {
+  const denied = await syncGate(request, env);
+  if (denied) return denied;
+  const body = await readSyncBody(request);
+  if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
+  const reads = body.reads;
+  if (!Array.isArray(reads) || !reads.length) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  if (reads.length > SYNC_MAX_STATEMENTS) return json(env, { error: 'too_many' }, 413, NO_STORE);
+  const now = nowISO();
+  const stmts = [];
+  for (const r of reads) {
+    const id = Number(r?.student_id);
+    const basedOn = optText(r?.based_on);
+    const model = optText(r?.model);
+    if (!Number.isInteger(id) || id < 1 || typeof r.body !== 'string' || !r.body.trim()
+      || typeof r.input_hash !== 'string' || !r.input_hash || basedOn === undefined || model === undefined) {
+      return json(env, { error: 'bad_read' }, 400, NO_STORE);
+    }
+    stmts.push(env.DB.prepare(
+      `INSERT INTO student_reads (student_id, body, input_hash, based_on, model, generated_at)
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON CONFLICT (student_id) DO UPDATE SET body = excluded.body, input_hash = excluded.input_hash,
+         based_on = excluded.based_on, model = excluded.model, generated_at = excluded.generated_at`
+    ).bind(id, r.body, r.input_hash, basedOn, model, now));
+  }
+  const res = await env.DB.batch(stmts);
+  return json(env, { ok: true, written: res.reduce((n, x) => n + (x.meta?.changes || 0), 0) }, 200, NO_STORE);
+}
+
+// Uploaded files (resync.py --files, worker/submission_files.py): per student
+// and week, upsert the processed files' rows, then drop rows for files no
+// longer in that submission (a Canvas resubmission replaces the list).
+const FILE_TEXT_COLS = ['name', 'content_type', 'kind', 'text', 'rendition', 'rendition_type', 'canvas_url', 'status'];
+
+async function handleSyncFiles(request, env) {
+  const denied = await syncGate(request, env);
+  if (denied) return denied;
+  const body = await readSyncBody(request);
+  if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
+  const groups = body.groups;
+  if (!Array.isArray(groups) || !groups.length) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  const count = groups.reduce((n, g) => n + 1 + (Array.isArray(g?.rows) ? g.rows.length : 0), 0);
+  if (count > SYNC_MAX_STATEMENTS) return json(env, { error: 'too_many' }, 413, NO_STORE);
+  const now = nowISO();
+  const stmts = [];
+  let upserts = 0;
+  for (const g of groups) {
+    const week = Number(g?.week);
+    const keep = g?.keep;
+    if (!CANVAS_ID.test(String(g?.canvas_id ?? '')) || !Number.isInteger(week) || week < 0 || week > 99
+      || !Array.isArray(g.rows) || !Array.isArray(keep) || !keep.every((k) => typeof k === 'string')) {
+      return json(env, { error: 'bad_group' }, 400, NO_STORE);
+    }
+    for (const r of g.rows) {
+      const nums = [r?.position, r?.size ?? 0, r?.pages, r?.render_version].map(Number);
+      if (typeof r?.canvas_file_id !== 'string' || !r.canvas_file_id || typeof r.name !== 'string' || typeof r.kind !== 'string'
+        || !nums.every((n) => Number.isInteger(n) && n >= 0) || FILE_TEXT_COLS.some((c) => optText(r[c]) === undefined)) {
+        return json(env, { error: 'bad_file' }, 400, NO_STORE);
+      }
+      const [position, size, pages, version] = nums;
+      stmts.push(env.DB.prepare(
+        `INSERT INTO submission_files (student_id, week, canvas_file_id, position, name, content_type, size, kind,
+           text, pages, rendition, rendition_type, canvas_url, status, render_version, updated_at)
+         SELECT id, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? FROM students WHERE canvas_id = ?
+         ON CONFLICT (canvas_file_id) DO UPDATE SET student_id = excluded.student_id, week = excluded.week,
+           position = excluded.position, name = excluded.name, content_type = excluded.content_type,
+           size = excluded.size, kind = excluded.kind, text = excluded.text, pages = excluded.pages,
+           rendition = excluded.rendition, rendition_type = excluded.rendition_type, canvas_url = excluded.canvas_url,
+           status = excluded.status, render_version = excluded.render_version, updated_at = excluded.updated_at`
+      ).bind(week, r.canvas_file_id, position, r.name, r.content_type ?? null, size, r.kind, r.text ?? null, pages,
+        r.rendition ?? null, r.rendition_type ?? null, r.canvas_url ?? null, r.status ?? null, version, now,
+        String(g.canvas_id)));
+      upserts += 1;
+    }
+    stmts.push(env.DB.prepare(
+      `DELETE FROM submission_files WHERE week = ?
+         AND student_id = (SELECT id FROM students WHERE canvas_id = ?)
+         AND canvas_file_id NOT IN (SELECT value FROM json_each(?))`
+    ).bind(week, String(g.canvas_id), JSON.stringify(keep)));
+  }
+  const res = await env.DB.batch(stmts);
+  let written = 0;
+  let pruned = 0;
+  let i = 0;
+  for (const g of groups) {
+    for (let k = 0; k < g.rows.length; k += 1) written += res[i++].meta?.changes || 0;
+    pruned += res[i++].meta?.changes || 0;
+  }
+  return json(env, { ok: true, sent: upserts, written, pruned }, 200, NO_STORE);
+}
+
+// Renderings into the private FILES bucket: only files/<canvas_file_id>/p<n>.jpg
+// and files/<canvas_file_id>/rendition. A body over ~90 MB goes as an R2
+// multipart upload (a Worker request body is capped at 100 MB):
+//   POST ?uploads -> {upload_id}; PUT ?upload_id=&part=N -> {part, etag};
+//   POST ?upload_id= with {parts:[{part, etag}]} -> done.
+const SYNC_OBJECT_KEY = /^files\/[A-Za-z0-9_-]{1,64}\/(?:p[0-9]{1,3}\.jpg|rendition)$/;
+
+async function handleSyncObject(request, env, key) {
+  const denied = await syncGate(request, env);
+  if (denied) return denied;
+  if (!SYNC_OBJECT_KEY.test(key)) return json(env, { error: 'bad_key' }, 400, NO_STORE);
+  if (!env.FILES) return json(env, { error: 'not_configured' }, 503, NO_STORE);
+  const url = new URL(request.url);
+  const uploadId = url.searchParams.get('upload_id');
+  const type = request.headers.get('Content-Type') || 'application/octet-stream';
+  if (request.method === 'PUT' && !uploadId) {
+    if (!request.body) return json(env, { error: 'empty' }, 400, NO_STORE);
+    const obj = await env.FILES.put(key, request.body, { httpMetadata: { contentType: type } });
+    return json(env, { ok: true, size: obj?.size ?? null }, 200, NO_STORE);
+  }
+  if (request.method === 'POST' && url.searchParams.has('uploads')) {
+    const up = await env.FILES.createMultipartUpload(key, { httpMetadata: { contentType: type } });
+    return json(env, { upload_id: up.uploadId }, 200, NO_STORE);
+  }
+  if (!uploadId) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  const up = env.FILES.resumeMultipartUpload(key, uploadId);
+  if (request.method === 'PUT') {
+    const part = Number(url.searchParams.get('part'));
+    if (!Number.isInteger(part) || part < 1 || part > 10000 || !request.body) {
+      return json(env, { error: 'bad_part' }, 400, NO_STORE);
+    }
+    const done = await up.uploadPart(part, request.body);
+    return json(env, { part: done.partNumber, etag: done.etag }, 200, NO_STORE);
+  }
+  const body = await readSyncBody(request);
+  if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
+  const parts = Array.isArray(body.parts) ? body.parts : [];
+  if (!parts.length || !parts.every((p) => Number.isInteger(p?.part) && typeof p.etag === 'string')) {
+    return json(env, { error: 'bad_parts' }, 400, NO_STORE);
+  }
+  const obj = await up.complete(parts.map((p) => ({ partNumber: p.part, etag: p.etag })));
+  return json(env, { ok: true, size: obj?.size ?? null }, 200, NO_STORE);
+}
+
 async function handleFeed(request, env) {
   const me = await currentStudent(request, env);
   if (!me) return json(env, { error: 'unauthorized' }, 401);
@@ -1842,6 +2077,13 @@ export default {
       if (path === '/instructor/data' && request.method === 'GET') return handleInstructorData(request, env);
       if (path === '/admin/reads' && request.method === 'POST') return handleReadsUpsert(request, env);
       if (path === '/admin/reads' && request.method === 'GET') return handleReadsList(request, env);
+      const syncRead = path.match(/^\/admin\/sync\/([a-z-]+)$/);
+      if (syncRead && request.method === 'GET' && Object.hasOwn(SYNC_READS, syncRead[1])) return handleSyncRead(request, env, syncRead[1]);
+      if (path === '/admin/sync/canvas' && request.method === 'POST') return handleSyncCanvas(request, env);
+      if (path === '/admin/sync/student-reads' && request.method === 'POST') return handleSyncStudentReads(request, env);
+      if (path === '/admin/sync/files' && request.method === 'POST') return handleSyncFiles(request, env);
+      const syncObject = path.match(/^\/admin\/sync\/object\/(.+)$/);
+      if (syncObject && (request.method === 'PUT' || request.method === 'POST')) return handleSyncObject(request, env, syncObject[1]);
       const readDel = path.match(/^\/admin\/reads\/(\d+)\/([a-z0-9-]+)$/);
       if (readDel && request.method === 'DELETE') return handleReadsDelete(request, env, readDel[1], readDel[2]);
       const vis = path.match(/^\/submissions\/(\d+)\/visibility$/);
