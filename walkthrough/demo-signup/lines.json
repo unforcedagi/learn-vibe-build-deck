@@ -1,0 +1,11 @@
+[
+ {"id":"s1","text":"Here is the final demo sign-up, for November thirtieth and December fourth. Once you open it, this card shows up in the This week block on the home page."},
+ {"id":"s2","text":"The page starts with a short Demo day brief: why it matters, what to bring, timing, and a reminder to test on the room's screen. That text is a draft for you to approve."},
+ {"id":"s3","text":"Each night has thirteen ten-minute slots, timed from the start of class. A student picks an open slot and types a one-line title."},
+ {"id":"s4","text":"Their slot is highlighted. They can move it, change the title, or give it up until you lock the order. Classmates see first names and titles only."},
+ {"id":"s5","text":"It works the same on a phone."},
+ {"id":"s6","text":"In your view, you drag people, or nudge them up and down, move them between nights, and add a guest or an auditor to any open slot."},
+ {"id":"s7","text":"Then copy the running order as plain text, to read from on the night."},
+ {"id":"s8","text":"Set a lock time, and after it only you can change the order. Friday's start time isn't in the calendar yet, so its slots show no times."},
+ {"id":"s9","text":"Right now it's closed. Students see nothing until you press Open sign-up to the class."}
+]

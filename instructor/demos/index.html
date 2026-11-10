@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Final demos — Instructor — Learn, Vibe, Build</title>
+<link rel="stylesheet" href="../../assets/site.css">
+</head>
+<body class="instructor-page">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header class="site-nav">
+  <div class="site-nav-inner">
+    <a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">L</span>Learn, Vibe, Build</a>
+    <nav class="desktop-nav" aria-label="Course"><a href="../../schedule/">Schedule</a>
+<a href="../../lessons/">Lessons</a>
+<a href="../../readings/">Readings</a>
+<a href="../../syllabus.html">Syllabus</a>
+<a href="../../setup/">Setup</a>
+<a href="../../board/">Class board</a>
+<a href="../../studio/">Studio</a>
+<a href="../../journal/">Journal</a>
+<a href="../../account/journey/">My journey</a>
+<a href="../../account/">Account</a></nav>
+    <details class="mobile-nav">
+      <summary>Menu <span aria-hidden="true">&nbsp;+</span></summary>
+      <nav aria-label="Course menu"><a href="../../schedule/">Schedule</a>
+<a href="../../lessons/">Lessons</a>
+<a href="../../readings/">Readings</a>
+<a href="../../syllabus.html">Syllabus</a>
+<a href="../../setup/">Setup</a>
+<a href="../../board/">Class board</a>
+<a href="../../studio/">Studio</a>
+<a href="../../journal/">Journal</a>
+<a href="../../account/journey/">My journey</a>
+<a href="../../account/">Account</a></nav>
+    </details>
+  </div>
+</header>
+<main class="instructor-main" id="main-content">
+  <section id="loading">
+    <h1>Final demos</h1>
+    <p class="lead">Checking your session&hellip;</p>
+  </section>
+
+  <section id="signedout" class="hidden">
+    <h1>Final demos</h1>
+    <p class="lead">You're not signed in.</p>
+    <div class="card">
+      <p style="margin-top:0">Sign in from the account page — the session carries over here.</p>
+      <a class="button" href="../../account/">Go sign in</a>
+    </div>
+  </section>
+
+  <section id="denied" class="hidden">
+    <h1>Final demos</h1>
+    <p class="lead">This page is for Aaron.</p>
+    <div class="card">
+      <p style="margin-top:0">You're signed in, but this view belongs to the instructor.</p>
+      <a class="button" href="../../demos/">The demo sign-up</a>
+    </div>
+  </section>
+
+  <section id="unavailable" class="hidden">
+    <h1>Final demos</h1>
+    <p class="lead">The sign-up service isn't answering yet. Try again in a few minutes.</p>
+    <a class="button" href="../">Back to the instructor view</a>
+  </section>
+
+  <section id="main" class="hidden">
+    <p class="hint"><a href="../">&larr; Instructor</a></p>
+    <div class="page-head" style="margin-bottom:18px">
+      <h1>Final demos</h1>
+      <p class="lead">Sign-up and running order. Drag a row, or use &uarr; &darr;, to reorder; dropping on a taken slot swaps the two.</p>
+    </div>
+
+    <div class="card demo-controls">
+      <div>
+        <h3>Open to the class</h3>
+        <p id="open-state" class="hint"></p>
+        <div class="row"><button id="open-toggle" type="button"></button>
+          <a class="btn ghost" href="../../demos/" style="min-height:42px;padding:8px 14px">See the student page</a></div>
+      </div>
+      <div>
+        <h3>Lock the order</h3>
+        <p id="lock-state" class="hint"></p>
+        <div class="row">
+          <label class="visually-hidden" for="lock-at">Lock time (Mountain Time)</label>
+          <input id="lock-at" type="datetime-local">
+          <button id="lock-save" type="button">Set lock</button>
+          <button id="lock-clear" class="quiet" type="button">Clear</button>
+        </div>
+      </div>
+    </div>
+    <p id="demo-msg" class="demo-msg hidden" role="alert"></p>
+
+    <div id="days" class="demo-days"></div>
+
+    <section id="elsewhere" class="hidden">
+      <h3 class="section" style="margin-top:22px">Not on a demo night</h3>
+      <p class="hint">The calendar changed after these signed up. Move each to an open slot, or remove it.</p>
+      <ol id="elsewhere-list" class="demo-slots"></ol>
+    </section>
+
+    <div class="demo-export">
+      <button id="export-copy" type="button">Copy running order</button>
+      <button id="export-show" class="quiet" type="button">Show as text</button>
+      <span id="export-note" class="hint" role="status"></span>
+      <pre id="export-text" class="hidden"></pre>
+    </div>
+
+    <section class="demo-unplaced">
+      <h3 class="section" style="margin-top:22px">Not signed up yet <span id="unplaced-count" class="hint"></span></h3>
+      <p id="unplaced" class="hint"></p>
+    </section>
+  </section>
+</main>
+<script type="module" src="./app.js?v=2"></script>
+<footer class="site-footer">
+  <p>Learn, Vibe, Build<br>ATLS 4519 · CU Boulder · Fall 2026</p>
+  <p><a href="../../setup/">Getting started</a> · <a href="../../syllabus.html">Syllabus</a><br>
+  <a href="../../llms.txt">Course map for AI</a> · <a href="https://github.com/unforcedagi/learn-vibe-build-deck">Source</a></p>
+</footer>
+</body>
+</html>

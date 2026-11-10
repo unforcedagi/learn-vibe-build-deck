@@ -17,6 +17,7 @@ export function fixtureEnv() {
     first: async () => db.prepare(sql).get(...args) ?? null,
     all: async () => ({ results: db.prepare(sql).all(...args) }),
     run: async () => { const r = db.prepare(sql).run(...args); return { meta: { changes: r.changes } }; },
+    runSync: () => db.prepare(sql).run(...args),
   });
   const people = [
     [1, 'E2E One', 'e2e-test@learnvibe.build', 0, TOKENS.one],
@@ -78,5 +79,12 @@ export function fixtureEnv() {
       return { size: bytes.length, range: r, httpMetadata: {}, body: bytes.slice(start, start + len) };
     },
   };
-  return { DB: { prepare: (sql) => stmt(sql) }, FILES, SITE_ORIGIN: 'https://cu.learnvibe.build' };
+  // batch(): D1 runs the statements as one transaction.
+  const batch = async (list) => {
+    db.exec('BEGIN');
+    try { const out = list.map((st) => ({ meta: { changes: st.runSync().changes } })); db.exec('COMMIT'); return out; }
+    catch (err) { db.exec('ROLLBACK'); throw err; }
+  };
+  return { DB: { prepare: (sql) => stmt(sql), batch, db }, FILES, SITE_ORIGIN: 'https://cu.learnvibe.build',
+    DEMO_PREVIEW: 'e2e-test@learnvibe.build,e2e-test-2@learnvibe.build' };
 }

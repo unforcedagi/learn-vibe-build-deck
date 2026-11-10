@@ -2361,3 +2361,60 @@ a.kit-card strong::after { content: " →"; color: var(--accent); }
   overflow-wrap: anywhere;
   color: var(--ink);
 }
+
+/* Final demo sign-up (/demos/) and its instructor view (/instructor/demos/). */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.demos-main { max-width: 1120px; }
+.demo-brief { padding: 22px 26px; }
+.demo-brief h2 { font-size: 24px; margin: 0 0 10px; }
+.demo-brief h3 { font-family: var(--body); font-size: 14px; font-weight: 700; margin: 0 0 4px; }
+.demo-brief p, .demo-brief ul { margin: 0; font-size: 15px; }
+.demo-brief ul { padding-left: 1.1em; }
+.demo-brief-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; }
+.demo-status p { margin: 0 0 4px; font-size: 17px; }
+.demo-status .hint { font-size: 14px; }
+.demo-msg { margin: 10px 0 0; padding: 10px 14px; border: 1px solid var(--accent); border-radius: 4px; color: var(--accent); background: var(--card); }
+.demo-days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin-top: 22px; }
+.demo-day-head h2 { font-size: 24px; margin: 0; }
+.demo-day-head .hint { margin: 2px 0 8px; }
+.demo-slots { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--border); }
+.demo-slot {
+  display: grid; grid-template-columns: 1.6em 4.8em minmax(0, 1fr) auto; align-items: center;
+  gap: 4px 10px; padding: 7px 8px; border-bottom: 1px solid var(--border); min-height: 52px;
+}
+.demo-slot .slot-n { color: var(--muted); font-size: 13px; text-align: right; }
+.demo-slot .slot-time { color: var(--muted); font-size: 13px; white-space: nowrap; }
+.demo-slot .slot-body { min-width: 0; overflow-wrap: anywhere; line-height: 1.35; }
+.demo-slot .slot-who { margin-right: 6px; }
+.demo-slot .slot-title { display: block; font-size: 14px; }
+.demo-slot .slot-open { color: var(--muted); font-size: 14px; }
+.demo-slot .badge { margin-right: 6px; }
+.demo-slot .slot-actions { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+.demo-slot .slot-actions button { min-height: 38px; padding: 6px 12px; font-size: 13px; }
+.demo-slot.mine { background: #f4e5d6; box-shadow: inset 4px 0 0 var(--accent); }
+.demo-slot .slot-form { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 2px; }
+.demo-slot .slot-form input { flex: 1 1 14em; min-height: 42px; padding: 8px 12px; }
+.demo-slot .slot-form button { min-height: 42px; padding: 8px 14px; }
+/* Instructor: draggable rows and controls. */
+.demo-slot[draggable="true"] { cursor: grab; }
+.demo-slot.drop-target { outline: 2px dashed var(--green); outline-offset: -2px; }
+.demo-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 28px; padding: 20px 24px; }
+.demo-controls h3 { font-family: var(--body); font-size: 15px; font-weight: 700; margin: 0 0 6px; }
+.demo-controls p { margin: 0 0 8px; }
+.demo-controls .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.demo-controls input[type="datetime-local"] { min-height: 42px; padding: 8px 10px; }
+.demo-controls button, .demo-export button { min-height: 42px; padding: 8px 14px; }
+.demo-export { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 22px 0 0; }
+.demo-export pre { flex-basis: 100%; white-space: pre-wrap; overflow-wrap: anywhere; background: var(--card); border: 1px solid var(--border); padding: 14px; font-size: 13px; margin: 6px 0 0; }
+.demo-unplaced { margin-top: 18px; }
+.instructor-page .demo-slot .slot-actions { grid-column: 3 / -1; justify-content: flex-start; }
+.instructor-page .demo-slot.open .slot-actions { grid-column: auto; justify-content: flex-end; }
+.instructor-page .demo-slot .slot-actions button { min-height: 32px; padding: 3px 10px; }
+@media (max-width: 800px) {
+  .demo-days, .demo-brief-grid, .demo-controls { grid-template-columns: minmax(0, 1fr); }
+  .demo-slot { grid-template-columns: 1.4em 4.2em minmax(0, 1fr) auto; gap: 4px 8px; }
+  .demo-slot.mine .slot-actions { grid-column: 3 / -1; justify-content: flex-start; }
+}

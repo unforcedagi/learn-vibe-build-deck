@@ -11,7 +11,7 @@ import { spawnSync } from 'node:child_process';
 
 const root = new URL('../../', import.meta.url);
 const semester = JSON.parse(readFileSync(new URL('schedule/semester.json', root), 'utf8'));
-const { WEEKS } = await import(new URL('worker/src/weeks.generated.js', root));
+const { WEEKS, DEMO_DAYS } = await import(new URL('worker/src/weeks.generated.js', root));
 const classes = semester.meetings.filter((m) => m.kind !== 'no-class');
 
 const generator = (...args) => spawnSync('python3', ['tools/build_schedule.py', '--check', ...args],
@@ -26,6 +26,12 @@ test('WEEKS is exactly the assignments in semester.json', () => {
     prompt: m.assignment.prompt,
   }));
   assert.deepEqual(WEEKS, expected);
+});
+
+test('DEMO_DAYS is exactly the demo_signup meetings, with their start times', () => {
+  const expected = classes.filter((m) => m.demo_signup).map((m) => ({ date: m.date, title: m.title, starts: m.starts ?? null }));
+  assert.deepEqual(DEMO_DAYS, expected);
+  assert.equal(DEMO_DAYS.length, 2, 'the final demos run over two days');
 });
 
 test('due dates are in week order and fall after their class', () => {
