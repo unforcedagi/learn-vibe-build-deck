@@ -1455,11 +1455,15 @@ function demoTitle(raw) {
 // undefined: not sent (no check). null: the page showed no slot. Else {day, position}, or {error}.
 function parseSeen(seen) {
   if (seen === undefined || seen === null) return seen;
-  if (typeof seen !== 'object') return { error: 'bad_from' };
-  const position = Number(seen.position);
-  if (typeof seen.day !== 'string' || !Number.isInteger(position)) return { error: 'bad_from' };
-  return { day: seen.day, position };
+  if (typeof seen !== 'object' || Array.isArray(seen)) return { error: 'bad_from' };
+  const p = seen.position;
+  const ok = (Number.isInteger(p) || (typeof p === 'string' && /^\d+$/.test(p))) && typeof seen.day === 'string'
+    && /^\d{4}-\d\d-\d\d$/.test(seen.day);
+  return ok ? { day: seen.day, position: Number(p) } : { error: 'bad_from' };
 }
+
+// 409 with the fresh state, so the page shows what is true now.
+const demoConflict = async (env, me, error) => json(env, { error, ...(await demoState(env, me)) }, 409, NO_STORE);
 const seenMatches = (seen, mine) => (seen ? !!mine && mine.day === seen.day && mine.position === seen.position : !mine);
 
 function demoTarget(body) {
@@ -1484,7 +1488,7 @@ async function handleDemoClaim(request, env) {
   // The UPDATE below repeats the check in its WHERE, so a move landing in between is caught too.
   const from = parseSeen(body.from);
   if (from?.error) return json(env, { error: from.error }, 400, NO_STORE);
-  if (from !== undefined && !seenMatches(from, mine)) return json(env, { error: 'changed', ...(await demoState(env, me)) }, 409, NO_STORE);
+  if (from !== undefined && !seenMatches(from, mine)) return demoConflict(env, me, 'changed');
   // A move may leave the title out; the UPDATE then keeps whatever title the row has (COALESCE).
   const f = body.title === undefined && mine ? { title: null } : demoTitle(body.title);
   if (f.error) return json(env, { error: f.error }, 400, NO_STORE);
@@ -1519,14 +1523,15 @@ async function handleDemoRelease(request, env) {
   const mine = await env.DB.prepare('SELECT id, day, position FROM demo_slots WHERE student_id = ?').bind(me.id).first();
   // ?day=&position=: the slot the page showed. Release only that one, never one the instructor moved them to since.
   const q = new URL(request.url).searchParams;
-  const seen = q.has('day') || q.has('position') ? parseSeen({ day: q.get('day'), position: q.get('position') }) : undefined;
+  if (q.has('day') !== q.has('position')) return json(env, { error: 'bad_from' }, 400, NO_STORE);
+  const seen = q.has('day') ? parseSeen({ day: q.get('day'), position: q.get('position') }) : undefined;
   if (seen?.error) return json(env, { error: seen.error }, 400, NO_STORE);
+  if (seen !== undefined && !seenMatches(seen, mine)) return demoConflict(env, me, 'changed');
   if (!mine) return json(env, { error: 'not_found', ...(await demoState(env, me)) }, 404, NO_STORE);
-  if (seen !== undefined && !seenMatches(seen, mine)) return json(env, { error: 'changed', ...(await demoState(env, me)) }, 409, NO_STORE);
   if (demoDayClosed(mine.day)) return json(env, { error: 'day_closed' }, 403, NO_STORE);
   const res = await env.DB.prepare('DELETE FROM demo_slots WHERE id = ? AND student_id = ? AND day = ? AND position = ?')
     .bind(mine.id, me.id, mine.day, mine.position).run();
-  if (!res.meta || res.meta.changes !== 1) return json(env, { error: 'changed', ...(await demoState(env, me)) }, 409, NO_STORE);
+  if (!res.meta || res.meta.changes !== 1) return demoConflict(env, me, 'changed');
   return json(env, { ok: true, ...(await demoState(env, me)) }, 200, NO_STORE);
 }
 

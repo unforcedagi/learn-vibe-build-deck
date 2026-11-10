@@ -242,7 +242,13 @@ test('a move without a title keeps the current one; a stale release can\'t drop 
   const res2 = await call(env, 'ana', 'POST', '/demos/claim', { day: DAY1, position: 4, from: { day: DAY1, position: 2 } });
   assert.equal(res2.status, 409);
   assert.equal((await res2.json()).error, 'changed');
-  assert.equal((await call(env, 'ana', 'POST', '/demos/claim', { day: DAY1, position: 4, from: 'x' })).status, 400);
+  for (const from of ['x', { day: DAY1 }, { day: DAY1, position: '' }, { day: DAY1, position: true }, { day: DAY1, position: [2] }, [DAY1, 2]]) {
+    assert.equal((await call(env, 'ana', 'POST', '/demos/claim', { day: DAY1, position: 4, from })).status, 400, JSON.stringify(from));
+  }
+  for (const q of [`?day=${DAY1}`, '?position=2', `?day=${DAY1}&position=`]) {
+    assert.equal((await call(env, 'ana', 'DELETE', `/demos/claim${q}`)).status, 400, q);
+  }
+  assert.equal((await call(env, 'ana', 'DELETE', `/demos/claim?day=${DAY1}&position=2`)).status, 409, 'a removed slot is "changed" on release too');
 });
 
 test('move without a numeric id is 400', async () => {

@@ -182,7 +182,7 @@ function renderSlot(day, s) {
     actions.append(button('Release', 'quiet', () => {
       if (window.confirm('Give up this slot? Someone else can take it.')) {
         const f = from();
-        send('DELETE', null, `?day=${encodeURIComponent(f.day)}&position=${f.position}`);
+        if (f) send('DELETE', null, `?day=${encodeURIComponent(f.day)}&position=${f.position}`);
       }
     }));
   } else if (!s.taken) {
