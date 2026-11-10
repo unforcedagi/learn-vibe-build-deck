@@ -37,10 +37,6 @@ export function denverToday(now = Date.now()) {
     .format(new Date(now));
 }
 
-export function firstName(name) {
-  return String(name || '').trim().split(/\s+/)[0] || 'Classmate';
-}
-
 // The running order as plain text, for the instructor to read from.
 // `days`: [{ date, starts, slots: [{ position, name, title, guest }] }], full names.
 export function runningOrderText(days) {

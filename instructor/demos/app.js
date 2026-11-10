@@ -50,7 +50,7 @@ async function boot() {
   try {
     out = await api('GET', '/instructor/demos');
   } catch {
-    hide($('loading')); show($('signedout'));
+    hide($('loading')); show($('unavailable'));
     return;
   }
   hide($('loading'));
@@ -188,9 +188,34 @@ function render() {
   renderControls();
   const days = $('days');
   days.replaceChildren(...state.data.days.map(renderDay));
+  renderElsewhere();
   const names = state.data.not_signed_up.map((s) => s.name);
   $('unplaced-count').textContent = `(${names.length})`;
   $('unplaced').textContent = names.length ? names.join(', ') : 'Everyone has a slot.';
+}
+
+function renderElsewhere() {
+  const list = state.data.elsewhere || [];
+  (list.length ? show : hide)($('elsewhere'));
+  $('elsewhere-list').replaceChildren(...list.map((r) => {
+    const li = el('li', 'demo-slot taken');
+    li.append(el('span', 'slot-n', String(r.position)), el('span', 'slot-time', r.day.slice(5)));
+    const body = el('div', 'slot-body');
+    body.append(el('strong', 'slot-who', r.name), el('span', 'slot-title', r.title));
+    li.append(body);
+    const actions = el('div', 'slot-actions');
+    for (const d of state.data.days) {
+      const free = d.slots.find((x) => !x.taken);
+      const short = d.label.split(',')[0].slice(0, 3);
+      actions.append(iconButton(`→ ${short}`, `Move ${r.name} to ${d.label}`, !free,
+        () => change('POST', '/instructor/demos/move', { id: r.id, day: d.date, position: free.position })));
+    }
+    actions.append(iconButton('Remove', `Remove ${r.name}`, false, () => {
+      if (window.confirm(`Remove ${r.name}?`)) change('DELETE', `/instructor/demos/${r.id}`);
+    }));
+    li.append(actions);
+    return li;
+  }));
 }
 
 function renderDay(day) {

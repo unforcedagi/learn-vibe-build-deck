@@ -28,7 +28,7 @@ const ERRORS = {
   day_closed: 'That night has started, so its slots can no longer change here. Ask Aaron.',
   not_open: 'The sign-up is closed right now.',
   title_required: 'Give your project a one-line title.',
-  title_too_long: 'Keep the title to one line (100 characters).',
+  title_too_long: 'Keep the title to one line.',
 };
 
 function lockLabel(iso) {
@@ -42,12 +42,13 @@ async function boot() {
   try {
     res = await fetch(`${API_BASE}/demos`, { credentials: 'include' });
   } catch {
-    hide($('loading')); show($('signedout'));
+    hide($('loading')); show($('unavailable'));
     return;
   }
   hide($('loading'));
   if (res.status === 401) { show($('signedout')); return; }
-  const data = await res.json().catch(() => ({}));
+  const data = await res.json().catch(() => null);
+  if (!res.ok || !data) { show($('unavailable')); return; }
   if (!data.open || !data.days) { show($('closed')); return; }
   state.data = data;
   show($('main'));
@@ -68,7 +69,8 @@ async function send(method, body) {
     const data = await res.json().catch(() => ({}));
     if (data.days) state.data = data;
     else if (!res.ok) await reload(); // locked, closed night, released elsewhere: show what is true now
-    if (res.ok) state.editing = null;
+    // Keep the form open only to fix the title; any other answer means the slot's state changed.
+    if (res.ok || !/^title_/.test(data.error || '')) state.editing = null;
     else setMsg(ERRORS[data.error] || 'That didn’t work. Reload the page and try again.');
     render();
   } catch {
@@ -134,7 +136,8 @@ function renderDay(day) {
   sec.setAttribute('aria-label', day.label);
   const head = el('div', 'demo-day-head');
   head.append(el('h2', null, day.label));
-  head.append(el('p', 'hint', day.start_label ? `Starts ${day.start_label} · 10 minutes each` : 'Start time to be confirmed · 10 minutes each'));
+  const each = `${state.data.minutes_per_slot || 10} minutes each`;
+  head.append(el('p', 'hint', day.start_label ? `Starts ${day.start_label} · ${each}` : `Start time to be confirmed · ${each}`));
   sec.append(head);
   if (day.closed && state.data.can_claim) sec.append(el('p', 'hint', 'This night has started; its slots are set.'));
   const ol = el('ol', 'demo-slots');

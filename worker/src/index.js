@@ -660,9 +660,10 @@ async function handleMe(request, env) {
     submissions: subs.results.map((s) => ({
       ...s, share_build: !!s.share_build, share_writing: !!s.share_writing,
     })),
-    gift: await giftFor(env, me.id),
-    demo_signup: await demoLink(env, me),
+    gift: null,
+    demo_signup: null,
   };
+  [out.gift, out.demo_signup] = await Promise.all([giftFor(env, me.id), demoLink(env, me)]);
 
   if (target) {
     out.viewing_as = { id: target.id, first_name: (target.name || '').trim().split(/\s+/)[0] };
@@ -1349,6 +1350,10 @@ function demoDays(rows, me, full, now = Date.now()) {
 
 function demoMine(rows, me) {
   const r = rows.find((x) => x.student_id === me.id);
+  return demoMineRow(r);
+}
+
+function demoMineRow(r) {
   if (!r) return null;
   return { day: r.day, label: dayLabel(r.day), position: r.position, title: r.title, time: slotTime(demoDay(r.day)?.starts, r.position) };
 }
@@ -1380,7 +1385,8 @@ async function demoLink(env, me) {
     const settings = await demoSettings(env);
     const linked = settings.signup_open || isDemoPreview(env, me);
     if (!linked || !me) return { linked };
-    return { linked, mine: demoMine(await demoRows(env), me) };
+    const r = await env.DB.prepare('SELECT day, position, title FROM demo_slots WHERE student_id = ?').bind(me.id).first();
+    return { linked, mine: demoMineRow(r) };
   } catch (err) {
     console.error('demo link failed:', err.message);
     return { linked: false };
@@ -1501,6 +1507,11 @@ async function demoInstructorState(env, me) {
     minutes_per_slot: DEMO_MINUTES,
     title_max: DEMO_TITLE_MAX,
     days: demoDays(rows, me, true),
+    // Rows on a night that is no longer in semester.json: shown so they can be moved or removed.
+    elsewhere: rows.filter((r) => !demoDay(r.day)).map((r) => ({
+      id: r.id, day: r.day, position: r.position, title: r.title, guest: r.student_id == null,
+      name: r.student_id != null ? r.student_name : r.guest_name,
+    })),
     not_signed_up: students.results.map((s) => ({ id: s.id, name: s.name })),
   };
 }

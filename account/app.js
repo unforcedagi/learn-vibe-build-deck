@@ -219,7 +219,7 @@ function renderGift(gift) {
 function renderDemoSignup(demo) {
   const old = document.getElementById('demo-signup');
   if (old) old.remove();
-  if (!demo || !demo.linked) return;
+  if (!demo || !demo.linked || state.me?.is_instructor) return; // the instructor has /instructor/demos/
   const box = document.createElement('section');
   box.id = 'demo-signup';
   box.className = 'card demo-signup-card';

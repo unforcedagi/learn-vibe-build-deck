@@ -143,7 +143,7 @@ def demo_signup_task(sem, m, n):
     days = demo_days(sem)
     if not days or m["date"] > days[-1]["date"]:
         return []
-    when = " and ".join(short_date(dt.date.fromisoformat(d["date"])) for d in days)
+    when = " or ".join(short_date(dt.date.fromisoformat(d["date"])) for d in days)
     return ['      <div class="brief-task demo-signup hidden" data-demo-signup>',
             f'        <p class="kicker">{n:02d} / Final demos</p>',
             '        <h3>Sign up to present</h3>',

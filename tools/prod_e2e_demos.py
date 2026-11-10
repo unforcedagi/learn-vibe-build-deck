@@ -27,6 +27,7 @@ import prod_e2e_signin_link as base  # noqa: E402
 pg, call = base.pg, base.call
 DAY1, DAY2 = "2026-11-30", "2026-12-04"
 GUESTS = ("Visiting Auditor",)  # the guest tools/e2e_demos.mjs adds (and removes)
+E2E_LOCK_DAY = "2026-11-01"     # the past lock tools/e2e_demos.mjs sets (9 AM MT) and clears
 
 
 def settings():
@@ -38,6 +39,9 @@ def seed(work):
     s = settings()
     if s["signup_open"]:
         sys.exit("the demo sign-up is open to the class; not testing in production now")
+    rows = pg.d1("SELECT COUNT(*) AS n FROM demo_slots")[0]["n"]
+    if rows:
+        sys.exit(f"demo_slots already has {rows} rows; the browser run reorders slots, so not testing over real entries")
     started = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
     base.seed(work)
     count = pg.d1("SELECT COUNT(*) AS n FROM demo_slots")[0]["n"]
@@ -98,10 +102,10 @@ def clean(work):
         # Only the guest the browser run added, and only since the seed.
         pg.d1(f"DELETE FROM demo_slots WHERE guest_name IN ({','.join('?' * len(GUESTS))}) AND created_at >= ?",
               GUESTS + (saved["started"],))
-        # The browser run sets a lock and clears it. Put back a lock that was there
-        # before, unless someone set a new one meanwhile.
-        before = saved["settings"]["lock_at"]
-        if before and settings()["lock_at"] is None:
+        # The browser run sets a lock on 2026-11-01 and clears it; a failed run can leave it on, which would lock
+        # every student out. Put back what was there before, unless someone set a different lock meanwhile.
+        before, now_lock = saved["settings"]["lock_at"], settings()["lock_at"]
+        if now_lock is None or now_lock.startswith(E2E_LOCK_DAY):
             pg.d1("UPDATE demo_settings SET lock_at = ? WHERE id = 1", (before,))
         os.remove(saved_path)
     base.clean(work)

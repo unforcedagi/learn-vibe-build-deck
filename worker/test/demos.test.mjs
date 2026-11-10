@@ -177,6 +177,17 @@ test('view-as: the instructor reads a student\'s page read-only; a student passi
   assert.equal(rows(env)[0].position, 2);
 });
 
+test('a row on a night that left the calendar stays visible to the instructor and can be moved back', async () => {
+  const env = setup({ open: true });
+  env.DB.db.prepare("INSERT INTO demo_slots (id, day, position, student_id, title, created_at, updated_at) VALUES (5, '2026-12-07', 2, 2, 'Bo build', 'x', 'x')").run();
+  const s = await (await call(env, 'teach', 'GET', '/instructor/demos')).json();
+  assert.deepEqual(s.elsewhere, [{ id: 5, day: '2026-12-07', position: 2, title: 'Bo build', guest: false, name: 'Bo Lanternwick' }]);
+  assert.ok(!s.not_signed_up.some((x) => x.id === 2));
+  const moved = await (await call(env, 'teach', 'POST', '/instructor/demos/move', { id: 5, day: DAY1, position: 1 })).json();
+  assert.deepEqual(moved.elsewhere, []);
+  assert.equal(slot(moved, DAY1, 1).name, 'Bo Lanternwick');
+});
+
 test('move without a numeric id is 400', async () => {
   const env = setup({ open: true });
   for (const id of [undefined, '3', 1.5]) {
