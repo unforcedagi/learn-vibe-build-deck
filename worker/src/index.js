@@ -616,7 +616,7 @@ async function handleInstructorSigninLink(request, env) {
   if (!me.is_instructor) return json(env, { error: 'forbidden' }, 403);
   const noStore = { 'Cache-Control': 'no-store' };
   // JSON only: a cross-site form can't send it without a CORS preflight.
-  if (!(request.headers.get('Content-Type') || '').startsWith('application/json')) {
+  if (!isJsonRequest(request)) {
     return json(env, { error: 'unsupported_media_type' }, 415, noStore);
   }
   const body = await readJson(request);
@@ -1078,6 +1078,10 @@ function boardFields(body) {
   return { title, body: note || null, link_url: link || null, kind };
 }
 
+// A cross-site form can't send application/json without a CORS preflight, so
+// cookie-authenticated writes that require it can't be forged by a form.
+const isJsonRequest = (request) => (request.headers.get('Content-Type') || '').toLowerCase().startsWith('application/json');
+
 async function readJson(request) {
   try { return await request.json(); } catch { return null; }
 }
@@ -1361,8 +1365,9 @@ function demoMineRow(r) {
 // What the student page shows. Closed (and not a preview account): nothing.
 async function demoState(env, me) {
   const preview = isDemoPreview(env, me);
-  const [settings, rows] = await Promise.all([demoSettings(env), demoRows(env)]);
+  const settings = await demoSettings(env);
   if (!settings.signup_open && !preview && !me.is_instructor) return { open: false };
+  const rows = await demoRows(env);
   const now = Date.now();
   return {
     open: true,
@@ -1377,13 +1382,15 @@ async function demoState(env, me) {
   };
 }
 
+// Is the sign-up linked for this visitor: open, or a preview account.
+const demoLinked = (settings, env, me) => settings.signup_open || isDemoPreview(env, me);
+
 // For the home page and /me: is the sign-up linked for this visitor? An
 // optional extra: a D1 hiccup reads as "not linked", never breaks the caller.
-async function demoLink(env, me) {
+async function demoLink(env, me, { withMine = true } = {}) {
   try {
-    const settings = await demoSettings(env);
-    const linked = settings.signup_open || isDemoPreview(env, me);
-    if (!linked || !me) return { linked };
+    const linked = demoLinked(await demoSettings(env), env, me);
+    if (!linked || !me || !withMine) return { linked };
     const r = await env.DB.prepare('SELECT day, position, title FROM demo_slots WHERE student_id = ?').bind(me.id).first();
     return { linked, mine: demoMineRow(r) };
   } catch (err) {
@@ -1394,10 +1401,9 @@ async function demoLink(env, me) {
 
 const NO_STORE = { 'Cache-Control': 'no-store' };
 
-// Demo writes take JSON only (a cross-site form can't send it without a CORS
-// preflight), the same rule as /instructor/signin-link.
+// Demo writes take JSON only (isJsonRequest), the same rule as /instructor/signin-link.
 async function readDemoJson(request) {
-  if (!(request.headers.get('Content-Type') || '').startsWith('application/json')) return { error: 'unsupported_media_type', status: 415 };
+  if (!isJsonRequest(request)) return { error: 'unsupported_media_type', status: 415 };
   const body = await readJson(request);
   return body && typeof body === 'object' ? body : { error: 'bad_request', status: 400 };
 }
@@ -1412,12 +1418,7 @@ const isUnique = (err) => /UNIQUE/i.test(String(err && err.message));
 
 async function handleDemoStatus(request, env) {
   const me = await currentStudent(request, env);
-  let linked = false;
-  try {
-    linked = (await demoSettings(env)).signup_open || isDemoPreview(env, me);
-  } catch (err) {
-    console.error('demo status failed:', err.message);
-  }
+  const { linked } = await demoLink(env, me, { withMine: false });
   return json(env, { linked }, 200, NO_STORE);
 }
 
@@ -1467,24 +1468,25 @@ async function handleDemoClaim(request, env) {
   if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
   const t = demoTarget(body);
   if (t.error) return json(env, { error: t.error }, 400, NO_STORE);
-  const f = demoTitle(body.title);
+  const mine = await env.DB.prepare('SELECT id, day, position, title FROM demo_slots WHERE student_id = ?').bind(me.id).first();
+  // A move may leave the title out: it keeps the current one (so a stale page can't put back an old title).
+  const f = body.title === undefined && mine ? { title: mine.title } : demoTitle(body.title);
   if (f.error) return json(env, { error: f.error }, 400, NO_STORE);
-  const mine = await env.DB.prepare('SELECT id, day, position FROM demo_slots WHERE student_id = ?').bind(me.id).first();
   if (demoDayClosed(t.day) || (mine && demoDayClosed(mine.day))) return json(env, { error: 'day_closed' }, 403, NO_STORE);
   // `from` is where the page showed their slot ({day, position}, or null for none). If that's no
   // longer true (the instructor moved or removed it, or another tab did), refuse rather than undo it.
-  if (body.from !== undefined) {
-    const seen = body.from && `${body.from.day}|${body.from.position}`;
-    if (seen !== (mine ? `${mine.day}|${mine.position}` : null)) {
-      return json(env, { error: 'changed', ...(await demoState(env, me)) }, 409, NO_STORE);
-    }
+  // The UPDATE below repeats the check in its WHERE, so a move landing in between is caught too.
+  const from = body.from === undefined ? undefined : body.from && { day: String(body.from.day), position: Number(body.from.position) };
+  if (from !== undefined && (from ? !mine || mine.day !== from.day || mine.position !== from.position : !!mine)) {
+    return json(env, { error: 'changed', ...(await demoState(env, me)) }, 409, NO_STORE);
   }
   const now = nowISO();
   let changed = 0;
   try {
     const res = mine
-      ? await env.DB.prepare('UPDATE demo_slots SET day = ?, position = ?, title = ?, updated_at = ? WHERE id = ? AND student_id = ?')
-        .bind(t.day, t.position, f.title, now, mine.id, me.id).run()
+      ? await env.DB.prepare(
+        'UPDATE demo_slots SET day = ?, position = ?, title = ?, updated_at = ? WHERE id = ? AND student_id = ? AND day = ? AND position = ?'
+      ).bind(t.day, t.position, f.title, now, mine.id, me.id, mine.day, mine.position).run()
       : await env.DB.prepare(
         'INSERT INTO demo_slots (day, position, student_id, title, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
       ).bind(t.day, t.position, me.id, f.title, now, now).run();
@@ -1505,10 +1507,16 @@ async function handleDemoClaim(request, env) {
 async function handleDemoRelease(request, env) {
   const { me, error } = await demoStudentGate(request, env);
   if (error) return error;
-  const mine = await env.DB.prepare('SELECT id, day FROM demo_slots WHERE student_id = ?').bind(me.id).first();
-  if (!mine) return json(env, { error: 'not_found' }, 404, NO_STORE);
+  const mine = await env.DB.prepare('SELECT id, day, position FROM demo_slots WHERE student_id = ?').bind(me.id).first();
+  if (!mine) return json(env, { error: 'not_found', ...(await demoState(env, me)) }, 404, NO_STORE);
   if (demoDayClosed(mine.day)) return json(env, { error: 'day_closed' }, 403, NO_STORE);
-  await env.DB.prepare('DELETE FROM demo_slots WHERE id = ? AND student_id = ?').bind(mine.id, me.id).run();
+  // ?day=&position=: the slot the page showed. Release only that one, never one the instructor moved them to since.
+  const q = new URL(request.url).searchParams;
+  const day = q.get('day') ?? mine.day;
+  const position = q.has('position') ? Number(q.get('position')) : mine.position;
+  const res = await env.DB.prepare('DELETE FROM demo_slots WHERE id = ? AND student_id = ? AND day = ? AND position = ?')
+    .bind(mine.id, me.id, day, position).run();
+  if (!res.meta || res.meta.changes !== 1) return json(env, { error: 'changed', ...(await demoState(env, me)) }, 409, NO_STORE);
   return json(env, { ok: true, ...(await demoState(env, me)) }, 200, NO_STORE);
 }
 
@@ -1518,6 +1526,12 @@ async function demoInstructorGate(request, env) {
   if (!me.is_instructor) return { error: json(env, { error: 'forbidden' }, 403, NO_STORE) };
   return { me };
 }
+
+// Rows on a night that is no longer in semester.json (instructor view and export).
+const demoElsewhere = (rows) => rows.filter((r) => !demoDay(r.day)).map((r) => ({
+  id: r.id, day: r.day, position: r.position, title: r.title, guest: r.student_id == null,
+  name: r.student_id != null ? r.student_name : r.guest_name,
+}));
 
 async function demoInstructorState(env, me) {
   const [settings, rows, students] = await Promise.all([
@@ -1535,10 +1549,7 @@ async function demoInstructorState(env, me) {
     title_max: DEMO_TITLE_MAX,
     days: demoDays(rows, me, true),
     // Rows on a night that is no longer in semester.json: shown so they can be moved or removed.
-    elsewhere: rows.filter((r) => !demoDay(r.day)).map((r) => ({
-      id: r.id, day: r.day, position: r.position, title: r.title, guest: r.student_id == null,
-      name: r.student_id != null ? r.student_name : r.guest_name,
-    })),
+    elsewhere: demoElsewhere(rows),
     not_signed_up: students.results.map((s) => ({ id: s.id, name: s.name })),
   };
 }
@@ -1661,13 +1672,7 @@ async function handleInstructorDemoExport(request, env) {
   const { me, error } = await demoInstructorGate(request, env);
   if (error) return error;
   const rows = await demoRows(env);
-  let text = runningOrderText(demoDays(rows, me, true));
-  const elsewhere = rows.filter((r) => !demoDay(r.day));
-  if (elsewhere.length) {
-    text += ['Not on a demo night (the calendar changed; move or remove these):',
-      ...elsewhere.map((r) => `    ${r.day} slot ${r.position}  ${r.student_id != null ? r.student_name : `${r.guest_name} (guest)`}: ${r.title}`), ''].join('\n');
-  }
-  return new Response(text, {
+  return new Response(runningOrderText(demoDays(rows, me, true), demoElsewhere(rows)), {
     status: 200,
     headers: { ...corsHeaders(env), 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
   });

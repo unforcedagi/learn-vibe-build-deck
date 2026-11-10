@@ -220,6 +220,22 @@ test('a stale page can\'t undo the instructor: a move or retitle from the old sl
   assert.equal((await call(env, 'ana', 'POST', '/demos/claim', { ...stale, from: null })).status, 200, 'a fresh claim says from: null');
 });
 
+test('a move without a title keeps the current one; a stale release can\'t drop a slot the instructor moved', async () => {
+  const env = setup({ open: true });
+  await claim(env, 'ana', DAY1, 3, 'Ana build');
+  const id = env.DB.db.prepare('SELECT id FROM demo_slots WHERE student_id = 1').get().id;
+  await call(env, 'teach', 'PATCH', `/instructor/demos/${id}`, { title: 'Ana build (final)' });
+  assert.equal((await call(env, 'ana', 'POST', '/demos/claim', { day: DAY1, position: 5, from: { day: DAY1, position: 3 } })).status, 200);
+  assert.deepEqual(rows(env).map((r) => [r.position, r.title]), [[5, 'Ana build (final)']]);
+  await call(env, 'teach', 'POST', '/instructor/demos/move', { id, day: DAY2, position: 1 });
+  const res = await call(env, 'ana', 'DELETE', `/demos/claim?day=${DAY1}&position=5`);
+  assert.equal(res.status, 409);
+  assert.equal((await res.json()).error, 'changed');
+  assert.equal(rows(env).length, 1, 'the slot they never saw is still theirs');
+  assert.equal((await call(env, 'ana', 'DELETE', `/demos/claim?day=${DAY2}&position=1`)).status, 200);
+  assert.deepEqual(rows(env), []);
+});
+
 test('move without a numeric id is 400', async () => {
   const env = setup({ open: true });
   for (const id of [undefined, '3', 1.5]) {

@@ -25,6 +25,7 @@ const state = { data: null, editing: null, draft: null, busy: false };
 const ERRORS = {
   slot_taken: 'Someone just took that slot. The list below is up to date.',
   changed: 'Your slot changed in the meantime (another tab, or Aaron moved it). The list below is up to date.',
+  not_found: 'You don’t have a slot any more (released in another tab, or Aaron removed it).',
   locked: 'The order is locked now. Ask Aaron if you need to change your slot.',
   day_closed: 'That night has started, so its slots can no longer change here. Ask Aaron.',
   not_open: 'The sign-up is closed right now.',
@@ -56,12 +57,12 @@ async function boot() {
   render();
 }
 
-async function send(method, body) {
+async function send(method, body, query = '') {
   if (state.busy) return;
   state.busy = true;
   setMsg('');
   try {
-    const res = await fetch(`${API_BASE}/demos/claim`, {
+    const res = await fetch(`${API_BASE}/demos/claim${query}`, {
       method,
       credentials: 'include',
       headers: body ? { 'Content-Type': 'application/json' } : {},
@@ -179,11 +180,11 @@ function renderSlot(day, s) {
   if (s.mine) {
     actions.append(button('Edit title', 'quiet', () => { state.editing = key; state.draft = null; render(); }));
     actions.append(button('Release', 'quiet', () => {
-      if (window.confirm('Give up this slot? Someone else can take it.')) send('DELETE');
+      if (window.confirm('Give up this slot? Someone else can take it.')) send('DELETE', null, `?day=${encodeURIComponent(d.mine.day)}&position=${d.mine.position}`);
     }));
   } else if (!s.taken) {
     if (d.mine) {
-      actions.append(button('Move here', 'quiet', () => send('POST', { day: day.date, position: s.position, title: d.mine.title, from: from() })));
+      actions.append(button('Move here', 'quiet', () => send('POST', { day: day.date, position: s.position, from: from() })));
     } else {
       actions.append(button('Take this slot', 'quiet', () => { state.editing = key; state.draft = null; render(); }));
     }

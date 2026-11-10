@@ -39,7 +39,8 @@ export function denverToday(now = Date.now()) {
 
 // The running order as plain text, for the instructor to read from.
 // `days`: [{ date, starts, slots: [{ position, name, title, guest }] }], full names.
-export function runningOrderText(days) {
+// `elsewhere`: rows on a night that left the calendar: [{ day, position, name, title, guest }].
+export function runningOrderText(days, elsewhere = []) {
   const lines = ['Final demos: running order', ''];
   for (const d of days) {
     const start = d.starts ? `starts ${slotTime(d.starts, 1)}` : 'time to be confirmed';
@@ -51,6 +52,11 @@ export function runningOrderText(days) {
       const who = s ? `${s.name}${s.guest ? ' (guest)' : ''}: ${s.title}` : '(open)';
       lines.push(`${String(p).padStart(2)}  ${when} ${who}`);
     }
+    lines.push('');
+  }
+  if (elsewhere.length) {
+    lines.push('Not on a demo night (the calendar changed; move or remove these):');
+    for (const r of elsewhere) lines.push(`    ${r.day} slot ${r.position}  ${r.name}${r.guest ? ' (guest)' : ''}: ${r.title}`);
     lines.push('');
   }
   return lines.join('\n');
