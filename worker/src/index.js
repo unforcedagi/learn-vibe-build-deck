@@ -1364,9 +1364,8 @@ function demoMineRow(r) {
 
 // What the student page shows. Closed (and not a preview account): nothing.
 async function demoState(env, me) {
-  const preview = isDemoPreview(env, me);
   const settings = await demoSettings(env);
-  if (!settings.signup_open && !preview && !me.is_instructor) return { open: false };
+  if (!demoLinked(settings, env, me) && !me.is_instructor) return { open: false };
   const rows = await demoRows(env);
   const now = Date.now();
   return {
@@ -1440,7 +1439,7 @@ async function demoStudentGate(request, env) {
   if (!me) return { error: json(env, { error: 'unauthorized' }, 401, NO_STORE) };
   if (me.is_instructor) return { error: json(env, { error: 'instructor_uses_instructor_view' }, 403, NO_STORE) };
   const settings = await demoSettings(env);
-  if (!settings.signup_open && !isDemoPreview(env, me)) return { error: json(env, { error: 'not_open' }, 403, NO_STORE) };
+  if (!demoLinked(settings, env, me)) return { error: json(env, { error: 'not_open' }, 403, NO_STORE) };
   if (demoLocked(settings)) return { error: json(env, { error: 'locked' }, 403, NO_STORE) };
   return { me };
 }
@@ -1451,6 +1450,17 @@ function demoTitle(raw) {
   if (title.length > DEMO_TITLE_MAX) return { error: 'title_too_long' };
   return { title };
 }
+
+// Where the page showed the student's slot, for the stale-page guard on claim and release.
+// undefined: not sent (no check). null: the page showed no slot. Else {day, position}, or {error}.
+function parseSeen(seen) {
+  if (seen === undefined || seen === null) return seen;
+  if (typeof seen !== 'object') return { error: 'bad_from' };
+  const position = Number(seen.position);
+  if (typeof seen.day !== 'string' || !Number.isInteger(position)) return { error: 'bad_from' };
+  return { day: seen.day, position };
+}
+const seenMatches = (seen, mine) => (seen ? !!mine && mine.day === seen.day && mine.position === seen.position : !mine);
 
 function demoTarget(body) {
   const day = demoDay(String(body.day || ''));
@@ -1468,24 +1478,23 @@ async function handleDemoClaim(request, env) {
   if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
   const t = demoTarget(body);
   if (t.error) return json(env, { error: t.error }, 400, NO_STORE);
-  const mine = await env.DB.prepare('SELECT id, day, position, title FROM demo_slots WHERE student_id = ?').bind(me.id).first();
-  // A move may leave the title out: it keeps the current one (so a stale page can't put back an old title).
-  const f = body.title === undefined && mine ? { title: mine.title } : demoTitle(body.title);
-  if (f.error) return json(env, { error: f.error }, 400, NO_STORE);
-  if (demoDayClosed(t.day) || (mine && demoDayClosed(mine.day))) return json(env, { error: 'day_closed' }, 403, NO_STORE);
+  const mine = await env.DB.prepare('SELECT id, day, position FROM demo_slots WHERE student_id = ?').bind(me.id).first();
   // `from` is where the page showed their slot ({day, position}, or null for none). If that's no
   // longer true (the instructor moved or removed it, or another tab did), refuse rather than undo it.
   // The UPDATE below repeats the check in its WHERE, so a move landing in between is caught too.
-  const from = body.from === undefined ? undefined : body.from && { day: String(body.from.day), position: Number(body.from.position) };
-  if (from !== undefined && (from ? !mine || mine.day !== from.day || mine.position !== from.position : !!mine)) {
-    return json(env, { error: 'changed', ...(await demoState(env, me)) }, 409, NO_STORE);
-  }
+  const from = parseSeen(body.from);
+  if (from?.error) return json(env, { error: from.error }, 400, NO_STORE);
+  if (from !== undefined && !seenMatches(from, mine)) return json(env, { error: 'changed', ...(await demoState(env, me)) }, 409, NO_STORE);
+  // A move may leave the title out; the UPDATE then keeps whatever title the row has (COALESCE).
+  const f = body.title === undefined && mine ? { title: null } : demoTitle(body.title);
+  if (f.error) return json(env, { error: f.error }, 400, NO_STORE);
+  if (demoDayClosed(t.day) || (mine && demoDayClosed(mine.day))) return json(env, { error: 'day_closed' }, 403, NO_STORE);
   const now = nowISO();
   let changed = 0;
   try {
     const res = mine
       ? await env.DB.prepare(
-        'UPDATE demo_slots SET day = ?, position = ?, title = ?, updated_at = ? WHERE id = ? AND student_id = ? AND day = ? AND position = ?'
+        'UPDATE demo_slots SET day = ?, position = ?, title = COALESCE(?, title), updated_at = ? WHERE id = ? AND student_id = ? AND day = ? AND position = ?'
       ).bind(t.day, t.position, f.title, now, mine.id, me.id, mine.day, mine.position).run()
       : await env.DB.prepare(
         'INSERT INTO demo_slots (day, position, student_id, title, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
@@ -1508,14 +1517,15 @@ async function handleDemoRelease(request, env) {
   const { me, error } = await demoStudentGate(request, env);
   if (error) return error;
   const mine = await env.DB.prepare('SELECT id, day, position FROM demo_slots WHERE student_id = ?').bind(me.id).first();
-  if (!mine) return json(env, { error: 'not_found', ...(await demoState(env, me)) }, 404, NO_STORE);
-  if (demoDayClosed(mine.day)) return json(env, { error: 'day_closed' }, 403, NO_STORE);
   // ?day=&position=: the slot the page showed. Release only that one, never one the instructor moved them to since.
   const q = new URL(request.url).searchParams;
-  const day = q.get('day') ?? mine.day;
-  const position = q.has('position') ? Number(q.get('position')) : mine.position;
+  const seen = q.has('day') || q.has('position') ? parseSeen({ day: q.get('day'), position: q.get('position') }) : undefined;
+  if (seen?.error) return json(env, { error: seen.error }, 400, NO_STORE);
+  if (!mine) return json(env, { error: 'not_found', ...(await demoState(env, me)) }, 404, NO_STORE);
+  if (seen !== undefined && !seenMatches(seen, mine)) return json(env, { error: 'changed', ...(await demoState(env, me)) }, 409, NO_STORE);
+  if (demoDayClosed(mine.day)) return json(env, { error: 'day_closed' }, 403, NO_STORE);
   const res = await env.DB.prepare('DELETE FROM demo_slots WHERE id = ? AND student_id = ? AND day = ? AND position = ?')
-    .bind(mine.id, me.id, day, position).run();
+    .bind(mine.id, me.id, mine.day, mine.position).run();
   if (!res.meta || res.meta.changes !== 1) return json(env, { error: 'changed', ...(await demoState(env, me)) }, 409, NO_STORE);
   return json(env, { ok: true, ...(await demoState(env, me)) }, 200, NO_STORE);
 }

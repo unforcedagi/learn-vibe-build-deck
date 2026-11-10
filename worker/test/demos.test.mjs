@@ -232,8 +232,17 @@ test('a move without a title keeps the current one; a stale release can\'t drop 
   assert.equal(res.status, 409);
   assert.equal((await res.json()).error, 'changed');
   assert.equal(rows(env).length, 1, 'the slot they never saw is still theirs');
+  assert.equal((await call(env, 'ana', 'DELETE', `/demos/claim?day=${DAY2}&position=abc`)).status, 400);
   assert.equal((await call(env, 'ana', 'DELETE', `/demos/claim?day=${DAY2}&position=1`)).status, 200);
   assert.deepEqual(rows(env), []);
+  // A stale "Move here" after the instructor removed the slot: changed, not a title error.
+  await claim(env, 'ana', DAY1, 2, 'Ana again');
+  const id2 = env.DB.db.prepare('SELECT id FROM demo_slots WHERE student_id = 1').get().id;
+  await call(env, 'teach', 'DELETE', `/instructor/demos/${id2}`);
+  const res2 = await call(env, 'ana', 'POST', '/demos/claim', { day: DAY1, position: 4, from: { day: DAY1, position: 2 } });
+  assert.equal(res2.status, 409);
+  assert.equal((await res2.json()).error, 'changed');
+  assert.equal((await call(env, 'ana', 'POST', '/demos/claim', { day: DAY1, position: 4, from: 'x' })).status, 400);
 });
 
 test('move without a numeric id is 400', async () => {

@@ -180,7 +180,10 @@ function renderSlot(day, s) {
   if (s.mine) {
     actions.append(button('Edit title', 'quiet', () => { state.editing = key; state.draft = null; render(); }));
     actions.append(button('Release', 'quiet', () => {
-      if (window.confirm('Give up this slot? Someone else can take it.')) send('DELETE', null, `?day=${encodeURIComponent(d.mine.day)}&position=${d.mine.position}`);
+      if (window.confirm('Give up this slot? Someone else can take it.')) {
+        const f = from();
+        send('DELETE', null, `?day=${encodeURIComponent(f.day)}&position=${f.position}`);
+      }
     }));
   } else if (!s.taken) {
     if (d.mine) {
