@@ -179,6 +179,7 @@ function showAccount(me) {
   // student page for everyone (the roster lives at /instructor/ now).
   if (me.is_instructor) showInstructorLink();
   renderGift(me.gift);
+  renderDemoSignup(me.demo_signup);
   renderReadings(me.readings);
 
   const wanted = weekFromHash();
@@ -211,6 +212,34 @@ function renderGift(gift) {
   video.style.cssText = 'display:block;width:100%;max-height:70vh;border-radius:4px;background:#000';
   box.append(line, video);
   document.querySelector('#account .who').after(box);
+}
+
+// The final demo sign-up, only while it is linked (the instructor opened it, or
+// a preview account). Their slot when they have one, else an invitation.
+function renderDemoSignup(demo) {
+  const old = document.getElementById('demo-signup');
+  if (old) old.remove();
+  if (!demo || !demo.linked) return;
+  const box = document.createElement('section');
+  box.id = 'demo-signup';
+  box.className = 'card demo-signup-card';
+  const kicker = document.createElement('p');
+  kicker.className = 'kicker';
+  kicker.textContent = 'Final demos · Nov 30 and Dec 4';
+  const line = document.createElement('p');
+  const a = document.createElement('a');
+  a.className = 'btn';
+  a.href = '../demos/';
+  if (demo.mine) {
+    const m = demo.mine;
+    line.textContent = `You’re presenting ${m.label}, slot ${m.position}${m.time ? ` (about ${m.time})` : ''}: ${m.title}.`;
+    a.textContent = 'See the running order';
+  } else {
+    line.textContent = 'Sign up for a 10-minute slot to show your final project.';
+    a.textContent = 'Choose your slot';
+  }
+  box.append(kicker, line, a);
+  (document.getElementById('gift') || document.querySelector('#account .who')).after(box);
 }
 
 // Prominent pointer to the dedicated instructor view (only ever rendered for

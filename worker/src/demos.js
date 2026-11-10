@@ -53,7 +53,7 @@ export function runningOrderText(days) {
       const s = byPos.get(p);
       const when = (slotTime(d.starts, p) || `slot ${p}`).padEnd(8);
       const who = s ? `${s.name}${s.guest ? ' (guest)' : ''}: ${s.title}` : '(open)';
-      lines.push(`${String(p).padStart(2)}  ${when}  ${who}`);
+      lines.push(`${String(p).padStart(2)}  ${when} ${who}`);
     }
     lines.push('');
   }
