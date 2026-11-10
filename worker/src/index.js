@@ -914,7 +914,7 @@ async function handleSyncRead(request, env, name) {
 const SYNC_MAX_STATEMENTS = 45;
 const CANVAS_ID = /^[0-9]{1,20}$/;
 // Numbers must arrive as JSON integers: Number(null) or Number('') would pass as 0.
-const int = (v) => (Number.isInteger(v) ? v : NaN);
+const int = (v) => (Number.isSafeInteger(v) ? v : NaN);
 const optText = (v) => (v === null || v === undefined ? null : typeof v === 'string' ? v : undefined);
 
 // { body } on success, { refused: Response } otherwise (a client body may carry any key).

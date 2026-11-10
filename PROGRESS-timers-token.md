@@ -46,13 +46,14 @@ None of the three unit files sets `CLOUDFLARE_API_TOKEN` in `Environment=`; the 
    main already carries #48, so this deploy ships the demo code too (flag off), and /demos needs those tables.
 2. Merge this PR (CI green). Do NOT pull the main checkout yet: lvb-canvas-sync runs from
    `~/Code/learn-vibe-build-deck`, and the new scripts get 404 from the old Worker until the deploy is live.
-3. Deploy from a fresh clone of main. Build first with no token (also warms npx), then one card:
+3. Deploy from a fresh clone of main, as ONE command: the card is only posted if the clone and the token-free
+   build (which also warms npx) succeed, and the job itself cd's into that clone.
    ```sh
-   D=~/.scratch/lvb-deploy-$(date +%Y%m%d-%H%M) && git clone -q --depth 1 https://github.com/unforcedagi/learn-vibe-build-deck "$D" \
-     && cd "$D/worker" && npx -y wrangler@4 deploy --dry-run >/dev/null && echo build-ok
-   ~/Code/uni-ops/bin/cf-job --account unforced --template workers-scripts-write \
-     --purpose "LVB: deploy lvb-accounts with /admin/sync so 3 class timers drop the broad token (T-121); includes demo sign-up PR 48, off" \
-     -- sh -c 'npx -y wrangler@4 deployments list | tail -12 && npx -y wrangler@4 deploy'
+   D=$(mktemp -d) && git clone -q --depth 1 https://github.com/unforcedagi/learn-vibe-build-deck "$D" \
+     && (cd "$D/worker" && npx -y wrangler@4 deploy --dry-run >/dev/null) && echo build-ok \
+     && ~/Code/uni-ops/bin/cf-job --account unforced --template workers-scripts-write \
+       --purpose "LVB: deploy lvb-accounts with /admin/sync so 3 class timers drop the broad token (T-121); includes demo sign-up PR 48, off" \
+       -- sh -c "cd '$D/worker' && npx -y wrangler@4 deployments list | tail -12 && npx -y wrangler@4 deploy"
    ```
    The list printed first holds the rollback version id; the deploy prints the new one.
    Card (rendered offline with sealed/card_text.py; the account name comes from the broker's list):

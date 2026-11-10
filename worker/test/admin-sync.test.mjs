@@ -119,8 +119,13 @@ test('canvas: bad rows and oversized batches are refused whole', async () => {
       { canvas_id: '1', week, body: 'x', submitted_at: null, link_url: null }] } });
     assert.equal(res.status, 400, `week ${JSON.stringify(week)}`);
   }
-  const prune = await call(env, 'POST', '/admin/sync/files', { key: KEY, body: { groups: [{ canvas_id: '1', rows: [], keep: [] }] } });
-  assert.equal(prune.status, 400, 'a group without a week never prunes week 0');
+  for (const week of [null, '', undefined, false]) {
+    const prune = await call(env, 'POST', '/admin/sync/files', { key: KEY, body: { groups: [{ week, canvas_id: '1', rows: [], keep: [] }] } });
+    assert.equal(prune.status, 400, `a group with week ${JSON.stringify(week)} never prunes week 0`);
+  }
+  const big = await call(env, 'POST', '/admin/sync/files', { key: KEY, body: { groups: [{ week: 4, canvas_id: '1',
+    rows: [{ canvas_file_id: 'x', name: 'x', kind: 'pdf', position: null, size: 2 ** 60, pages: 0, render_version: 1 }], keep: ['x'] }] } });
+  assert.equal(big.status, 400, 'null position or an unsafe integer is refused');
   const who = await call(env, 'POST', '/admin/sync/student-reads', { key: KEY, body: { reads: [
     { student_id: true, body: 'x', input_hash: 'h', based_on: null, model: null }] } });
   assert.equal(who.status, 400);

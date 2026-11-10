@@ -55,9 +55,9 @@ def _error_code(e):
         return ""
 
 
-def call(method, path, body=None, data=None, content_type=None, timeout=300, length=None):
+def call(method, path, body=None, data=None, content_type=None, timeout=300):
     """One request to the Worker; returns the parsed JSON reply. `data` may be
-    bytes or an open file (then give its `length`; urllib streams it)."""
+    bytes or an open file (urllib streams it)."""
     headers = {
         "Authorization": "Bearer " + _key(),
         # Cloudflare's browser integrity check refuses urllib's default UA (error 1010).
@@ -69,7 +69,8 @@ def call(method, path, body=None, data=None, content_type=None, timeout=300, len
     if content_type:
         headers["Content-Type"] = content_type
     if data is not None:
-        headers["Content-Length"] = str(len(data) if length is None else length)
+        headers["Content-Length"] = str(os.fstat(data.fileno()).st_size - data.tell() if hasattr(data, "fileno")
+                                        else len(data))
     req = urllib.request.Request(API + path, method=method, data=data, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=timeout) as res:
@@ -103,7 +104,7 @@ def put_object(key, path, content_type="application/octet-stream"):
     route = f"/admin/sync/object/{key}"
     with open(path, "rb") as f:
         if size <= SINGLE_PUT_MAX:  # streamed from disk, not read into memory
-            return call("PUT", route, data=f, length=size, content_type=content_type, timeout=900)
+            return call("PUT", route, data=f, content_type=content_type, timeout=900)
         # An explicit empty body, so the start carries Content-Length: 0.
         upload = call("POST", route + "?uploads", data=b"", content_type=content_type)["upload_id"]
         at = f"{route}?upload_id={urllib.parse.quote(upload, safe='')}"
@@ -117,8 +118,8 @@ def put_object(key, path, content_type="application/octet-stream"):
                 done = call("PUT", f"{at}&part={n}", data=chunk, content_type="application/octet-stream", timeout=900)
                 parts.append({"part": done["part"], "etag": done["etag"]})
             return call("POST", at, body={"parts": parts})
-        except ApiError:
-            try:  # don't leave a half upload open in R2
+        except BaseException:  # an API error, a bad reply or Ctrl-C: don't leave a half upload open in R2
+            try:
                 call("DELETE", at)
             except ApiError:
                 pass
