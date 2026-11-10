@@ -11,7 +11,7 @@
 - Tests: `node --test 'worker/test/*.test.mjs'` 119 pass (16 in demos.test.mjs; 9 mutations each turned it red).
   `node tools/e2e_demos.mjs` passes (Chromium, 1280 and 390 px, fixture class).
 - Migration proven on a copy of the 2026-11-02 production backup (in memory): 13 tables, counts and columns unchanged.
-- Walkthrough: `WALKTHROUGH-demo-signup.md`, video https://uni.taildf9ce2.ts.net:8444/walkthrough-demo-signup-da4547ac.mp4
+- Walkthrough: `WALKTHROUGH-demo-signup.md`, video https://uni.taildf9ce2.ts.net:8444/walkthrough-demo-signup-c9188402.mp4
 - PR #48, CI green.
 
 ## Blocked: production (needs the Cloudflare broker, which this worker can't reach)

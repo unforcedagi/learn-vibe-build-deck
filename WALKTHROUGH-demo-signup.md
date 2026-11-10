@@ -1,6 +1,6 @@
 # Walkthrough: final demo sign-up
 
-Narrated video (74 s, landscape, tailnet only): https://uni.taildf9ce2.ts.net:8444/walkthrough-demo-signup-da4547ac.mp4
+Narrated video (74 s, landscape, tailnet only): https://uni.taildf9ce2.ts.net:8444/walkthrough-demo-signup-c9188402.mp4
 
 What's being judged: whether the student page and your instructor view do what you asked (two nights, 13 timed
 slots, one slot each, a lock, reorder, guests, a text running order), and whether the Demo day brief reads right.
