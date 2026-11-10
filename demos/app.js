@@ -47,8 +47,8 @@ async function boot() {
   }
   hide($('loading'));
   if (res.status === 401) { show($('signedout')); return; }
-  const data = await res.json();
-  if (!data.open) { show($('closed')); return; }
+  const data = await res.json().catch(() => ({}));
+  if (!data.open || !data.days) { show($('closed')); return; }
   state.data = data;
   show($('main'));
   render();

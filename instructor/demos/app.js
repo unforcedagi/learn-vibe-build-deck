@@ -56,6 +56,7 @@ async function boot() {
   hide($('loading'));
   if (out.res.status === 401) { show($('signedout')); return; }
   if (out.res.status === 403) { show($('denied')); return; }
+  if (!out.res.ok || !out.data.days) { show($('unavailable')); return; }
   state.data = out.data;
   show($('main'));
   wireControls();
