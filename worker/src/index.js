@@ -1,5 +1,8 @@
 import { handleMcp } from './mcp.js';
-import { WEEKS } from './weeks.generated.js';
+import { WEEKS, DEMO_DAYS } from './weeks.generated.js';
+import {
+  DEMO_SLOTS, DEMO_MINUTES, DEMO_TITLE_MAX, DEMO_NAME_MAX, slotTime, dayLabel, denverToday, runningOrderText,
+} from './demos.js';
 import { buildPrompt } from './fpprompt.js';
 // Learn, Vibe, Build — accounts API (Cloudflare Worker + D1).
 //
@@ -658,6 +661,7 @@ async function handleMe(request, env) {
       ...s, share_build: !!s.share_build, share_writing: !!s.share_writing,
     })),
     gift: await giftFor(env, me.id),
+    demo_signup: await demoLink(env, me),
   };
 
   if (target) {
@@ -1282,6 +1286,338 @@ async function handleCommentDelete(request, env, id) {
 }
 
 // ---------------------------------------------------------------------------
+// Final demo sign-up (demo_slots, demo_settings: 0011). Signed-in only, never
+// public. Two days (DEMO_DAYS, from semester.json), 13 ten-minute slots each.
+// A student holds at most one slot and can claim, move, retitle or release it
+// until the instructor's lock time; a day also closes to students on its own
+// morning. Students see classmates' first names and titles only. The
+// instructor reorders (swap), moves between days, adds guests, sets the lock
+// and opens the sign-up. While it is closed (signup_open = 0, the default),
+// students get { open: false } and no links appear, except for the throwaway
+// preview accounts in the DEMO_PREVIEW var, so the flow can be tested in
+// production without reaching anyone.
+// ---------------------------------------------------------------------------
+
+const isDemoPreview = (env, me) => !!me && String(env.DEMO_PREVIEW || '').split(',')
+  .map((s) => s.trim().toLowerCase()).filter(Boolean).includes(String(me.email || '').toLowerCase());
+
+async function demoSettings(env) {
+  const r = await env.DB.prepare('SELECT signup_open, lock_at FROM demo_settings WHERE id = 1').first();
+  return { signup_open: !!r?.signup_open, lock_at: r?.lock_at || null };
+}
+
+const demoLocked = (settings, now = Date.now()) => !!settings.lock_at && Date.parse(settings.lock_at) <= now;
+const demoDay = (date) => DEMO_DAYS.find((d) => d.date === date) || null;
+// Students can't change a day's slots from that day's morning (Denver) on.
+const demoDayClosed = (date, now = Date.now()) => denverToday(now) >= date;
+
+async function demoRows(env) {
+  return (await env.DB.prepare(
+    `SELECT d.id, d.day, d.position, d.student_id, d.guest_name, d.title, s.name AS student_name
+       FROM demo_slots d LEFT JOIN students s ON s.id = d.student_id
+      ORDER BY d.day, d.position`
+  ).all()).results;
+}
+
+// Both days, 13 slots each. `full` (instructor): full names and row ids;
+// otherwise first names only and nothing that identifies a row.
+function demoDays(rows, me, full, now = Date.now()) {
+  return DEMO_DAYS.map((d) => {
+    const taken = new Map(rows.filter((r) => r.day === d.date).map((r) => [r.position, r]));
+    const slots = [];
+    for (let p = 1; p <= DEMO_SLOTS; p++) {
+      const r = taken.get(p);
+      const slot = { position: p, time: slotTime(d.starts, p), taken: !!r };
+      if (r) {
+        const name = r.student_id != null ? r.student_name : r.guest_name;
+        Object.assign(slot, {
+          name: full ? name : firstName(name),
+          title: r.title,
+          guest: r.student_id == null,
+          mine: r.student_id != null && r.student_id === me.id,
+        });
+        if (full) Object.assign(slot, { id: r.id, student_id: r.student_id });
+      }
+      slots.push(slot);
+    }
+    return {
+      date: d.date, label: dayLabel(d.date), title: d.title, starts: d.starts,
+      start_label: slotTime(d.starts, 1), closed: demoDayClosed(d.date, now), slots,
+    };
+  });
+}
+
+function demoMine(rows, me) {
+  const r = rows.find((x) => x.student_id === me.id);
+  if (!r) return null;
+  return { day: r.day, label: dayLabel(r.day), position: r.position, title: r.title, time: slotTime(demoDay(r.day)?.starts, r.position) };
+}
+
+// What the student page shows. Closed (and not a preview account): nothing.
+async function demoState(env, me) {
+  const settings = await demoSettings(env);
+  const preview = isDemoPreview(env, me);
+  if (!settings.signup_open && !preview && !me.is_instructor) return { open: false };
+  const now = Date.now();
+  const rows = await demoRows(env);
+  return {
+    open: true,
+    preview: !settings.signup_open,
+    locked: demoLocked(settings, now),
+    lock_at: settings.lock_at,
+    minutes_per_slot: DEMO_MINUTES,
+    title_max: DEMO_TITLE_MAX,
+    can_claim: !me.is_instructor,
+    days: demoDays(rows, me, false, now),
+    mine: demoMine(rows, me),
+  };
+}
+
+// For the home page and /me: is the sign-up linked for this visitor? An
+// optional extra: a D1 hiccup reads as "not linked", never breaks the caller.
+async function demoLink(env, me) {
+  try {
+    const settings = await demoSettings(env);
+    const linked = settings.signup_open || isDemoPreview(env, me);
+    if (!linked || !me) return { linked };
+    return { linked, mine: demoMine(await demoRows(env), me) };
+  } catch (err) {
+    console.error('demo link failed:', err.message);
+    return { linked: false };
+  }
+}
+
+const NO_STORE = { 'Cache-Control': 'no-store' };
+const isUnique = (err) => /UNIQUE/i.test(String(err && err.message));
+
+async function handleDemoStatus(request, env) {
+  const me = await currentStudent(request, env);
+  const { linked } = await demoLink(env, me);
+  return json(env, { linked }, 200, NO_STORE);
+}
+
+async function handleDemos(request, env) {
+  const me = await currentStudent(request, env);
+  if (!me) return json(env, { error: 'unauthorized' }, 401, NO_STORE);
+  return json(env, await demoState(env, me), 200, NO_STORE);
+}
+
+// The checks every student write shares: signed in, a student, open (or a
+// preview account), not locked. Returns { me } or { error }.
+async function demoStudentGate(request, env) {
+  const me = await currentStudent(request, env);
+  if (!me) return { error: json(env, { error: 'unauthorized' }, 401, NO_STORE) };
+  if (me.is_instructor) return { error: json(env, { error: 'instructor_uses_instructor_view' }, 403, NO_STORE) };
+  const settings = await demoSettings(env);
+  if (!settings.signup_open && !isDemoPreview(env, me)) return { error: json(env, { error: 'not_open' }, 403, NO_STORE) };
+  if (demoLocked(settings)) return { error: json(env, { error: 'locked' }, 403, NO_STORE) };
+  return { me };
+}
+
+function demoTitle(raw) {
+  const title = String(raw ?? '').trim().replace(/\s+/g, ' ');
+  if (!title) return { error: 'title_required' };
+  if (title.length > DEMO_TITLE_MAX) return { error: 'title_too_long' };
+  return { title };
+}
+
+function demoTarget(body) {
+  const day = demoDay(String(body.day || ''));
+  if (!day) return { error: 'bad_day' };
+  const position = Number(body.position);
+  if (!Number.isInteger(position) || position < 1 || position > DEMO_SLOTS) return { error: 'bad_position' };
+  return { day: day.date, position };
+}
+
+// Claim a slot, or move to another one, or retitle: a student's one row.
+async function handleDemoClaim(request, env) {
+  const { me, error } = await demoStudentGate(request, env);
+  if (error) return error;
+  const body = await readJson(request);
+  if (!body) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  const t = demoTarget(body);
+  if (t.error) return json(env, { error: t.error }, 400, NO_STORE);
+  const f = demoTitle(body.title);
+  if (f.error) return json(env, { error: f.error }, 400, NO_STORE);
+  const mine = await env.DB.prepare('SELECT id, day FROM demo_slots WHERE student_id = ?').bind(me.id).first();
+  if (demoDayClosed(t.day) || (mine && demoDayClosed(mine.day))) return json(env, { error: 'day_closed' }, 403, NO_STORE);
+  const now = nowISO();
+  try {
+    if (mine) {
+      await env.DB.prepare('UPDATE demo_slots SET day = ?, position = ?, title = ?, updated_at = ? WHERE id = ?')
+        .bind(t.day, t.position, f.title, now, mine.id).run();
+    } else {
+      await env.DB.prepare(
+        'INSERT INTO demo_slots (day, position, student_id, title, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
+      ).bind(t.day, t.position, me.id, f.title, now, now).run();
+    }
+  } catch (err) {
+    if (!isUnique(err)) throw err;
+    return json(env, { error: 'slot_taken', ...(await demoState(env, me)) }, 409, NO_STORE);
+  }
+  return json(env, { ok: true, ...(await demoState(env, me)) }, 200, NO_STORE);
+}
+
+async function handleDemoRelease(request, env) {
+  const { me, error } = await demoStudentGate(request, env);
+  if (error) return error;
+  const mine = await env.DB.prepare('SELECT id, day FROM demo_slots WHERE student_id = ?').bind(me.id).first();
+  if (!mine) return json(env, { error: 'not_found' }, 404, NO_STORE);
+  if (demoDayClosed(mine.day)) return json(env, { error: 'day_closed' }, 403, NO_STORE);
+  await env.DB.prepare('DELETE FROM demo_slots WHERE id = ? AND student_id = ?').bind(mine.id, me.id).run();
+  return json(env, { ok: true, ...(await demoState(env, me)) }, 200, NO_STORE);
+}
+
+async function demoInstructorGate(request, env) {
+  const me = await currentStudent(request, env);
+  if (!me) return { error: json(env, { error: 'unauthorized' }, 401, NO_STORE) };
+  if (!me.is_instructor) return { error: json(env, { error: 'forbidden' }, 403, NO_STORE) };
+  return { me };
+}
+
+async function demoInstructorState(env, me) {
+  const [settings, rows, students] = await Promise.all([
+    demoSettings(env),
+    demoRows(env),
+    env.DB.prepare(
+      `SELECT s.id, s.name FROM students s
+        WHERE s.is_instructor = 0 AND NOT EXISTS (SELECT 1 FROM demo_slots d WHERE d.student_id = s.id)
+        ORDER BY s.name`
+    ).all(),
+  ]);
+  return {
+    settings: { ...settings, locked: demoLocked(settings) },
+    minutes_per_slot: DEMO_MINUTES,
+    title_max: DEMO_TITLE_MAX,
+    days: demoDays(rows, me, true),
+    not_signed_up: students.results.map((s) => ({ id: s.id, name: s.name })),
+  };
+}
+
+async function handleInstructorDemos(request, env) {
+  const { me, error } = await demoInstructorGate(request, env);
+  if (error) return error;
+  return json(env, await demoInstructorState(env, me), 200, NO_STORE);
+}
+
+// Move one entry to (day, position). If someone holds that slot, the two swap,
+// so up/down, drag and "other day" are all the same operation. The swap runs
+// as one batch (a transaction): the moving row parks at a negative position
+// first so the unique (day, position) index never sees two rows in one slot.
+async function handleInstructorDemoMove(request, env) {
+  const { me, error } = await demoInstructorGate(request, env);
+  if (error) return error;
+  const body = await readJson(request);
+  if (!body) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  const t = demoTarget(body);
+  if (t.error) return json(env, { error: t.error }, 400, NO_STORE);
+  const a = await env.DB.prepare('SELECT id, day, position FROM demo_slots WHERE id = ?').bind(Number(body.id)).first();
+  if (!a) return json(env, { error: 'not_found' }, 404, NO_STORE);
+  if (a.day !== t.day || a.position !== t.position) {
+    const b = await env.DB.prepare('SELECT id FROM demo_slots WHERE day = ? AND position = ?').bind(t.day, t.position).first();
+    const now = nowISO();
+    const put = (id, day, pos) => env.DB.prepare('UPDATE demo_slots SET day = ?, position = ?, updated_at = ? WHERE id = ?')
+      .bind(day, pos, now, id);
+    try {
+      if (b) await env.DB.batch([put(a.id, a.day, -a.id), put(b.id, a.day, a.position), put(a.id, t.day, t.position)]);
+      else await put(a.id, t.day, t.position).run();
+    } catch (err) {
+      if (!isUnique(err)) throw err;
+      return json(env, { error: 'slot_taken', ...(await demoInstructorState(env, me)) }, 409, NO_STORE);
+    }
+  }
+  return json(env, { ok: true, ...(await demoInstructorState(env, me)) }, 200, NO_STORE);
+}
+
+// A guest or auditor (not on the roster) in an open slot.
+async function handleInstructorDemoGuest(request, env) {
+  const { me, error } = await demoInstructorGate(request, env);
+  if (error) return error;
+  const body = await readJson(request);
+  if (!body) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  const t = demoTarget(body);
+  if (t.error) return json(env, { error: t.error }, 400, NO_STORE);
+  const name = String(body.name ?? '').trim().replace(/\s+/g, ' ');
+  if (!name) return json(env, { error: 'name_required' }, 400, NO_STORE);
+  if (name.length > DEMO_NAME_MAX) return json(env, { error: 'name_too_long' }, 400, NO_STORE);
+  const f = demoTitle(body.title);
+  if (f.error) return json(env, { error: f.error }, 400, NO_STORE);
+  const now = nowISO();
+  try {
+    await env.DB.prepare(
+      'INSERT INTO demo_slots (day, position, guest_name, title, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
+    ).bind(t.day, t.position, name, f.title, now, now).run();
+  } catch (err) {
+    if (!isUnique(err)) throw err;
+    return json(env, { error: 'slot_taken', ...(await demoInstructorState(env, me)) }, 409, NO_STORE);
+  }
+  return json(env, { ok: true, ...(await demoInstructorState(env, me)) }, 201, NO_STORE);
+}
+
+// Fix a title (anyone's) or a guest's name.
+async function handleInstructorDemoEdit(request, env, id) {
+  const { me, error } = await demoInstructorGate(request, env);
+  if (error) return error;
+  const body = await readJson(request);
+  if (!body) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  const row = await env.DB.prepare('SELECT id, student_id, guest_name, title FROM demo_slots WHERE id = ?').bind(id).first();
+  if (!row) return json(env, { error: 'not_found' }, 404, NO_STORE);
+  const f = demoTitle(body.title ?? row.title);
+  if (f.error) return json(env, { error: f.error }, 400, NO_STORE);
+  let name = row.guest_name;
+  if (body.name != null) {
+    if (row.student_id != null) return json(env, { error: 'not_a_guest' }, 400, NO_STORE);
+    name = String(body.name).trim().replace(/\s+/g, ' ');
+    if (!name) return json(env, { error: 'name_required' }, 400, NO_STORE);
+    if (name.length > DEMO_NAME_MAX) return json(env, { error: 'name_too_long' }, 400, NO_STORE);
+  }
+  await env.DB.prepare('UPDATE demo_slots SET title = ?, guest_name = ?, updated_at = ? WHERE id = ?')
+    .bind(f.title, name, nowISO(), id).run();
+  return json(env, { ok: true, ...(await demoInstructorState(env, me)) }, 200, NO_STORE);
+}
+
+async function handleInstructorDemoDelete(request, env, id) {
+  const { me, error } = await demoInstructorGate(request, env);
+  if (error) return error;
+  const res = await env.DB.prepare('DELETE FROM demo_slots WHERE id = ?').bind(id).run();
+  if (!res.meta || res.meta.changes !== 1) return json(env, { error: 'not_found' }, 404, NO_STORE);
+  return json(env, { ok: true, ...(await demoInstructorState(env, me)) }, 200, NO_STORE);
+}
+
+// Open/close the sign-up (this is the feature flag) and set or clear the lock.
+async function handleInstructorDemoSettings(request, env) {
+  const { me, error } = await demoInstructorGate(request, env);
+  if (error) return error;
+  const body = await readJson(request);
+  if (!body) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  const cur = await demoSettings(env);
+  const open = body.signup_open === undefined ? cur.signup_open : body.signup_open;
+  if (typeof open !== 'boolean') return json(env, { error: 'bad_signup_open' }, 400, NO_STORE);
+  let lockAt = cur.lock_at;
+  if (body.lock_at !== undefined) {
+    if (body.lock_at === null || body.lock_at === '') lockAt = null;
+    else if (typeof body.lock_at === 'string' && !Number.isNaN(Date.parse(body.lock_at))) lockAt = new Date(body.lock_at).toISOString();
+    else return json(env, { error: 'bad_lock_at' }, 400, NO_STORE);
+  }
+  await env.DB.prepare(
+    `INSERT INTO demo_settings (id, signup_open, lock_at, updated_at) VALUES (1, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET signup_open = excluded.signup_open, lock_at = excluded.lock_at,
+       updated_at = excluded.updated_at`
+  ).bind(open ? 1 : 0, lockAt, nowISO()).run();
+  return json(env, { ok: true, ...(await demoInstructorState(env, me)) }, 200, NO_STORE);
+}
+
+async function handleInstructorDemoExport(request, env) {
+  const { me, error } = await demoInstructorGate(request, env);
+  if (error) return error;
+  const days = demoDays(await demoRows(env), me, true);
+  return new Response(runningOrderText(days), {
+    status: 200,
+    headers: { ...corsHeaders(env), 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Router
 // Class media (R2): signed-in classmates only. Files with student names (the class film) live here,
 // never in the public static site. Supports Range so video can seek on phones.
@@ -1406,6 +1742,18 @@ export default {
       if (path === '/instructor/files' && request.method === 'GET') return handleInstructorFiles(request, env);
       const file = path.match(/^\/instructor\/file\/(\d+)\/(p\d+|rendition)$/);
       if (file && (request.method === 'GET' || request.method === 'HEAD')) return handleInstructorFile(request, env, file[1], file[2]);
+      if (path === '/demos/status' && request.method === 'GET') return handleDemoStatus(request, env);
+      if (path === '/demos' && request.method === 'GET') return handleDemos(request, env);
+      if (path === '/demos/claim' && request.method === 'POST') return handleDemoClaim(request, env);
+      if (path === '/demos/claim' && request.method === 'DELETE') return handleDemoRelease(request, env);
+      if (path === '/instructor/demos' && request.method === 'GET') return handleInstructorDemos(request, env);
+      if (path === '/instructor/demos/move' && request.method === 'POST') return handleInstructorDemoMove(request, env);
+      if (path === '/instructor/demos/guest' && request.method === 'POST') return handleInstructorDemoGuest(request, env);
+      if (path === '/instructor/demos/settings' && request.method === 'POST') return handleInstructorDemoSettings(request, env);
+      if (path === '/instructor/demos/export' && request.method === 'GET') return handleInstructorDemoExport(request, env);
+      const demoEntry = path.match(/^\/instructor\/demos\/(\d+)$/);
+      if (demoEntry && request.method === 'PATCH') return handleInstructorDemoEdit(request, env, Number(demoEntry[1]));
+      if (demoEntry && request.method === 'DELETE') return handleInstructorDemoDelete(request, env, Number(demoEntry[1]));
       if (path === '/auth/request' && request.method === 'POST') return handleAuthRequest(request, env);
       if (path === '/auth/callback' && request.method === 'GET') return handleAuthCallbackPage(request, env);
       if (path === '/auth/callback' && request.method === 'POST') return handleAuthCallbackConsume(request, env);

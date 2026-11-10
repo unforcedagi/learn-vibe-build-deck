@@ -12,3 +12,7 @@ export const WEEKS = [
   {"week": 9, "title": "Studio cycle", "due_at": "2026-11-02T06:59:00Z", "canvas_url": "https://canvas.colorado.edu/courses/145074/assignments/2858631", "prompt": "A link to what you built, plus your writing on how it went."},
   {"week": 10, "title": "Studio cycle", "due_at": "2026-11-09T06:59:00Z", "canvas_url": "https://canvas.colorado.edu/courses/145074/assignments/2858632", "prompt": "A link to what you built, plus your writing on how it went."},
 ];
+export const DEMO_DAYS = [
+  {"date": "2026-11-30", "title": "Showcase night 1", "starts": "17:05"},
+  {"date": "2026-12-04", "title": "Showcase night 2", "starts": null},
+];

@@ -22,6 +22,10 @@ invocation_logs = false
 SITE_ORIGIN = "https://cu.learnvibe.build"
 API_ORIGIN = "https://api.learnvibe.build"
 EMAIL_FROM = "Learn Vibe Build <hello@learnvibe.build>"
+# Final demo sign-up: these throwaway test accounts see and use /demos while the
+# sign-up is still closed to students (demo_settings.signup_open = 0), so the
+# flow can be checked in production without reaching anyone. Comma-separated.
+DEMO_PREVIEW = "e2e-test@learnvibe.build,e2e-test2@learnvibe.build"
 
 [[d1_databases]]
 binding = "DB"
