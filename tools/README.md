@@ -20,7 +20,8 @@ git diff --check
 
 - the home page's "This week" block and term path (`index.html`);
 - the schedule page's "This week" block and table rows (`schedule/index.html`);
-- the Worker's submission calendar, `worker/src/weeks.generated.js` (WEEKS).
+- the Worker's submission calendar, `worker/src/weeks.generated.js` (WEEKS), and the
+  final demo days for the sign-up (DEMO_DAYS).
 
 `build_lessons.py` reads each lesson's slide link from it too. The generated
 parts of the pages sit between `<!-- generated:… -->` markers. Edit outside
@@ -55,6 +56,8 @@ Fields on a meeting (text is plain, not HTML; paths are from the site root):
 | `lesson`, `slides` | links on home, schedule and the lesson page |
 | `tasks` | home task cards; `"submit": true` adds the due date and submit links. Without tasks the home page shows the assignment |
 | `assignment` | `title`, `due_at` (UTC: `05:59Z` is 11:59 PM MDT, `06:59Z` MST), `canvas_id`, `prompt`. Write `null` for a week with no weekly submission |
+| `demo_signup` | `true` on the final demo nights: they become the days on `/demos/` (DEMO_DAYS), and the home page gets a hidden sign-up card until the last one |
+| `starts` | local class start, 24-hour `"17:05"`. On a demo night it times the slots; without it the page says "time to be confirmed" |
 
 Canvas links in the schedule table appear once a week arrives, since future
 Canvas assignments are often still unpublished.
@@ -126,3 +129,22 @@ over in person (`POST /instructor/signin-link`). Checks: `node tools/e2e_signin_
 class, headless) and `tools/prod_e2e_signin_link.py seed|check|clean <dir>` (production, e2e accounts).
 To see whether a sent message was accepted by the recipient's server, query the GraphQL dataset
 `emailSendingAdaptive` (account level) for its message id: `status` `delivered` means accepted.
+
+## Final demo sign-up
+
+`/demos/` (students) and `/instructor/demos/` (Aaron). Two nights from `semester.json`
+(`"demo_signup": true`), 13 ten-minute slots each, timed from the night's `starts`. A student
+holds one slot and can claim, move, retitle or release it until the instructor's lock time;
+each night also closes to student changes on its own morning. Classmates see first names and
+titles only. The instructor reorders (drag or ↑↓; a taken slot swaps), moves people between
+nights, adds guests or auditors, sets the lock and copies the running order as plain text.
+Tables `demo_slots` and `demo_settings` (migration 0011).
+
+**The flag.** "Open sign-up to the class" on `/instructor/demos/` sets
+`demo_settings.signup_open`. While it is off (the default) students get nothing from
+`/demos`, the home page card and the account page card stay hidden, and only the throwaway
+accounts in the Worker var `DEMO_PREVIEW` see the flow. Checks: `node --test
+'worker/test/*.test.mjs'`, `node tools/e2e_demos.mjs [shots]` (fixture class, Chromium,
+1280 and 390 px) and `tools/prod_e2e_demos.py seed|check|clean <dir>` plus
+`node tools/e2e_demos.mjs [shots] --prod <dir>/tokens.json` (production, e2e accounts,
+never opens the flag).
