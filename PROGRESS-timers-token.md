@@ -66,6 +66,7 @@ None of the three unit files sets `CLOUDFLARE_API_TOKEN` in `Environment=`; the 
 6. Resume u04y7ez8 with the user systemd bus reachable to run the three units and compare counts, or run:
    `systemctl --user start lvb-canvas-sync.service lvb-reader-sync.service lvb-final-plans-sync.service`.
 
-Rollback: Worker, same template, `-- npx -y wrangler@4 rollback <version id>` (the old Worker has no /admin/sync,
+Rollback: Worker, same template, `-- sh -c 'cd ~/Code/learn-vibe-build-deck/worker && npx -y wrangler@4 rollback <version id>'`
+(the name comes from wrangler.toml there; the old Worker has no /admin/sync,
 so the switched scripts then fail with HTTP 404 until redeployed). Scripts: revert the merge and `apply.sh --undo`;
 that brings back wrangler with the broad token, so it only helps while that token still exists.
