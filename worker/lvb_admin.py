@@ -14,6 +14,7 @@ Errors exit with the route, the HTTP status and the Worker's short error code;
 the key is never printed and student text is never in an error.
 """
 
+import http.client
 import json
 import os
 import sys
@@ -71,6 +72,8 @@ def call(method, path, body=None, data=None, content_type=None, timeout=300):
         raise ApiError(f"{method} {path.split('?')[0]} -> HTTP {e.code} {code}".rstrip()) from None
     except urllib.error.URLError as e:
         raise ApiError(f"{method} {path.split('?')[0]} -> {e.reason}") from None
+    except (OSError, ValueError, http.client.HTTPException) as e:  # timeout, reset, a reply that isn't JSON
+        raise ApiError(f"{method} {path.split('?')[0]} -> {e.__class__.__name__}") from None
 
 
 def rows(name):
@@ -95,17 +98,25 @@ def put_object(key, path, content_type="application/octet-stream"):
     with open(path, "rb") as f:
         if size <= SINGLE_PUT_MAX:
             return call("PUT", route, data=f.read(), content_type=content_type, timeout=900)
-        upload = call("POST", route + "?uploads", content_type=content_type)["upload_id"]
-        parts, n = [], 0
-        while True:
-            chunk = f.read(PART_SIZE)
-            if not chunk:
-                break
-            n += 1
-            done = call("PUT", f"{route}?upload_id={urllib.parse.quote(upload)}&part={n}", data=chunk,
-                        content_type="application/octet-stream", timeout=900)
-            parts.append({"part": done["part"], "etag": done["etag"]})
-        return call("POST", f"{route}?upload_id={urllib.parse.quote(upload)}", body={"parts": parts})
+        # An explicit empty body, so the start carries Content-Length: 0.
+        upload = call("POST", route + "?uploads", data=b"", content_type=content_type)["upload_id"]
+        at = f"{route}?upload_id={urllib.parse.quote(upload, safe='')}"
+        try:
+            parts, n = [], 0
+            while True:
+                chunk = f.read(PART_SIZE)
+                if not chunk:
+                    break
+                n += 1
+                done = call("PUT", f"{at}&part={n}", data=chunk, content_type="application/octet-stream", timeout=900)
+                parts.append({"part": done["part"], "etag": done["etag"]})
+            return call("POST", at, body={"parts": parts})
+        except ApiError:
+            try:  # don't leave a half upload open in R2
+                call("DELETE", at)
+            except ApiError:
+                pass
+            raise
 
 
 if __name__ == "__main__":

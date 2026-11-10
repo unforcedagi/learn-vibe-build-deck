@@ -245,9 +245,13 @@ def object_type(key, rows_by_file):
     return row.get("rendition_type") or "application/octet-stream"
 
 
-def upload_objects(uploads, rows_by_file):
-    """Upload [(key, path)] to the private bucket, one request each (large
-    files go multipart). Raises lvb_admin.ApiError on the first failure."""
+def upload_objects(uploads, rows_by_file, workers=8):
+    """Upload [(key, path)] to the private bucket, 8 at a time like the old
+    `wrangler r2 bulk put --concurrency 8` (large files go multipart). Raises
+    lvb_admin.ApiError if any upload failed, after the rest have finished."""
+    import concurrent.futures
     import lvb_admin
-    for key, path in uploads:
-        lvb_admin.put_object(key, path, object_type(key, rows_by_file))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+        jobs = [pool.submit(lvb_admin.put_object, key, path, object_type(key, rows_by_file)) for key, path in uploads]
+        for job in jobs:
+            job.result()

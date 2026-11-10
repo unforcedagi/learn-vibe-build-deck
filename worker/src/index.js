@@ -915,10 +915,12 @@ const SYNC_MAX_STATEMENTS = 45;
 const CANVAS_ID = /^[0-9]{1,20}$/;
 const optText = (v) => (v === null || v === undefined ? null : typeof v === 'string' ? v : undefined);
 
-async function readSyncBody(request) {
-  if (!isJsonRequest(request)) return { error: 'unsupported_media_type', status: 415 };
+// { body } on success, { refused: Response } otherwise (a client body may carry any key).
+async function readSyncBody(request, env) {
+  if (!isJsonRequest(request)) return { refused: json(env, { error: 'unsupported_media_type' }, 415, NO_STORE) };
   const body = await readJson(request);
-  return body && typeof body === 'object' && !Array.isArray(body) ? body : { error: 'bad_request', status: 400 };
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return { refused: json(env, { error: 'bad_request' }, 400, NO_STORE) };
+  return { body };
 }
 
 // Canvas -> D1 (worker/resync.py): roster upserts and submission fills. The
@@ -928,8 +930,8 @@ async function readSyncBody(request) {
 async function handleSyncCanvas(request, env) {
   const denied = await syncGate(request, env);
   if (denied) return denied;
-  const body = await readSyncBody(request);
-  if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
+  const { body, refused } = await readSyncBody(request, env);
+  if (refused) return refused;
   const students = body.students ?? [];
   const subs = body.submissions ?? [];
   if (!Array.isArray(students) || !Array.isArray(subs)) return json(env, { error: 'bad_request' }, 400, NO_STORE);
@@ -978,8 +980,8 @@ async function handleSyncCanvas(request, env) {
 async function handleSyncStudentReads(request, env) {
   const denied = await syncGate(request, env);
   if (denied) return denied;
-  const body = await readSyncBody(request);
-  if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
+  const { body, refused } = await readSyncBody(request, env);
+  if (refused) return refused;
   const reads = body.reads;
   if (!Array.isArray(reads) || !reads.length) return json(env, { error: 'bad_request' }, 400, NO_STORE);
   if (reads.length > SYNC_MAX_STATEMENTS) return json(env, { error: 'too_many' }, 413, NO_STORE);
@@ -1012,8 +1014,8 @@ const FILE_TEXT_COLS = ['name', 'content_type', 'kind', 'text', 'rendition', 're
 async function handleSyncFiles(request, env) {
   const denied = await syncGate(request, env);
   if (denied) return denied;
-  const body = await readSyncBody(request);
-  if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
+  const { body, refused } = await readSyncBody(request, env);
+  if (refused) return refused;
   const groups = body.groups;
   if (!Array.isArray(groups) || !groups.length) return json(env, { error: 'bad_request' }, 400, NO_STORE);
   const count = groups.reduce((n, g) => n + 1 + (Array.isArray(g?.rows) ? g.rows.length : 0), 0);
@@ -1070,7 +1072,7 @@ async function handleSyncFiles(request, env) {
 // and files/<canvas_file_id>/rendition. A body over ~90 MB goes as an R2
 // multipart upload (a Worker request body is capped at 100 MB):
 //   POST ?uploads -> {upload_id}; PUT ?upload_id=&part=N -> {part, etag};
-//   POST ?upload_id= with {parts:[{part, etag}]} -> done.
+//   POST ?upload_id= with {parts:[{part, etag}]} -> done; DELETE ?upload_id= aborts.
 const SYNC_OBJECT_KEY = /^files\/[A-Za-z0-9_-]{1,64}\/(?:p[0-9]{1,3}\.jpg|rendition)$/;
 
 async function handleSyncObject(request, env, key) {
@@ -1082,8 +1084,8 @@ async function handleSyncObject(request, env, key) {
   const uploadId = url.searchParams.get('upload_id');
   const type = request.headers.get('Content-Type') || 'application/octet-stream';
   if (request.method === 'PUT' && !uploadId) {
-    if (!request.body) return json(env, { error: 'empty' }, 400, NO_STORE);
-    const obj = await env.FILES.put(key, request.body, { httpMetadata: { contentType: type } });
+    // A zero-byte upload arrives with no body; store it empty, as wrangler did.
+    const obj = await env.FILES.put(key, request.body ?? '', { httpMetadata: { contentType: type } });
     return json(env, { ok: true, size: obj?.size ?? null }, 200, NO_STORE);
   }
   if (request.method === 'POST' && url.searchParams.has('uploads')) {
@@ -1092,6 +1094,10 @@ async function handleSyncObject(request, env, key) {
   }
   if (!uploadId) return json(env, { error: 'bad_request' }, 400, NO_STORE);
   const up = env.FILES.resumeMultipartUpload(key, uploadId);
+  if (request.method === 'DELETE') {
+    await up.abort();
+    return json(env, { ok: true }, 200, NO_STORE);
+  }
   if (request.method === 'PUT') {
     const part = Number(url.searchParams.get('part'));
     if (!Number.isInteger(part) || part < 1 || part > 10000 || !request.body) {
@@ -1100,8 +1106,8 @@ async function handleSyncObject(request, env, key) {
     const done = await up.uploadPart(part, request.body);
     return json(env, { part: done.partNumber, etag: done.etag }, 200, NO_STORE);
   }
-  const body = await readSyncBody(request);
-  if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
+  const { body, refused } = await readSyncBody(request, env);
+  if (refused) return refused;
   const parts = Array.isArray(body.parts) ? body.parts : [];
   if (!parts.length || !parts.every((p) => Number.isInteger(p?.part) && typeof p.etag === 'string')) {
     return json(env, { error: 'bad_parts' }, 400, NO_STORE);
@@ -2083,7 +2089,7 @@ export default {
       if (path === '/admin/sync/student-reads' && request.method === 'POST') return handleSyncStudentReads(request, env);
       if (path === '/admin/sync/files' && request.method === 'POST') return handleSyncFiles(request, env);
       const syncObject = path.match(/^\/admin\/sync\/object\/(.+)$/);
-      if (syncObject && (request.method === 'PUT' || request.method === 'POST')) return handleSyncObject(request, env, syncObject[1]);
+      if (syncObject && ['PUT', 'POST', 'DELETE'].includes(request.method)) return handleSyncObject(request, env, syncObject[1]);
       const readDel = path.match(/^\/admin\/reads\/(\d+)\/([a-z0-9-]+)$/);
       if (readDel && request.method === 'DELETE') return handleReadsDelete(request, env, readDel[1], readDel[2]);
       const vis = path.match(/^\/submissions\/(\d+)\/visibility$/);

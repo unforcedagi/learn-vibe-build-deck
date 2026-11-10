@@ -110,6 +110,7 @@ export function fixtureEnv() {
           FILES.uploads.delete(uploadId);
           return { key, size: all.length };
         },
+        async abort() { FILES.uploads.delete(uploadId); },
       };
     },
   };

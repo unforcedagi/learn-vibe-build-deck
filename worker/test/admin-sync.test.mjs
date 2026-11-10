@@ -179,4 +179,26 @@ test('objects: only files/<id>/p<n>.jpg or rendition; plain and multipart upload
   const done = await call(env, 'POST', `/admin/sync/object/files/4242/rendition?upload_id=${start.upload_id}`, { key: KEY, body: { parts } });
   assert.equal(done.status, 200);
   assert.equal(new TextDecoder().decode(env.FILES.objects.get('files/4242/rendition')), 'PART-ONE|PART-TWO');
+  // A failed upload is aborted, not left open.
+  const dead = await (await call(env, 'POST', '/admin/sync/object/files/4343/rendition?uploads', { key: KEY, raw: '' })).json();
+  assert.equal(env.FILES.uploads.size, 1);
+  assert.equal((await call(env, 'DELETE', `/admin/sync/object/files/4343/rendition?upload_id=${dead.upload_id}`, { key: KEY })).status, 200);
+  assert.equal(env.FILES.uploads.size, 0);
+  assert.equal((await call(env, 'DELETE', '/admin/sync/object/files/4343/rendition?upload_id=x')).status, 401);
+});
+
+test('objects: a zero-byte file is stored empty, not refused (it would stop every nightly run)', async () => {
+  const env = env0();
+  // Workers hand a zero-length request a null body; no body at all models that.
+  const res = await call(env, 'PUT', '/admin/sync/object/files/4444/rendition', { key: KEY, type: 'text/html' });
+  assert.equal(res.status, 200);
+  assert.equal(env.FILES.objects.get('files/4444/rendition').length, 0);
+});
+
+test('a client body with its own "error" key is still read as data', async () => {
+  const env = env0();
+  const res = await call(env, 'POST', '/admin/sync/canvas', { key: KEY, body: {
+    error: 'x', students: [{ canvas_id: '88', name: 'E2E Err', email: 'e2e-err@learnvibe.build', login_alias: null }] } });
+  assert.equal(res.status, 200);
+  assert.deepEqual((await res.json()).students, { sent: 1, written: 1 });
 });
