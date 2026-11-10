@@ -78,6 +78,41 @@ export function fixtureEnv() {
       }
       return { size: bytes.length, range: r, httpMetadata: {}, body: bytes.slice(start, start + len) };
     },
+    // Writes (the /admin/sync/object route): plain and multipart, like R2.
+    async put(key, body) {
+      const bytes = new Uint8Array(await new Response(body).arrayBuffer());
+      objects.set(key, bytes);
+      return { key, size: bytes.length };
+    },
+    uploads: new Map(),
+    async createMultipartUpload(key) {
+      const uploadId = `up-${FILES.uploads.size + 1}`;
+      FILES.uploads.set(uploadId, { key, parts: new Map() });
+      return { key, uploadId };
+    },
+    resumeMultipartUpload(key, uploadId) {
+      const up = FILES.uploads.get(uploadId);
+      if (!up || up.key !== key) throw new Error('no such upload');
+      return {
+        async uploadPart(n, body) {
+          up.parts.set(n, new Uint8Array(await new Response(body).arrayBuffer()));
+          return { partNumber: n, etag: `etag-${n}` };
+        },
+        async complete(parts) {
+          const chunks = parts.map((p) => {
+            if (p.etag !== `etag-${p.partNumber}` || !up.parts.has(p.partNumber)) throw new Error('bad part');
+            return up.parts.get(p.partNumber);
+          });
+          const all = new Uint8Array(chunks.reduce((n, c) => n + c.length, 0));
+          let at = 0;
+          for (const c of chunks) { all.set(c, at); at += c.length; }
+          objects.set(key, all);
+          FILES.uploads.delete(uploadId);
+          return { key, size: all.length };
+        },
+        async abort() { FILES.uploads.delete(uploadId); },
+      };
+    },
   };
   // batch(): D1 runs the statements as one transaction.
   const batch = async (list) => {

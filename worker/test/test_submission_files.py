@@ -1,12 +1,10 @@
 """submission_files.py on real files with the real tools (pdftotext,
 pdftoppm, LibreOffice, html2text): every fixture upload comes out with
-readable text and the right renderings, and the SQL keeps a student's rows to
-that student. Invented fixtures only (fixtures/files/make_fixtures.py).
+readable text and the right renderings, and the sync requests are well formed. Invented fixtures only (fixtures/files/make_fixtures.py).
 
     uv run -q --no-project --with html2text python3 -m unittest worker/test/test_submission_files.py
 """
 import os
-import sqlite3
 import sys
 import tempfile
 import unittest
@@ -86,37 +84,41 @@ class ProcessTest(unittest.TestCase):
             self.assertEqual(sf.process(None, att, d)["row"]["status"], "download failed")
 
 
-class SqlTest(unittest.TestCase):
-    def setUp(self):
-        self.db = sqlite3.connect(":memory:")
-        with open(os.path.join(HERE, "..", "schema.sql")) as f:
-            self.db.executescript(f.read())
-        self.db.executemany("INSERT INTO students (id, canvas_id, name, email) VALUES (?, ?, ?, ?)",
-                            [(1, "c1", "E2E One", "e2e-test@learnvibe.build"), (2, "c2", "E2E Two", "e2e-test-2@learnvibe.build")])
+class WriteTest(unittest.TestCase):
+    """The rows and objects go to the Worker's sync API (its SQL is tested in
+    worker/test/admin-sync.test.mjs); here: the requests it gets are well formed."""
 
     def row(self, fid, text="it's text"):
-        return {"canvas_file_id": fid, "name": "a.pdf", "content_type": "application/pdf", "size": 1,
-                "kind": "pdf", "text": text, "pages": 1, "rendition": None, "rendition_type": None,
+        return {"canvas_file_id": fid, "name": "a.pdf", "content_type": "application/pdf", "size": None,
+                "kind": "pdf", "text": text, "pages": 1, "rendition": "video", "rendition_type": "video/mp4",
                 "canvas_url": "https://canvas.example/f", "status": "ok"}
 
-    def test_upsert_maps_canvas_user_to_student_and_prune_drops_replaced_files(self):
-        x = self.db.executescript
-        x(sf.upsert_sql(self.row("f1"), "c1", 9, 0, "2026-11-02T00:00:00Z"))
-        x(sf.upsert_sql(self.row("f2"), "c1", 9, 1, "2026-11-02T00:00:00Z"))
-        x(sf.upsert_sql(self.row("f3"), "c2", 9, 0, "2026-11-02T00:00:00Z"))
-        x(sf.upsert_sql(self.row("f1", "new text"), "c1", 9, 0, "2026-11-03T00:00:00Z"))
-        rows = self.db.execute("SELECT canvas_file_id, student_id, text FROM submission_files ORDER BY 1").fetchall()
-        self.assertEqual(rows, [("f1", 1, "new text"), ("f2", 1, "it's text"), ("f3", 2, "it's text")])
-        x(sf.prune_sql("c1", 9, ["f2"]))     # student one resubmitted with only f2
-        x(sf.prune_sql("c2", 8, []))         # another week: nothing of week 9 goes
-        self.assertEqual([r[0] for r in self.db.execute("SELECT canvas_file_id FROM submission_files ORDER BY 1")],
-                         ["f2", "f3"])
-        x(sf.prune_sql("c2", 9, []))         # text-only resubmission clears their files
-        self.assertEqual([r[0] for r in self.db.execute("SELECT canvas_file_id FROM submission_files")], ["f2"])
+    def test_api_row_and_object_types(self):
+        r = sf.api_row(self.row("f1"), 2)
+        self.assertEqual((r["position"], r["size"], r["pages"], r["render_version"]), (2, 0, 1, sf.RENDER_VERSION))
+        rows = {"f1": self.row("f1")}
+        self.assertEqual(sf.object_type("files/f1/p3.jpg", rows), "image/jpeg")
+        self.assertEqual(sf.object_type("files/f1/rendition", rows), "video/mp4")
+        self.assertEqual(sf.object_type("files/zz/rendition", rows), "application/octet-stream")
 
-    def test_text_is_capped_under_the_d1_statement_limit(self):
+    def test_requests_stay_under_the_statement_cap_and_send_every_row_and_prune(self):
+        import resync
+        groups = [{"week": 9, "canvas_id": str(i), "rows": [{"canvas_file_id": f"{i}-{k}"} for k in range(n)],
+                   "keep": [f"{i}-{k}" for k in range(n)]} for i, n in enumerate([0, 3, 39, 40, 95, 1, 0])]
+        sent, prunes = [], set()
+        for chunk in resync.file_group_chunks(groups, limit=40):
+            self.assertLessEqual(sum(len(g["rows"]) + 1 for g in chunk), 40)
+            for g in chunk:
+                sent += [r["canvas_file_id"] for r in g["rows"]]
+                prunes.add(g["canvas_id"])
+                self.assertEqual(g["keep"], groups[int(g["canvas_id"])]["keep"])
+        self.assertEqual(sorted(sent), sorted(r["canvas_file_id"] for g in groups for r in g["rows"]))
+        self.assertEqual(prunes, {g["canvas_id"] for g in groups})
+
+    def test_text_is_capped(self):
         capped = sf.cap_text("é" * 100000)
-        self.assertLess(len(sf.upsert_sql(self.row("f9", capped), "c1", 1, 0, "t").encode()), 100 * 1024)
+        self.assertLess(len(capped.encode()), sf.MAX_TEXT_BYTES + 100)
+        self.assertTrue(capped.endswith("[truncated: the rest is in the pages]"))
 
 
 if __name__ == "__main__":
