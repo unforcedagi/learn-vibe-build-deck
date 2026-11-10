@@ -23,7 +23,8 @@ const el = (tag, cls, text) => {
 };
 const TZ = 'America/Denver';
 
-const state = { data: null, adding: null, busy: false }; // adding: "day|position" with the guest form open
+// adding: "day|position" with the guest form open; guestDraft: its typed name and title, kept across re-renders.
+const state = { data: null, adding: null, guestDraft: { name: '', title: '' }, busy: false };
 
 const ERRORS = {
   slot_taken: 'That slot just changed. The list is up to date; try again.',
@@ -277,7 +278,11 @@ function renderSlot(day, s) {
       if (window.confirm(`Remove ${s.name} from ${day.label}, slot ${s.position}?`)) change('DELETE', `/instructor/demos/${s.id}`);
     }));
   } else {
-    actions.append(iconButton('Add guest', `Add a guest to slot ${s.position}`, false, () => { state.adding = key; render(); }));
+    actions.append(iconButton('Add guest', `Add a guest to slot ${s.position}`, false, () => {
+      state.adding = key;
+      state.guestDraft = { name: '', title: '' };
+      render();
+    }));
   }
   li.append(actions);
   return li;
@@ -329,6 +334,10 @@ function guestForm(day, s) {
   const cancel = el('button', 'quiet', 'Cancel');
   cancel.type = 'button';
   cancel.addEventListener('click', () => { state.adding = null; render(); });
+  name.value = state.guestDraft.name;
+  title.value = state.guestDraft.title;
+  name.addEventListener('input', () => { state.guestDraft.name = name.value; });
+  title.addEventListener('input', () => { state.guestDraft.title = title.value; });
   form.append(name, title, save, cancel);
   form.addEventListener('submit', async (e) => {
     e.preventDefault();

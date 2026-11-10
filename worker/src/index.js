@@ -1360,11 +1360,10 @@ function demoMineRow(r) {
 
 // What the student page shows. Closed (and not a preview account): nothing.
 async function demoState(env, me) {
-  const settings = await demoSettings(env);
   const preview = isDemoPreview(env, me);
+  const [settings, rows] = await Promise.all([demoSettings(env), demoRows(env)]);
   if (!settings.signup_open && !preview && !me.is_instructor) return { open: false };
   const now = Date.now();
-  const rows = await demoRows(env);
   return {
     open: true,
     preview: !settings.signup_open,
@@ -1394,11 +1393,31 @@ async function demoLink(env, me) {
 }
 
 const NO_STORE = { 'Cache-Control': 'no-store' };
+
+// Demo writes take JSON only (a cross-site form can't send it without a CORS
+// preflight), the same rule as /instructor/signin-link.
+async function readDemoJson(request) {
+  if (!(request.headers.get('Content-Type') || '').startsWith('application/json')) return { error: 'unsupported_media_type', status: 415 };
+  const body = await readJson(request);
+  return body && typeof body === 'object' ? body : { error: 'bad_request', status: 400 };
+}
+
+function demoName(raw) {
+  const name = String(raw ?? '').trim().replace(/\s+/g, ' ');
+  if (!name) return { error: 'name_required' };
+  if (name.length > DEMO_NAME_MAX) return { error: 'name_too_long' };
+  return { name };
+}
 const isUnique = (err) => /UNIQUE/i.test(String(err && err.message));
 
 async function handleDemoStatus(request, env) {
   const me = await currentStudent(request, env);
-  const { linked } = await demoLink(env, me);
+  let linked = false;
+  try {
+    linked = (await demoSettings(env)).signup_open || isDemoPreview(env, me);
+  } catch (err) {
+    console.error('demo status failed:', err.message);
+  }
   return json(env, { linked }, 200, NO_STORE);
 }
 
@@ -1444,14 +1463,22 @@ function demoTarget(body) {
 async function handleDemoClaim(request, env) {
   const { me, error } = await demoStudentGate(request, env);
   if (error) return error;
-  const body = await readJson(request);
-  if (!body) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  const body = await readDemoJson(request);
+  if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
   const t = demoTarget(body);
   if (t.error) return json(env, { error: t.error }, 400, NO_STORE);
   const f = demoTitle(body.title);
   if (f.error) return json(env, { error: f.error }, 400, NO_STORE);
-  const mine = await env.DB.prepare('SELECT id, day FROM demo_slots WHERE student_id = ?').bind(me.id).first();
+  const mine = await env.DB.prepare('SELECT id, day, position FROM demo_slots WHERE student_id = ?').bind(me.id).first();
   if (demoDayClosed(t.day) || (mine && demoDayClosed(mine.day))) return json(env, { error: 'day_closed' }, 403, NO_STORE);
+  // `from` is where the page showed their slot ({day, position}, or null for none). If that's no
+  // longer true (the instructor moved or removed it, or another tab did), refuse rather than undo it.
+  if (body.from !== undefined) {
+    const seen = body.from && `${body.from.day}|${body.from.position}`;
+    if (seen !== (mine ? `${mine.day}|${mine.position}` : null)) {
+      return json(env, { error: 'changed', ...(await demoState(env, me)) }, 409, NO_STORE);
+    }
+  }
   const now = nowISO();
   let changed = 0;
   try {
@@ -1529,8 +1556,8 @@ async function handleInstructorDemos(request, env) {
 async function handleInstructorDemoMove(request, env) {
   const { me, error } = await demoInstructorGate(request, env);
   if (error) return error;
-  const body = await readJson(request);
-  if (!body) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  const body = await readDemoJson(request);
+  if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
   const t = demoTarget(body);
   if (t.error) return json(env, { error: t.error }, 400, NO_STORE);
   if (!Number.isInteger(body.id)) return json(env, { error: 'bad_id' }, 400, NO_STORE);
@@ -1556,13 +1583,13 @@ async function handleInstructorDemoMove(request, env) {
 async function handleInstructorDemoGuest(request, env) {
   const { me, error } = await demoInstructorGate(request, env);
   if (error) return error;
-  const body = await readJson(request);
-  if (!body) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  const body = await readDemoJson(request);
+  if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
   const t = demoTarget(body);
   if (t.error) return json(env, { error: t.error }, 400, NO_STORE);
-  const name = String(body.name ?? '').trim().replace(/\s+/g, ' ');
-  if (!name) return json(env, { error: 'name_required' }, 400, NO_STORE);
-  if (name.length > DEMO_NAME_MAX) return json(env, { error: 'name_too_long' }, 400, NO_STORE);
+  const g = demoName(body.name);
+  if (g.error) return json(env, { error: g.error }, 400, NO_STORE);
+  const name = g.name;
   const f = demoTitle(body.title);
   if (f.error) return json(env, { error: f.error }, 400, NO_STORE);
   const now = nowISO();
@@ -1581,8 +1608,8 @@ async function handleInstructorDemoGuest(request, env) {
 async function handleInstructorDemoEdit(request, env, id) {
   const { me, error } = await demoInstructorGate(request, env);
   if (error) return error;
-  const body = await readJson(request);
-  if (!body) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  const body = await readDemoJson(request);
+  if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
   const row = await env.DB.prepare('SELECT id, student_id, guest_name, title FROM demo_slots WHERE id = ?').bind(id).first();
   if (!row) return json(env, { error: 'not_found' }, 404, NO_STORE);
   const f = demoTitle(body.title ?? row.title);
@@ -1590,9 +1617,9 @@ async function handleInstructorDemoEdit(request, env, id) {
   let name = row.guest_name;
   if (body.name != null) {
     if (row.student_id != null) return json(env, { error: 'not_a_guest' }, 400, NO_STORE);
-    name = String(body.name).trim().replace(/\s+/g, ' ');
-    if (!name) return json(env, { error: 'name_required' }, 400, NO_STORE);
-    if (name.length > DEMO_NAME_MAX) return json(env, { error: 'name_too_long' }, 400, NO_STORE);
+    const g = demoName(body.name);
+    if (g.error) return json(env, { error: g.error }, 400, NO_STORE);
+    name = g.name;
   }
   await env.DB.prepare('UPDATE demo_slots SET title = ?, guest_name = ?, updated_at = ? WHERE id = ?')
     .bind(f.title, name, nowISO(), id).run();
@@ -1611,8 +1638,8 @@ async function handleInstructorDemoDelete(request, env, id) {
 async function handleInstructorDemoSettings(request, env) {
   const { me, error } = await demoInstructorGate(request, env);
   if (error) return error;
-  const body = await readJson(request);
-  if (!body) return json(env, { error: 'bad_request' }, 400, NO_STORE);
+  const body = await readDemoJson(request);
+  if (body.error) return json(env, { error: body.error }, body.status, NO_STORE);
   const cur = await demoSettings(env);
   const open = body.signup_open === undefined ? cur.signup_open : body.signup_open;
   if (typeof open !== 'boolean') return json(env, { error: 'bad_signup_open' }, 400, NO_STORE);
@@ -1633,8 +1660,14 @@ async function handleInstructorDemoSettings(request, env) {
 async function handleInstructorDemoExport(request, env) {
   const { me, error } = await demoInstructorGate(request, env);
   if (error) return error;
-  const days = demoDays(await demoRows(env), me, true);
-  return new Response(runningOrderText(days), {
+  const rows = await demoRows(env);
+  let text = runningOrderText(demoDays(rows, me, true));
+  const elsewhere = rows.filter((r) => !demoDay(r.day));
+  if (elsewhere.length) {
+    text += ['Not on a demo night (the calendar changed; move or remove these):',
+      ...elsewhere.map((r) => `    ${r.day} slot ${r.position}  ${r.student_id != null ? r.student_name : `${r.guest_name} (guest)`}: ${r.title}`), ''].join('\n');
+  }
+  return new Response(text, {
     status: 200,
     headers: { ...corsHeaders(env), 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
   });

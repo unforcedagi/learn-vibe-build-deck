@@ -171,6 +171,15 @@ try {
   await row(page, DAY1, 4).getByRole('button', { name: 'Save title' }).click();
   await page.waitForFunction(() => document.querySelector('.demo-slot.mine .slot-title')?.textContent === 'Tide chart for surfers, live data');
   check('edit title saves', true);
+  // A classmate takes slot 9 behind their back: "Move here" is refused with a message, and the list updates.
+  const json = (body) => ({ method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  check('the classmate claims Monday slot 9 (API)', (await apiFetch('/demos/claim', TOKENS.other, json({ day: DAY1, position: 9, title: 'Sneaky' }))).status === 200);
+  await row(page, DAY1, 9).getByRole('button', { name: 'Move here' }).click();
+  await page.locator('#demo-msg:not(.hidden)').waitFor();
+  check('a taken slot says so and shows who has it', /Someone just took that slot/.test(await page.locator('#demo-msg').textContent())
+    && (await row(page, DAY1, 9).locator('.slot-who').textContent()) === firstOf.other
+    && (await page.locator('.demo-slot.mine .slot-title').textContent()) === 'Tide chart for surfers, live data');
+  check('the classmate releases it (API)', (await apiFetch('/demos/claim', TOKENS.other, { method: 'DELETE' })).status === 200);
   await page.context().close();
 
   // --- A classmate, on a phone: sees first name + title, claims day 2 ---------

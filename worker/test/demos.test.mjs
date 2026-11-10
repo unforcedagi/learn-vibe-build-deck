@@ -188,6 +188,38 @@ test('a row on a night that left the calendar stays visible to the instructor an
   assert.equal(slot(moved, DAY1, 1).name, 'Bo Lanternwick');
 });
 
+test('writes take JSON only: a text/plain form post is 415 and changes nothing', async () => {
+  const env = setup({ open: true });
+  const form = (token, path) => worker.fetch(new Request('https://api.learnvibe.build' + path, {
+    method: 'POST', headers: { Cookie: `lvb_session=${token}`, 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ day: DAY1, position: 1, title: 'x', name: 'G', signup_open: false, lock_at: null }),
+  }), env);
+  assert.equal((await form('ana', '/demos/claim')).status, 415);
+  assert.equal((await form('teach', '/instructor/demos/guest')).status, 415);
+  assert.equal((await form('teach', '/instructor/demos/settings')).status, 415);
+  assert.deepEqual(rows(env), []);
+});
+
+test('a stale page can\'t undo the instructor: a move or retitle from the old slot is 409 changed', async () => {
+  const env = setup({ open: true });
+  await claim(env, 'ana', DAY1, 3, 'Ana build');
+  const id = env.DB.db.prepare('SELECT id FROM demo_slots WHERE student_id = 1').get().id;
+  await call(env, 'teach', 'POST', '/instructor/demos/move', { id, day: DAY1, position: 7 });
+  const stale = { day: DAY1, position: 3, title: 'Ana build v2', from: { day: DAY1, position: 3 } };
+  const res = await call(env, 'ana', 'POST', '/demos/claim', stale);
+  assert.equal(res.status, 409);
+  const body = await res.json();
+  assert.equal(body.error, 'changed');
+  assert.equal(body.mine.position, 7, 'the fresh state comes back');
+  assert.deepEqual(rows(env).map((r) => [r.position, r.title]), [[7, 'Ana build']]);
+  // From the right slot it works; after the instructor removes it, a stale retitle doesn't re-claim.
+  assert.equal((await call(env, 'ana', 'POST', '/demos/claim', { ...stale, position: 7, from: { day: DAY1, position: 7 } })).status, 200);
+  await call(env, 'teach', 'DELETE', `/instructor/demos/${id}`);
+  assert.equal((await call(env, 'ana', 'POST', '/demos/claim', { ...stale, position: 7, from: { day: DAY1, position: 7 } })).status, 409);
+  assert.deepEqual(rows(env), []);
+  assert.equal((await call(env, 'ana', 'POST', '/demos/claim', { ...stale, from: null })).status, 200, 'a fresh claim says from: null');
+});
+
 test('move without a numeric id is 400', async () => {
   const env = setup({ open: true });
   for (const id of [undefined, '3', 1.5]) {
@@ -340,4 +372,8 @@ test('export: the running order as plain text with full names and times', async 
   assert.match(text, / 3  5:25 PM +\(open\)/);
   assert.match(text, /Friday, December 4 · time to be confirmed/);
   assert.match(text, / 3  slot 3 +Bo Lanternwick: Recipe app/);
+  assert.doesNotMatch(text, /Not on a demo night/);
+  env.DB.db.prepare("INSERT INTO demo_slots (day, position, guest_name, title, created_at, updated_at) VALUES ('2026-12-07', 1, 'Moved Guest', 'Old night', 'x', 'x')").run();
+  const later = await (await call(env, 'teach', 'GET', '/instructor/demos/export')).text();
+  assert.match(later, /Not on a demo night[^\n]*\n +2026-12-07 slot 1 +Moved Guest \(guest\): Old night/);
 });

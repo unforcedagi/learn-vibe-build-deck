@@ -19,7 +19,8 @@ const el = (tag, cls, text) => {
   return n;
 };
 
-const state = { data: null, editing: null, busy: false }; // editing: "day|position" of the open inline form
+// editing: "day|position" of the open inline form; draft: what they typed there, kept across re-renders.
+const state = { data: null, editing: null, draft: null, busy: false };
 
 const ERRORS = {
   slot_taken: 'Someone just took that slot. The list below is up to date.',
@@ -70,8 +71,13 @@ async function send(method, body) {
     if (data.days) state.data = data;
     else if (!res.ok) await reload(); // locked, closed night, released elsewhere: show what is true now
     // Keep the form open only to fix the title; any other answer means the slot's state changed.
-    if (res.ok || !/^title_/.test(data.error || '')) state.editing = null;
-    else setMsg(ERRORS[data.error] || 'That didn’t work. Reload the page and try again.');
+    if (res.ok) {
+      state.editing = null;
+      state.draft = null;
+    } else {
+      setMsg(ERRORS[data.error] || 'That didn’t work. Reload the page and try again.');
+      if (!/^title_/.test(data.error || '')) state.editing = null; // the slot's state changed; keep the form only to fix the title
+    }
     render();
   } catch {
     setMsg('Couldn’t reach the server. Check your connection and try again.');
@@ -171,19 +177,25 @@ function renderSlot(day, s) {
   if (!canChange(day)) return li;
   const actions = el('div', 'slot-actions');
   if (s.mine) {
-    actions.append(button('Edit title', 'quiet', () => { state.editing = key; render(); }));
+    actions.append(button('Edit title', 'quiet', () => { state.editing = key; state.draft = null; render(); }));
     actions.append(button('Release', 'quiet', () => {
       if (window.confirm('Give up this slot? Someone else can take it.')) send('DELETE');
     }));
   } else if (!s.taken) {
     if (d.mine) {
-      actions.append(button('Move here', 'quiet', () => send('POST', { day: day.date, position: s.position, title: d.mine.title })));
+      actions.append(button('Move here', 'quiet', () => send('POST', { day: day.date, position: s.position, title: d.mine.title, from: from() })));
     } else {
-      actions.append(button('Take this slot', 'quiet', () => { state.editing = key; render(); }));
+      actions.append(button('Take this slot', 'quiet', () => { state.editing = key; state.draft = null; render(); }));
     }
   }
   if (actions.childElementCount) li.append(actions);
   return li;
+}
+
+// Where this page shows their slot: the server refuses the write if that's out of date.
+function from() {
+  const m = state.data.mine;
+  return m ? { day: m.day, position: m.position } : null;
 }
 
 function button(label, cls, onClick) {
@@ -203,14 +215,15 @@ function titleForm(day, s) {
   const input = el('input');
   Object.assign(input, { id, name: 'title', type: 'text', required: true, maxLength: d.title_max || 100,
     placeholder: 'Your project, in one line', autocomplete: 'off' });
-  input.value = d.mine?.title || '';
+  input.value = state.draft ?? d.mine?.title ?? '';
+  input.addEventListener('input', () => { state.draft = input.value; });
   const save = el('button', null, s.mine ? 'Save title' : 'Claim slot');
   save.type = 'submit';
-  const cancel = button('Cancel', 'quiet', () => { state.editing = null; render(); });
+  const cancel = button('Cancel', 'quiet', () => { state.editing = null; state.draft = null; render(); });
   form.append(label, input, save, cancel);
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    send('POST', { day: day.date, position: s.position, title: input.value });
+    send('POST', { day: day.date, position: s.position, title: input.value, from: from() });
   });
   return form;
 }
