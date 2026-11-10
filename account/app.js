@@ -225,7 +225,7 @@ function renderDemoSignup(demo) {
   box.className = 'card demo-signup-card';
   const kicker = document.createElement('p');
   kicker.className = 'kicker';
-  kicker.textContent = 'Final demos · Nov 30 and Dec 4';
+  kicker.textContent = 'Final demos';
   const line = document.createElement('p');
   const a = document.createElement('a');
   a.className = 'btn';

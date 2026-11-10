@@ -16,6 +16,7 @@ taken slot. Leaves no rows behind. The browser flow is tools/e2e_demos.mjs --pro
 clean: deletes the demo_slots rows those accounts or the browser run made, puts
 the lock back as it was, then deletes the accounts. Prints what is left.
 """
+import datetime
 import json
 import os
 import sys
@@ -37,10 +38,11 @@ def seed(work):
     s = settings()
     if s["signup_open"]:
         sys.exit("the demo sign-up is open to the class; not testing in production now")
+    started = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
     base.seed(work)
     count = pg.d1("SELECT COUNT(*) AS n FROM demo_slots")[0]["n"]
     with open(os.open(os.path.join(work, "demo_settings.json"), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "w") as f:
-        json.dump({"settings": s, "slots_before": count}, f)
+        json.dump({"settings": s, "slots_before": count, "started": started}, f)
     print(f"demo sign-up closed; lock {s['lock_at'] or 'none'}; {count} slot rows before the test")
 
 
@@ -54,6 +56,8 @@ def check(work):
         if not cond:
             failed.append(name)
 
+    if settings()["signup_open"]:
+        sys.exit("the demo sign-up was opened to the class; stopping (run clean)")
     js = lambda r: json.loads(r[2] or "{}")  # noqa: E731
     ok("signed out: GET /demos is 401", call("GET", "/demos")[0] == 401)
     ok("signed out: /demos/status says not linked (the flag is off)", js(call("GET", "/demos/status")) == {"linked": False})
@@ -88,12 +92,17 @@ def clean(work):
     ids = list(base.ids_by_email().values())
     if ids:
         pg.d1(f"DELETE FROM demo_slots WHERE student_id IN ({','.join('?' * len(ids))})", ids)
-    pg.d1(f"DELETE FROM demo_slots WHERE guest_name IN ({','.join('?' * len(GUESTS))})", GUESTS)
     saved_path = os.path.join(work, "demo_settings.json")
     saved = json.load(open(saved_path)) if os.path.exists(saved_path) else None
     if saved:
-        before = saved["settings"]
-        pg.d1("UPDATE demo_settings SET lock_at = ? WHERE id = 1", (before["lock_at"],))
+        # Only the guest the browser run added, and only since the seed.
+        pg.d1(f"DELETE FROM demo_slots WHERE guest_name IN ({','.join('?' * len(GUESTS))}) AND created_at >= ?",
+              GUESTS + (saved["started"],))
+        # The browser run sets a lock and clears it. Put back a lock that was there
+        # before, unless someone set a new one meanwhile.
+        before = saved["settings"]["lock_at"]
+        if before and settings()["lock_at"] is None:
+            pg.d1("UPDATE demo_settings SET lock_at = ? WHERE id = 1", (before,))
         os.remove(saved_path)
     base.clean(work)
     now = settings()

@@ -27,6 +27,7 @@ const state = { data: null, adding: null, busy: false }; // adding: "day|positio
 
 const ERRORS = {
   slot_taken: 'That slot just changed. The list is up to date; try again.',
+  not_found: 'That entry is gone (released or removed). The list is up to date.',
   name_required: 'A guest needs a name.',
   title_required: 'Add a one-line project title.',
   title_too_long: 'Keep the title to 100 characters.',
@@ -69,6 +70,10 @@ async function change(method, path, body) {
   try {
     const { res, data } = await api(method, path, body);
     if (data.days) state.data = data;
+    else if (!res.ok) {
+      const fresh = await api('GET', '/instructor/demos').catch(() => null);
+      if (fresh?.data?.days) state.data = fresh.data;
+    }
     if (!res.ok) setMsg(ERRORS[data.error] || `That didn’t work (${data.error || res.status}).`);
     render();
     return res.ok;

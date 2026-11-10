@@ -1396,10 +1396,15 @@ async function handleDemoStatus(request, env) {
   return json(env, { linked }, 200, NO_STORE);
 }
 
+// `?as=<id>`: the instructor sees a student's page, read-only (view-as contract).
 async function handleDemos(request, env) {
-  const me = await currentStudent(request, env);
-  if (!me) return json(env, { error: 'unauthorized' }, 401, NO_STORE);
-  return json(env, await demoState(env, me), 200, NO_STORE);
+  const viewer = await currentStudent(request, env);
+  if (!viewer) return json(env, { error: 'unauthorized' }, 401, NO_STORE);
+  const { target, error } = await viewAsTarget(request, env, viewer);
+  if (error) return error;
+  const state = await demoState(env, target || viewer);
+  if (target) Object.assign(state, { can_claim: false, read_only: true });
+  return json(env, state, 200, NO_STORE);
 }
 
 // The checks every student write shares: signed in, a student, open (or a
@@ -1442,18 +1447,24 @@ async function handleDemoClaim(request, env) {
   const mine = await env.DB.prepare('SELECT id, day FROM demo_slots WHERE student_id = ?').bind(me.id).first();
   if (demoDayClosed(t.day) || (mine && demoDayClosed(mine.day))) return json(env, { error: 'day_closed' }, 403, NO_STORE);
   const now = nowISO();
+  let changed = 0;
   try {
-    if (mine) {
-      await env.DB.prepare('UPDATE demo_slots SET day = ?, position = ?, title = ?, updated_at = ? WHERE id = ?')
-        .bind(t.day, t.position, f.title, now, mine.id).run();
-    } else {
-      await env.DB.prepare(
+    const res = mine
+      ? await env.DB.prepare('UPDATE demo_slots SET day = ?, position = ?, title = ?, updated_at = ? WHERE id = ? AND student_id = ?')
+        .bind(t.day, t.position, f.title, now, mine.id, me.id).run()
+      : await env.DB.prepare(
         'INSERT INTO demo_slots (day, position, student_id, title, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)'
       ).bind(t.day, t.position, me.id, f.title, now, now).run();
-    }
+    changed = res.meta?.changes ?? 0;
   } catch (err) {
     if (!isUnique(err)) throw err;
-    return json(env, { error: 'slot_taken', ...(await demoState(env, me)) }, 409, NO_STORE);
+  }
+  if (changed !== 1) {
+    // Someone else holds the slot, or their own row changed under them (a
+    // second tab, or the instructor moved or removed it): send the fresh list.
+    const holder = await env.DB.prepare('SELECT student_id FROM demo_slots WHERE day = ? AND position = ?').bind(t.day, t.position).first();
+    const error = holder && holder.student_id !== me.id ? 'slot_taken' : 'changed';
+    return json(env, { error, ...(await demoState(env, me)) }, 409, NO_STORE);
   }
   return json(env, { ok: true, ...(await demoState(env, me)) }, 200, NO_STORE);
 }
@@ -1511,7 +1522,8 @@ async function handleInstructorDemoMove(request, env) {
   if (!body) return json(env, { error: 'bad_request' }, 400, NO_STORE);
   const t = demoTarget(body);
   if (t.error) return json(env, { error: t.error }, 400, NO_STORE);
-  const a = await env.DB.prepare('SELECT id, day, position FROM demo_slots WHERE id = ?').bind(Number(body.id)).first();
+  if (!Number.isInteger(body.id)) return json(env, { error: 'bad_id' }, 400, NO_STORE);
+  const a = await env.DB.prepare('SELECT id, day, position FROM demo_slots WHERE id = ?').bind(body.id).first();
   if (!a) return json(env, { error: 'not_found' }, 404, NO_STORE);
   if (a.day !== t.day || a.position !== t.position) {
     const b = await env.DB.prepare('SELECT id FROM demo_slots WHERE day = ? AND position = ?').bind(t.day, t.position).first();

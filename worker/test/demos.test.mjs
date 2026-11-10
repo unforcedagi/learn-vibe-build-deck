@@ -165,6 +165,25 @@ test('one slot per student: claiming again moves them, release frees it', async 
   assert.equal((await call(env, 'ana', 'DELETE', '/demos/claim')).status, 404);
 });
 
+test('view-as: the instructor reads a student\'s page read-only; a student passing ?as gets 403', async () => {
+  const env = setup({ open: true });
+  await claim(env, 'ana', DAY1, 2);
+  const as = await (await call(env, 'teach', 'GET', '/demos?as=1')).json();
+  assert.equal(as.mine.position, 2);
+  assert.equal(as.can_claim, false);
+  assert.equal(as.read_only, true);
+  assert.equal((await call(env, 'bo', 'GET', '/demos?as=1')).status, 403);
+  assert.equal((await call(env, 'teach', 'POST', '/demos/claim?as=1', { day: DAY1, position: 3, title: 't' })).status, 403);
+  assert.equal(rows(env)[0].position, 2);
+});
+
+test('move without a numeric id is 400', async () => {
+  const env = setup({ open: true });
+  for (const id of [undefined, '3', 1.5]) {
+    assert.equal((await call(env, 'teach', 'POST', '/instructor/demos/move', { id, day: DAY1, position: 1 })).status, 400);
+  }
+});
+
 test('a student can only release their own slot', async () => {
   const env = setup({ open: true });
   await claim(env, 'ana', DAY1, 1);

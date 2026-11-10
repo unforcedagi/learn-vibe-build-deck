@@ -23,6 +23,7 @@ const state = { data: null, editing: null, busy: false }; // editing: "day|posit
 
 const ERRORS = {
   slot_taken: 'Someone just took that slot. The list below is up to date.',
+  changed: 'Your slot changed in the meantime (another tab, or Aaron moved it). The list below is up to date.',
   locked: 'The order is locked now. Ask Aaron if you need to change your slot.',
   day_closed: 'That night has started, so its slots can no longer change here. Ask Aaron.',
   not_open: 'The sign-up is closed right now.',
@@ -66,6 +67,7 @@ async function send(method, body) {
     });
     const data = await res.json().catch(() => ({}));
     if (data.days) state.data = data;
+    else if (!res.ok) await reload(); // locked, closed night, released elsewhere: show what is true now
     if (res.ok) state.editing = null;
     else setMsg(ERRORS[data.error] || 'That didn’t work. Reload the page and try again.');
     render();
@@ -76,15 +78,26 @@ async function send(method, body) {
   }
 }
 
+async function reload() {
+  try {
+    const res = await fetch(`${API_BASE}/demos`, { credentials: 'include' });
+    const data = await res.json();
+    if (data.days) state.data = data;
+  } catch { /* keep what is on screen */ }
+}
+
 function setMsg(text) {
   const m = $('demo-msg');
   m.textContent = text;
   (text ? show : hide)(m);
 }
 
+// The server decides; this only hides buttons it would refuse. A student whose
+// own night has started can't move off it either.
 function canChange(day) {
   const d = state.data;
-  return d.can_claim && !d.locked && !day.closed;
+  const mineClosed = d.mine && d.days.find((x) => x.date === d.mine.day)?.closed;
+  return d.can_claim && !d.locked && !day.closed && !mineClosed;
 }
 
 function render() {
