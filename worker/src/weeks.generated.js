@@ -14,5 +14,5 @@ export const WEEKS = [
 ];
 export const DEMO_DAYS = [
   {"date": "2026-11-30", "title": "Showcase night 1", "starts": "17:05"},
-  {"date": "2026-12-04", "title": "Showcase night 2", "starts": null},
+  {"date": "2026-12-04", "title": "Showcase night 2", "starts": "17:05"},
 ];
