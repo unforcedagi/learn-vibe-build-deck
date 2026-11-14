@@ -2,7 +2,8 @@
 """Write one AI read per student into D1 (table student_reads), for Aaron.
 
 For every non-instructor student with at least one submission, gathers their
-own submissions and class-board posts from the remote D1 database, asks
+own submissions and class-board posts from D1 through the course Worker's
+sync API (worker/lvb_admin.py, the admin key; no Cloudflare token), asks
 `claude -p` (Opus, no tools, empty working directory, no settings or MCP) for
 a short, grounded read for a teacher, and upserts it into student_reads. The
 instructor sees it on /instructor/student/?id=<id>.
@@ -32,7 +33,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from resync import CLOUDFLARE_ACCOUNT_ID, WORKER_DIR, q, read_env_secret  # noqa: E402
+import lvb_admin  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL = "opus"
@@ -86,32 +87,15 @@ def load_weeks():
     return weeks
 
 
-def wrangler(args, timeout=300):
-    env = dict(os.environ)
-    env["CLOUDFLARE_API_TOKEN"] = read_env_secret("CLOUDFLARE_API_TOKEN")
-    env["CLOUDFLARE_ACCOUNT_ID"] = CLOUDFLARE_ACCOUNT_ID
-    return subprocess.run(["npx", "-y", "wrangler", "d1", "execute", "lvb-accounts", "--remote", "--json", *args],
-                          cwd=WORKER_DIR, env=env, capture_output=True, text=True, timeout=timeout)
-
-
-def d1_rows(sql):
-    """Rows of one SELECT. --command, because --file returns only execution
-    stats. Only the query text is on argv, never student data."""
-    res = wrangler(["--command", sql])
-    if res.returncode != 0:
-        sys.exit(f"d1 read failed (wrangler exit {res.returncode})")
-    out = res.stdout
-    return json.loads(out[out.find("["):out.rfind("]") + 1])[-1].get("results") or []
-
-
 def fetch_d1():
     """Everything the reads need. Stays in memory on uni."""
-    students = d1_rows("SELECT id, name FROM students WHERE is_instructor = 0 "
-                       "AND EXISTS (SELECT 1 FROM submissions s WHERE s.student_id = students.id) ORDER BY id")
-    subs = d1_rows("SELECT student_id, week, body, submitted_at, link_url FROM submissions ORDER BY student_id, week")
-    posts = d1_rows("SELECT p.student_id, p.kind, p.title, p.body, p.link_url, p.created_at, pd.name AS pod_name "
-                    "FROM board_posts p LEFT JOIN pods pd ON pd.id = p.pod_id ORDER BY p.student_id, p.created_at")
-    reads = d1_rows("SELECT student_id, input_hash FROM student_reads")
+    all_subs = lvb_admin.rows("submissions")
+    with_work = {r["student_id"] for r in all_subs}
+    students = [{"id": r["id"], "name": r["name"]} for r in lvb_admin.rows("students")
+                if not r["is_instructor"] and r["id"] in with_work]
+    subs = [{k: r[k] for k in ("student_id", "week", "body", "submitted_at", "link_url")} for r in all_subs]
+    posts = lvb_admin.rows("board-posts")
+    reads = lvb_admin.rows("student-reads")
     return students, subs, posts, {r["student_id"]: r["input_hash"] for r in reads}
 
 
@@ -215,28 +199,20 @@ def ask_claude(material):
     return out["result"].strip(), float(out.get("total_cost_usd") or 0), model
 
 
-def d1_write(sql):
-    """Write to remote D1 from a temp file (student text never on argv). A
-    failure returns False and prints nothing from wrangler, whose errors echo SQL."""
-    with tempfile.NamedTemporaryFile("w", suffix=".sql", delete=False) as f:
-        f.write(sql)
-        path = f.name
+def write_reads(reads):
+    """Upsert a few reads. A failure returns False and prints only the route
+    and status (never student text)."""
     try:
-        return wrangler(["--file", path]).returncode == 0
-    except subprocess.TimeoutExpired:
+        lvb_admin.post("student-reads", {"reads": reads})
+        return True
+    except lvb_admin.ApiError as e:
+        print(f"sync api: {e}")
         return False
-    finally:
-        os.unlink(path)
 
 
-def upsert_sql(student_id, body, h, basis, model):
-    now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
-    return (
-        "INSERT INTO student_reads (student_id, body, input_hash, based_on, model, generated_at) VALUES "
-        f"({int(student_id)}, {q(body)}, {q(h)}, {q(json.dumps(basis))}, {q(model)}, {q(now)}) "
-        "ON CONFLICT (student_id) DO UPDATE SET body = excluded.body, input_hash = excluded.input_hash, "
-        "based_on = excluded.based_on, model = excluded.model, generated_at = excluded.generated_at;"
-    )
+def read_row(student_id, body, h, basis, model):
+    return {"student_id": int(student_id), "body": body, "input_hash": h,
+            "based_on": json.dumps(basis), "model": model}
 
 
 # ---------------------------------------------------------------------------
@@ -253,7 +229,10 @@ def main(argv=None):
 
     weeks = load_weeks()
     now = datetime.datetime.now(datetime.timezone.utc)
-    students, subs, posts, stored = fetch_d1()
+    try:
+        students, subs, posts, stored = fetch_d1()
+    except lvb_admin.ApiError as e:
+        sys.exit(f"sync api: {e}")
     if args.student:
         students = [s for s in students if s["id"] in set(args.student)]
 
@@ -265,11 +244,11 @@ def main(argv=None):
 
     done = failed = 0
     cost = 0.0
-    pending = []  # upserts written in small batches: one wrangler call each
+    pending = []  # upserts written in small batches: one request each
 
     def flush():
         nonlocal done, failed
-        if pending and d1_write("\n".join(pending)):
+        if pending and write_reads(list(pending)):
             done += len(pending)
         elif pending:
             failed += len(pending)
@@ -287,7 +266,7 @@ def main(argv=None):
                 print(f"student {sid}: failed ({e.__class__.__name__})")
                 continue
             cost += c
-            pending.append(upsert_sql(sid, body, h, basis, model))
+            pending.append(read_row(sid, body, h, basis, model))
             if len(pending) >= 5:
                 flush()
     flush()

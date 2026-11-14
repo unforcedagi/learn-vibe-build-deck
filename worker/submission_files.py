@@ -20,19 +20,17 @@ downloads and uploads new uploads. Bump RENDER_VERSION to re-render everything.
 Prints counts only, never student names or text.
 """
 
-import json
 import os
 import re
 import shutil
 import subprocess
-import tempfile
 import zipfile
 
 RENDER_VERSION = 1
 R2_BUCKET = "lvb-instructor-files"
 MAX_PAGES = 40                 # page images per document
-MAX_TEXT_BYTES = 60000         # D1 caps one SQL statement at 100 KB
-MAX_RENDITION_BYTES = 290 * 1024 * 1024  # wrangler r2 object put limit is 300 MB
+MAX_TEXT_BYTES = 60000         # keeps a row well under D1's limits
+MAX_RENDITION_BYTES = 290 * 1024 * 1024  # videos above this stay a Canvas link (set in the wrangler days; kept)
 PAGE_WIDTH = 1400              # px; readable on a laptop, fine on a phone
 
 OFFICE_EXT = {".docx", ".doc", ".rtf", ".odt", ".pptx", ".ppt", ".odp", ".pages"}
@@ -71,7 +69,7 @@ def kind_of(content_type, name):
 
 
 def cap_text(text):
-    """Tidy whitespace and keep the text under the D1 statement limit."""
+    """Tidy whitespace and cap the text (MAX_TEXT_BYTES) so a row stays small."""
     text = (text or "").replace("\x00", "").replace("\x0c", "\n\n")
     text = re.sub(r"[ \t]+\n", "\n", text)
     text = re.sub(r"\n{3,}", "\n\n", text).strip()
@@ -218,8 +216,7 @@ def process(path, att, workdir):
 
 # Statuses that won't change on a retry. Anything else ("download failed",
 # "could not convert", "could not read: ...") is tried again next run.
-FINAL_STATUS_SQL = ("status = 'ok' OR status = 'no preview for this file type' "
-                    "OR status = 'video too large to copy'")
+FINAL_STATUSES = {"ok", "no preview for this file type", "video too large to copy"}
 
 
 def has_content(row):
@@ -227,52 +224,40 @@ def has_content(row):
 
 
 # ---------------------------------------------------------------------------
-# SQL + R2
+# Writing: through the course Worker's sync API (worker/lvb_admin.py), which
+# upserts the row, prunes replaced files and stores the objects in R2.
 # ---------------------------------------------------------------------------
 
-def _q(s):
-    if s is None:
-        return "NULL"
-    return "'" + str(s).replace("'", "''") + "'"
+def api_row(row, position):
+    """The row as POST /admin/sync/files takes it."""
+    out = {k: row[k] for k in ("canvas_file_id", "name", "content_type", "kind", "text", "rendition",
+                               "rendition_type", "canvas_url", "status")}
+    out.update(position=int(position), size=int(row["size"] or 0), pages=int(row["pages"]),
+               render_version=RENDER_VERSION)
+    return out
 
 
-def upsert_sql(row, canvas_user_id, week, position, now_iso):
-    cols = ["student_id", "week", "canvas_file_id", "position", "name", "content_type", "size",
-            "kind", "text", "pages", "rendition", "rendition_type", "canvas_url", "status",
-            "render_version", "updated_at"]
-    vals = [str(int(week)), _q(row["canvas_file_id"]), str(int(position)), _q(row["name"]),
-            _q(row["content_type"]), str(int(row["size"] or 0)), _q(row["kind"]), _q(row["text"]),
-            str(int(row["pages"])), _q(row["rendition"]), _q(row["rendition_type"]),
-            _q(row["canvas_url"]), _q(row["status"]), str(RENDER_VERSION), _q(now_iso)]
-    updates = ", ".join(f"{c} = excluded.{c}" for c in cols if c != "canvas_file_id")
-    return (f"INSERT INTO submission_files ({', '.join(cols)}) "
-            f"SELECT id, {', '.join(vals)} FROM students WHERE canvas_id = {_q(str(canvas_user_id))} "
-            f"ON CONFLICT (canvas_file_id) DO UPDATE SET {updates};")
+def object_type(key, rows_by_file):
+    """Content type for an object key files/<canvas_file_id>/(p<n>.jpg|rendition)."""
+    if not key.endswith("/rendition"):
+        return "image/jpeg"
+    row = rows_by_file.get(key.split("/")[1]) or {}
+    return row.get("rendition_type") or "application/octet-stream"
 
 
-def prune_sql(canvas_user_id, week, keep_ids):
-    """Drop rows for files no longer in this student's submission for the
-    week (a Canvas resubmission replaces the attachment list)."""
-    keep = ", ".join(_q(str(i)) for i in keep_ids) or "''"
-    return (f"DELETE FROM submission_files WHERE week = {int(week)} "
-            f"AND student_id = (SELECT id FROM students WHERE canvas_id = {_q(str(canvas_user_id))}) "
-            f"AND canvas_file_id NOT IN ({keep});")
-
-
-def r2_bulk_put(uploads, env, cwd):
-    """Upload [(key, path)] to the private bucket in one wrangler call."""
-    if not uploads:
-        return
-    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
-        json.dump([{"key": k, "file": p} for k, p in uploads], f)
-        listing = f.name
+def upload_objects(uploads, rows_by_file, workers=8):
+    """Upload [(key, path)] to the private bucket, 8 at a time like the old
+    `wrangler r2 bulk put --concurrency 8` (large files go multipart). On the
+    first failure the queued uploads are cancelled and lvb_admin.ApiError is
+    raised (the week's rows are then not written; the next run retries)."""
+    import concurrent.futures
+    import lvb_admin
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=workers)
     try:
-        res = subprocess.run(
-            ["npx", "-y", "wrangler", "r2", "bulk", "put", R2_BUCKET, "--remote",
-             "--filename", listing, "--concurrency", "8", "--force"],
-            cwd=cwd, env=env, capture_output=True, text=True, timeout=3600)
-    finally:
-        os.unlink(listing)
-    if res.returncode != 0:
-        # Object keys are file ids, not names; keep the error short anyway.
-        raise RuntimeError(f"wrangler r2 bulk put failed:\n{res.stderr[-1500:]}")
+        jobs = [pool.submit(lvb_admin.put_object, key, path, object_type(key, rows_by_file)) for key, path in uploads]
+        for job in concurrent.futures.as_completed(jobs):
+            job.result()
+    except BaseException:
+        pool.shutdown(wait=True, cancel_futures=True)
+        raise
+    pool.shutdown(wait=True)
