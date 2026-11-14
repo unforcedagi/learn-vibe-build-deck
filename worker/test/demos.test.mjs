@@ -367,7 +367,7 @@ test('closed (the default): no links, no list, no claims, except a preview accou
   assert.deepEqual(await (await call(env, 'preview', 'GET', '/demos/status')).json(), { linked: true });
   assert.equal((await claim(env, 'preview', DAY2, 2)).status, 200);
   const me = await (await call(env, 'preview', 'GET', '/me')).json();
-  assert.deepEqual(me.demo_signup, { linked: true, mine: { day: DAY2, label: 'Friday, December 4', position: 2, title: 'A tide chart', time: null } });
+  assert.deepEqual(me.demo_signup, { linked: true, mine: { day: DAY2, label: 'Friday, December 4', position: 2, title: 'A tide chart', time: '5:15 PM' } });
   const s = await (await call(env, 'preview', 'GET', '/demos')).json();
   assert.equal(s.open, true);
   assert.equal(s.preview, true);
@@ -401,8 +401,8 @@ test('export: the running order as plain text with full names and times', async 
   assert.match(text, / 1  5:05 PM +Ana Quillfeather: Tide chart/);
   assert.match(text, / 2  5:15 PM +Visiting Auditor \(guest\): Garden sensors/);
   assert.match(text, / 3  5:25 PM +\(open\)/);
-  assert.match(text, /Friday, December 4 · time to be confirmed/);
-  assert.match(text, / 3  slot 3 +Bo Lanternwick: Recipe app/);
+  assert.match(text, /Friday, December 4 · starts 5:05 PM/);
+  assert.match(text, / 3  5:25 PM +Bo Lanternwick: Recipe app/);
   assert.doesNotMatch(text, /Not on a demo night/);
   env.DB.db.prepare("INSERT INTO demo_slots (day, position, guest_name, title, created_at, updated_at) VALUES ('2026-12-07', 1, 'Moved Guest', 'Old night', 'x', 'x')").run();
   const later = await (await call(env, 'teach', 'GET', '/instructor/demos/export')).text();
