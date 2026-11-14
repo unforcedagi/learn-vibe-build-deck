@@ -270,10 +270,11 @@
       "demo_signup": true,
       "title": "Showcase night 2",
       "tag": "Showcase",
-      "summary": "Showcase night 2: the last final project demos. Friday, on a Monday schedule.",
+      "summary": "Showcase night 2: the last final project demos. Friday, same time as class (5:05 PM).",
       "covers": "Showcase night 2",
       "due": "Final written reflection, due exam week",
-      "assignment": null
+      "assignment": null,
+      "starts": "17:05"
     }
   ]
 }
