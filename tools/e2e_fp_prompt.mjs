@@ -1,4 +1,5 @@
-// End-to-end check of "Copy my final project prompt" in a real headless
+// End-to-end check of "Copy my final project prompt" (Week 9, My journey) and
+// "Start your final reflection" (My journey) in a real headless
 // browser, with no production data: the site is served from this checkout at
 // its real origin, and api.learnvibe.build is answered in-process by the real
 // Worker code over the fixture class in worker/test/fixtures (throwaway e2e
@@ -59,10 +60,12 @@ async function newPage(browser, { token, width, height, oldWorker = false }) {
 const results = [];
 const check = (name, fn) => { fn(); results.push(name); console.log('ok -', name); };
 
+// The first button with this label; My journey has two prompt boxes, each with its own status line.
 async function copied(page, label) {
-  await page.getByRole('button', { name: label }).click();
-  await page.getByText('Copied ✓').waitFor();
-  return page.evaluate(() => navigator.clipboard.readText());
+  const btn = page.getByRole('button', { name: label }).first();
+  await btn.click();
+  await btn.locator('xpath=..').getByText('Copied ✓').waitFor();
+  return btn.page().evaluate(() => navigator.clipboard.readText());
 }
 
 async function shot(page, name, selector) {
@@ -121,16 +124,43 @@ try {
     await page.goto('https://cu.learnvibe.build/account/journey/');
     const j = await copied(page, 'Copy my final project prompt');
     check(`${tag}: My journey copies the same personal prompt`, () => assert.equal(j, one));
+    const r = await copied(page, 'Copy my reflection prompt');
+    const rBox = await page.locator('.journey-reflection').textContent();
+    check(`${tag}: My journey copies the reflection prompt, Week 1 first as the baseline, own work only`, () => {
+      const order = ['## Week 1: where I started (my baseline)', 'ONE-W1', 'ONE-W4', 'ONE-W6', 'ONE-POST'];
+      const at = order.map((s) => r.indexOf(s));
+      assert.ok(at.every((i, n) => i >= 0 && (n === 0 || i > at[n - 1])), `order ${at}`);
+      assert.ok(r.includes('Wednesday, December 9 at 11:59 PM') && r.includes("Don't write it or draft any of it for me"));
+      assert.ok(!/TWO-|two\.example/.test(r), 'account two leaked into account one');
+      assert.ok(rBox.includes('Start your final reflection') && rBox.includes('starting from your Week 1 intention'));
+    });
     await shot(page, `03-journey-signed-in-${tag}.png`, '.journey-top');
+    if (shots && tag === 'desktop') {
+      await page.locator('.journey-reflection summary').click();
+      await page.evaluate(() => { const pre = document.querySelector('.journey-reflection .fp-preview'); pre.scrollTop = pre.scrollHeight * 0.18; });
+      await shot(page, `06-journey-reflection-prompt-open-${tag}.png`, '.journey-reflection .fp-fold');
+    }
+    await page.context().close();
+
+    // The instructor's view-as of account one shows the same reflection prompt.
+    page = await newPage(browser, { token: TOKENS.prof, width: w, height: h });
+    await page.goto('https://cu.learnvibe.build/account/journey/?as=1');
+    const rAs = await copied(page, 'Copy my reflection prompt');
+    check(`${tag}: instructor view-as copies the student's own reflection prompt`, () => assert.equal(rAs, r));
+    await shot(page, `05-journey-view-as-${tag}.png`, '.journey-reflection');
     await page.context().close();
 
     page = await newPage(browser, { width: w, height: h });
     await page.goto('https://cu.learnvibe.build/account/journey/');
     const jGen = await copied(page, 'Copy the generic prompt');
-    const jText = await page.locator('.journey-fp').innerText();
-    check(`${tag}: My journey signed out copies the generic prompt and points to the sign-in box`, () => {
+    const jText = await page.locator('.journey-fp').first().innerText();
+    const rText = await page.locator('.journey-reflection').textContent();
+    const rGen = await copied(page.locator('.journey-reflection'), 'Copy the generic prompt');
+    check(`${tag}: My journey signed out copies the generic prompts and points to the sign-in box`, () => {
       assert.equal(jGen, gen);
-      assert.ok(jText.includes('Sign in above'));
+      assert.ok(jText.includes('Sign in above') && rText.includes('Sign in above'));
+      assert.ok(rText.includes('Start your final reflection'));
+      assert.ok(rGen.includes('[PASTE YOUR WEEK 1 INTENTION FIRST') && !/ONE-|TWO-|\.example\//.test(rGen));
     });
     await shot(page, `04-journey-signed-out-${tag}.png`, '.board-signin');
     await page.context().close();

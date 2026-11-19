@@ -41,9 +41,9 @@ const KINDS = {
     kicker: 'Start your final reflection',
     copy: 'Copy my reflection prompt',
     template: reflectionTemplate,
-    intro: 'Your Final Reflection is due Wed Dec 9, 11:59 PM, on Canvas. This prompt asks an AI to interview you, a question or two at a time, to help you remember and think. The reflection is yours to write, in your own words; the prompt tells the AI not to write it for you.',
+    intro: 'Due Wed Dec 9, 11:59 PM, on Canvas. This prompt asks an AI to interview you, a question or two at a time, to help you remember and think. The reflection is yours to write, in your own words; the AI is told not to write it.',
     what: (d) => (d.submissions || d.posts
-      ? `${d.week1 ? 'It starts with your Week 1 intention, then holds' : "You didn't submit Week 1 on the course site, so tell the AI what you wanted at the start. It holds"} ${counted(d)}, with their links. Only you get yours.`
+      ? `It holds ${counted(d)}, with their links${d.week1 ? ', starting from your Week 1 intention' : ". You didn't submit Week 1 on the course site, so tell the AI what you wanted at the start"}. Only you get yours.`
       : "You haven't submitted anything on the course site yet, so the prompt says so. Tell the AI what you wanted at the start and what you did instead."),
     trimmed: 'Your history is long, so the oldest writing after Week 1 is shortened to fit. Week 1 is whole, and every week title and link is still in it.',
     signInFor: 'with your Week 1 intention and everything since already in it',
