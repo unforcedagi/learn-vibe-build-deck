@@ -5,7 +5,7 @@
 // those live in Canvas and belong to the instructor.
 import { API_BASE } from '../config.js';
 import { dueLabel, whenLabel } from '../../assets/weeks.js';
-import { mountFinalProjectPrompt } from '../../assets/fp-prompt.js?v=2';
+import { mountFinalProjectPrompt, mountReflectionPrompt } from '../../assets/fp-prompt.js?v=3';
 
 const $ = (id) => document.getElementById(id);
 const LESSON_PAGES = new Set([1, 2, 3, 6]);
@@ -81,8 +81,11 @@ function signedOut(status) {
   a.href = '../';
   box.append(a);
   const fp = el('section', 'journey-fp');
-  $('journey').replaceChildren(box, fp);
-  mountFinalProjectPrompt(fp, { signIn: false, signedOut: status === 401 });
+  const fr = el('section', 'journey-fp journey-reflection');
+  $('journey').replaceChildren(box, fp, fr);
+  const opts = { signIn: false, signedOut: status === 401, compact: true };
+  mountFinalProjectPrompt(fp, opts);
+  mountReflectionPrompt(fr, opts);
 }
 
 function weeksSoFar(me) {
@@ -131,11 +134,14 @@ function render(me) {
   }
   row.append(msg);
   note.append(row);
-  // Week 9 on: the final project prompt with this semester already in it, above the Week 6 note.
+  // Week 9 on: the final project prompt, then the final reflection prompt, each with
+  // this semester already in it, above the Week 6 note.
   const fp = el('div', 'journey-fp');
-  top.append(fp, note);
+  const fr = el('div', 'journey-fp journey-reflection');
+  top.append(fp, fr, note);
   root.append(top);
-  mountFinalProjectPrompt(fp, { as: AS });
+  mountFinalProjectPrompt(fp, { as: AS, compact: true });
+  mountReflectionPrompt(fr, { as: AS, compact: true });
 
   const list = el('ol', 'journey-weeks');
   for (const w of weeks) list.append(weekCard(w, byWeek.get(w.week)));

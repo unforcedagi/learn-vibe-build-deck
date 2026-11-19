@@ -3,7 +3,7 @@ import { WEEKS, DEMO_DAYS } from './weeks.generated.js';
 import {
   DEMO_SLOTS, DEMO_MINUTES, DEMO_TITLE_MAX, DEMO_NAME_MAX, slotTime, dayLabel, denverToday, runningOrderText,
 } from './demos.js';
-import { buildPrompt } from './fpprompt.js';
+import { buildPrompt, buildReflectionPrompt } from './fpprompt.js';
 // Learn, Vibe, Build — accounts API (Cloudflare Worker + D1).
 //
 // Auth model: passwordless magic links. We store only sha256 hashes of both
@@ -676,10 +676,12 @@ async function handleMe(request, env) {
   return json(env, out);
 }
 
-// The Week 9 final project prompt with this student's own semester filled in:
+// The two My journey prompts with this student's own semester filled in:
 // their submissions and their own board posts (class and pod), nothing else.
 // Same scoping as /me: the session's student, or read-only view-as for the instructor.
-async function handleFinalProjectPrompt(request, env) {
+//   /me/final-project-prompt     the Week 9 final project prompt
+//   /me/final-reflection-prompt  the final reflection prompt (Week 1 first, as the baseline)
+async function handleHistoryPrompt(request, env, build) {
   const viewer = await currentStudent(request, env);
   if (!viewer) return json(env, { error: 'unauthorized' }, 401);
   const { target, error } = await viewAsTarget(request, env, viewer);
@@ -695,7 +697,7 @@ async function handleFinalProjectPrompt(request, env) {
         WHERE p.student_id = ? ORDER BY p.created_at`
     ).bind(me.id).all(),
   ]);
-  const out = buildPrompt({ weeks: WEEKS, submissions: subs.results, posts: posts.results });
+  const out = build({ weeks: WEEKS, submissions: subs.results, posts: posts.results });
   return json(env, out, 200, { 'Cache-Control': 'no-store' });
 }
 
@@ -2079,7 +2081,8 @@ export default {
       if (path === '/auth/logout' && request.method === 'POST') return handleLogout(request, env);
       if (path === '/me' && request.method === 'GET') return handleMe(request, env);
       if (path === '/me/pod' && request.method === 'GET') return handleMePod(request, env);
-      if (path === '/me/final-project-prompt' && request.method === 'GET') return handleFinalProjectPrompt(request, env);
+      if (path === '/me/final-project-prompt' && request.method === 'GET') return handleHistoryPrompt(request, env, buildPrompt);
+      if (path === '/me/final-reflection-prompt' && request.method === 'GET') return handleHistoryPrompt(request, env, buildReflectionPrompt);
       if (path === '/feed' && request.method === 'GET') return handleFeed(request, env);
       if (path === '/submissions' && request.method === 'POST') return handleSubmit(request, env);
       if (path === '/instructor/data' && request.method === 'GET') return handleInstructorData(request, env);

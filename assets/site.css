@@ -2418,3 +2418,6 @@ a.kit-card strong::after { content: " →"; color: var(--accent); }
   .demo-slot { grid-template-columns: 1.4em 4.2em minmax(0, 1fr) auto; gap: 4px 8px; }
   .demo-slot.mine .slot-actions { grid-column: 3 / -1; justify-content: flex-start; }
 }
+/* My journey shows two prompts (final project, final reflection): previews start folded. */
+.fp-fold { margin: 8px 0 0; }
+.fp-fold > summary { cursor: pointer; font-weight: 600; }

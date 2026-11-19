@@ -83,7 +83,7 @@ test('students get 403 on every file route (their own files too); signed out get
 test('student-facing endpoints never carry file text or renderings', async () => {
   const env = fixtureEnv();
   for (const tok of [TOKENS.one, TOKENS.two]) {
-    for (const path of ['/me', '/feed', '/board', '/me/pod', '/me/final-project-prompt']) {
+    for (const path of ['/me', '/feed', '/board', '/me/pod', '/me/final-project-prompt', '/me/final-reflection-prompt']) {
       const res = await get(env, tok, path);
       const body = await res.text();
       assert.ok(!/ONE-FILE|TWO-FILE|canvas\.example\/files/.test(body), `${path} leaked a file`);

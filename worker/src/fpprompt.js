@@ -1,17 +1,23 @@
 import { FP_PROMPT_TEMPLATE } from '../../assets/fp-prompt-template.js';
-// The personalised final project prompt: the v4 template with {{CONTEXT}}
-// filled from one student's own weekly submissions and class-board posts.
+import { REFLECTION_PROMPT_TEMPLATE } from '../../assets/reflection-prompt-template.js';
+// The two personalised prompts on My journey, each a template with {{CONTEXT}}
+// filled from one student's own weekly submissions and class-board posts:
+// the final project prompt (buildPrompt) and the final reflection prompt
+// (buildReflectionPrompt), which puts Week 1 first as the baseline.
 // Pure: the Worker queries the rows (scoped to the session's student) and
 // passes them in, so tests can feed fixtures straight to it.
 //
 // Long histories: past MAX_PROMPT_CHARS the oldest writing is shortened
 // first. Week titles, dates and every link (including links found inside
-// trimmed text) always stay, and the context says it was trimmed.
+// trimmed text) always stay, and the context says it was trimmed. With
+// baseline on, Week 1's writing is never shortened: trimming starts after it.
 
 export const MAX_PROMPT_CHARS = 60000;
 const TRIM_MARK = ' […trimmed for length]';
 const TRIM_NOTE = 'Note: my full history was too long to paste, so my oldest writing is shortened. Every week title and link is still here.';
+const TRIM_NOTE_BASELINE = 'Note: my full history was too long to paste, so my oldest writing after Week 1 is shortened. Week 1 is whole, and every week title and link is still here.';
 const EMPTY = "Nothing yet: I haven't submitted any weekly work or posted on the class board on the course site.";
+const NO_BASELINE = "I didn't submit a Week 1 intention on the course site.";
 
 // Parentheses are allowed inside a link (wiki/Tide_(band)); an unmatched
 // closing one, or trailing punctuation, belongs to the sentence.
@@ -65,29 +71,40 @@ function renderEntry(e) {
   return lines.join('\n');
 }
 
-function render({ subs, board }, trimmed) {
+function render({ subs, board, base }, trimmed, baseline) {
   if (!subs.length && !board.length) return EMPTY;
   const parts = [];
-  if (trimmed) parts.push(TRIM_NOTE);
-  if (subs.length) parts.push('## My weekly submissions', ...subs.map(renderEntry));
+  if (trimmed) parts.push(baseline ? TRIM_NOTE_BASELINE : TRIM_NOTE);
+  if (baseline) {
+    parts.push('## Week 1: where I started (my baseline)', base ? renderEntry(base) : NO_BASELINE);
+    const later = subs.filter((e) => e !== base);
+    if (later.length) parts.push('## My weekly submissions since Week 1', ...later.map(renderEntry));
+  } else if (subs.length) parts.push('## My weekly submissions', ...subs.map(renderEntry));
   if (board.length) parts.push('## My class board posts', ...board.map(renderEntry));
   return parts.join('\n\n');
 }
 
-export function buildContext(data, budget = MAX_PROMPT_CHARS - (FP_PROMPT_TEMPLATE.length - '{{CONTEXT}}'.length)) {
+const fixedChars = (template) => template.length - '{{CONTEXT}}'.length;
+
+// baseline: Week 1 goes first under its own heading and its text is never trimmed.
+export function buildContext(data, { budget = MAX_PROMPT_CHARS - fixedChars(FP_PROMPT_TEMPLATE), baseline = false } = {}) {
   const groups = entries(data);
+  // Week 1 has one submission per student (UNIQUE(student_id, week)).
+  groups.base = baseline ? groups.subs.find((e) => e.week === 1) || null : null;
   const counts = { submissions: groups.subs.length, posts: groups.board.length };
-  const text = render(groups, false);
+  if (baseline) counts.week1 = !!groups.base;
+  const text = render(groups, false, baseline);
   if (text.length <= budget) return { context: text, trimmed: false, counts };
 
-  const oldestFirst = [...groups.subs, ...groups.board].sort((a, b) => (a.when < b.when ? -1 : a.when > b.when ? 1 : 0));
+  const oldestFirst = [...groups.subs, ...groups.board].filter((e) => e !== groups.base)
+    .sort((a, b) => (a.when < b.when ? -1 : a.when > b.when ? 1 : 0));
   const MARK = TRIM_MARK.trim();
   // First pass: shorten the oldest entries, each just enough. Second pass, if the
   // kept-links lines pushed it back over: oldest first, drop the text entirely.
   for (const whole of [false, true]) {
     for (const e of oldestFirst) {
-      const over = render(groups, true).length - budget;
-      if (over <= 0) return { context: render(groups, true), trimmed: true, counts };
+      const over = render(groups, true, baseline).length - budget;
+      if (over <= 0) return { context: render(groups, true, baseline), trimmed: true, counts };
       if (!e.body || e.body === MARK) continue;
       if (!e.cut) { e.full = e.body; e.cut = true; }
       // Leave room for this entry's own kept-links line, and never cut mid-word or mid-link.
@@ -97,11 +114,14 @@ export function buildContext(data, budget = MAX_PROMPT_CHARS - (FP_PROMPT_TEMPLA
     }
   }
   // Only titles, dates and links are left; they always stay.
-  return { context: render(groups, true), trimmed: true, counts };
+  return { context: render(groups, true, baseline), trimmed: true, counts };
 }
 
-export function buildPrompt(data) {
-  const { context, trimmed, counts } = buildContext(data);
-  const prompt = FP_PROMPT_TEMPLATE.replace('{{CONTEXT}}', () => context);
+function fill(template, data, baseline) {
+  const { context, trimmed, counts } = buildContext(data, { budget: MAX_PROMPT_CHARS - fixedChars(template), baseline });
+  const prompt = template.replace('{{CONTEXT}}', () => context);
   return { prompt, chars: prompt.length, trimmed, ...counts };
 }
+
+export const buildPrompt = (data) => fill(FP_PROMPT_TEMPLATE, data, false);
+export const buildReflectionPrompt = (data) => fill(REFLECTION_PROMPT_TEMPLATE, data, true);
