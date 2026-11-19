@@ -86,7 +86,9 @@ function render({ subs, board, base }, trimmed, baseline) {
 
 const fixedChars = (template) => template.length - '{{CONTEXT}}'.length;
 
-// baseline: Week 1 goes first under its own heading and its text is never trimmed.
+// baseline: Week 1 goes first under its own heading and its text is never trimmed,
+// so a Week 1 longer than the budget alone (none so far: intentions are short) can
+// leave the prompt over MAX_PROMPT_CHARS. Keeping Week 1 whole wins over the cap.
 export function buildContext(data, { budget = MAX_PROMPT_CHARS - fixedChars(FP_PROMPT_TEMPLATE), baseline = false } = {}) {
   const groups = entries(data);
   // Week 1 has one submission per student (UNIQUE(student_id, week)).

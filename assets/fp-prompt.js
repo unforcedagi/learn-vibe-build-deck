@@ -26,6 +26,7 @@ const counted = (d) => `${plural(d.submissions, 'weekly submission', 'weekly sub
 const KINDS = {
   fp: {
     path: '/me/final-project-prompt',
+    name: 'final project prompt',
     kicker: 'Your final project prompt',
     copy: 'Copy my final project prompt',
     template: fpTemplate,
@@ -38,6 +39,7 @@ const KINDS = {
   },
   reflection: {
     path: '/me/final-reflection-prompt',
+    name: 'reflection prompt',
     kicker: 'Start your final reflection',
     copy: 'Copy my reflection prompt',
     template: reflectionTemplate,
@@ -79,14 +81,14 @@ function copyButton(label, text, preview) {
 }
 
 // compact (My journey, two prompts on one page): the preview starts folded.
-function previewBox(text, compact) {
+function previewBox(text, compact, name) {
   const pre = el('pre', 'fp-preview');
   pre.tabIndex = 0;
   pre.setAttribute('aria-label', 'Prompt preview');
   pre.append(el('code', null, text));
   if (!compact) return pre;
   const fold = el('details', 'fp-fold');
-  fold.append(el('summary', null, 'Read the prompt'), pre);
+  fold.append(el('summary', null, `Read the ${name}`), pre);
   return fold;
 }
 
@@ -96,7 +98,7 @@ function head(box, k) {
 }
 
 function personal(box, k, d, compact) {
-  const shown = previewBox(d.prompt, compact);
+  const shown = previewBox(d.prompt, compact, k.name);
   const preview = shown.querySelector('pre') || shown;
   head(box, k);
   box.append(
@@ -111,7 +113,7 @@ function personal(box, k, d, compact) {
 // signIn false: the page already shows its own sign-in box (My journey).
 function generic(box, k, { signedOut, signIn, compact }) {
   const text = k.template.genericPrompt();
-  const shown = previewBox(text, compact);
+  const shown = previewBox(text, compact, k.name);
   const preview = shown.querySelector('pre') || shown;
   head(box, k);
   if (signedOut) {

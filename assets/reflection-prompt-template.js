@@ -8,7 +8,7 @@ export const REFLECTION_PROMPT_TEMPLATE = `I'm a student in Learn, Vibe, Build, 
 
 I'd like you to interview me so I can think it through and remember what happened. The reflection is mine to write, in my own words. Don't write it or draft any of it for me, even if I ask.
 
-Below is my Week 1 intention, which is my starting point, and everything I've submitted and posted since. Read all of it before you say anything, and open the links if you can. Don't summarise it back to me.
+Below is my Week 1 intention, which is my starting point, and everything I've submitted and posted since. Read all of it before you say anything, and open the links if you can. Don't summarise it all back to me.
 
 === MY SEMESTER ===
 {{CONTEXT}}
