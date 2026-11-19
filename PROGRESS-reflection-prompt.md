@@ -13,5 +13,8 @@ Worktree: ~/Code/wt/mts-gwzyrm28 (branch mts/t-469-gwzyrm28).
 - Independent reviewer subagent: SHIP. Fixed its nits (distinct "Read the … prompt" labels, "summarise it all"),
   noted the Week 1 over-cap case in fpprompt.js.
 
-## Next
-- Browser e2e at 1280/390 (tools/e2e_fp_prompt.mjs), screenshots, review, PR.
+## PR
+- https://github.com/unforcedagi/learn-vibe-build-deck/pull/51 (not merged, not deployed)
+
+## Next (owner: Uni)
+- Verify, merge, deploy the Worker.
